@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial de Cambios</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #333; padding: 6px; text-align: left; }
+        th { background: #eee; }
+        @page {
+            size: A4 landscape;
+            margin-bottom: 30mm;
+            @bottom-center {
+                content: "Fecha de impresión: {{ now.strftime('%d/%m/%Y') if now else '' }}  |  Página: " counter(page) " de " counter(pages);
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>Historial de Cambios del Mantenimiento</h2>
+    {% if historial and historial[0].mantenimiento %}
+        <p><strong>Código:</strong> {{ historial[0].mantenimiento.codigo }}<br>
+        <strong>Nombre:</strong> {{ historial[0].mantenimiento.nombre }}</p>
+    {% endif %}
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Usuario</th>
+                <th>Campo</th>
+                <th>Valor Anterior</th>
+                <th>Valor Nuevo</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for h in historial %}
+            <tr>
+                <td>{{ h.fecha.strftime('%d/%m/%Y %H:%M') if h.fecha else '' }}</td>
+                <td>{{ h.usuario or '' }}</td>
+                <td>{{ h.campo or '' }}</td>
+                <td>{{ h.valor_anterior or '' }}</td>
+                <td>{{ h.valor_nuevo or '' }}</td>
+                <td>{{ h.accion or '' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html> 

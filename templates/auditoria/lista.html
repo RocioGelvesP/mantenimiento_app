@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auditoría del Sistema - Sistema de Mantenimiento</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #022141;    /* Azul corporativo oscuro */
+            --secondary-color: #666666;  /* Gris corporativo */
+            --accent-color: #022141;     /* Azul corporativo claro */
+            --light-bg: #f8f9fa;         /* Fondo claro */
+            --white: #ffffff;            /* Blanco */
+            --gradient-primary: linear-gradient(135deg, #022141 0%, #01376d 100%);
+        }
+
+        body {
+            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar {
+            background: var(--gradient-primary) !important;
+            padding: 0.3rem 0.8rem;
+            box-shadow: 0 1px 6px rgba(2, 33, 65, 0.12);
+        }
+        .navbar-brand {
+            color: white !important;
+            font-size: 1rem;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-size: 0.75rem;
+            margin: 0 4px;
+            border-radius: 4px;
+            transition: all 0.3s;
+            padding: 1px 6px !important;
+        }
+        .nav-link:hover {
+            color: #fff !important;
+            background: rgba(255,255,255,0.12);
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border-radius: 8px;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1a4a7a 100%);
+            color: var(--white);
+            border-radius: 8px 8px 0 0 !important;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1a4a7a 100%);
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1a4a7a 0%, var(--primary-color) 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn-outline-secondary {
+            border-color: var(--secondary-color);
+            color: var(--secondary-color);
+            border-radius: 6px;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1a4a7a 100%);
+            color: var(--white);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: none;
+        }
+
+        .table td {
+            vertical-align: middle;
+            border-color: #e9ecef;
+        }
+
+        .table-striped > tbody > tr:nth-of-type(odd) > td {
+            background-color: rgba(0,0,0,.02);
+        }
+
+        .table-hover > tbody > tr:hover > td {
+            background-color: rgba(0,0,0,.075);
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.4em 0.6em;
+        }
+
+        .badge.bg-success {
+            background-color: #28a745 !important;
+        }
+
+        .badge.bg-warning {
+            background-color: #ffc107 !important;
+            color: #212529 !important;
+        }
+
+        .badge.bg-danger {
+            background-color: #dc3545 !important;
+        }
+
+        .badge.bg-info {
+            background-color: #17a2b8 !important;
+        }
+
+        .badge.bg-primary {
+            background-color: var(--primary-color) !important;
+        }
+
+        code {
+            background-color: #f8f9fa;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            color: #e83e8c;
+            border: 1px solid #e9ecef;
+        }
+
+        .form-control, .form-select {
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(2, 33, 65, 0.25);
+        }
+
+        .alert {
+            border-radius: 8px;
+            border: none;
+        }
+
+        .main-banner {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1a4a7a 100%);
+            color: white;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .filters-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .table-responsive {
+            border-radius: 10px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .table-responsive {
+                font-size: 0.85rem;
+            }
+            
+            .badge {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Formas flotantes animadas -->
+    <div class="floating-shape shape1"></div>
+    <div class="floating-shape shape2"></div>
+    <div class="floating-shape shape3"></div>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand">
+                <i class="fas fa-cogs me-2"></i>
+                Gestión de Auditoria
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.index') }}">
+                            <i class="fas fa-home me-1"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('usuarios.lista_usuarios') }}">
+                            <i class="fas fa-users me-1"></i> Usuarios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('lubrication.lista_cartas') }}">
+                            <i class="fas fa-oil-can me-1"></i> Lubricaciones
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('companies.lista') }}">
+                            <i class="fas fa-building me-1"></i> Empresas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('maintenance.lista') }}">
+                            <i class="fas fa-calendar-alt me-1"></i> Mantenimientos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('main.auditoria') }}">
+                            <i class="fas fa-history me-1"></i> Auditoría
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.index') }}">
+                            <i class="fas fa-arrow-left me-1"></i> Regresar
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-3">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <!-- Banner principal -->
+        <div class="main-banner">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h1 class="page-title">
+                            <i class="fas fa-history me-3"></i>
+                            Auditoría del Sistema
+                        </h1>
+                        <p class="page-subtitle mb-0">
+                            Registro completo de todas las acciones realizadas en el sistema
+                        </p>
+                    </div>
+                    <div class="col-auto">
+                        <div class="stats-card">
+                            <div class="row text-center">
+                                <div class="col">
+                                    <h3 class="mb-0">{{ registros|length }}</h3>
+                                    <small>Registros</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="container">
+            <div class="filters-section">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>Filtros de Búsqueda
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-2">
+                            <label for="fecha_inicio" class="form-label">
+                                <i class="fas fa-calendar me-1"></i>Fecha Inicio
+                            </label>
+                            <input type="date" class="form-control form-control-sm" id="fecha_inicio" name="fecha_inicio" 
+                                   value="{{ request.args.get('fecha_inicio', '') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="fecha_fin" class="form-label">
+                                <i class="fas fa-calendar me-1"></i>Fecha Fin
+                            </label>
+                            <input type="date" class="form-control form-control-sm" id="fecha_fin" name="fecha_fin" 
+                                   value="{{ request.args.get('fecha_fin', '') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="usuario" class="form-label">
+                                <i class="fas fa-user me-1"></i>Usuario
+                            </label>
+                            <select class="form-select form-select-sm" id="usuario" name="usuario">
+                                <option value="">Todos los usuarios</option>
+                                {% for usuario in usuarios_unicos %}
+                                <option value="{{ usuario }}" {% if request.args.get('usuario') == usuario %}selected{% endif %}>
+                                    {{ usuario }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="accion" class="form-label">
+                                <i class="fas fa-cog me-1"></i>Acción
+                            </label>
+                            <select class="form-select form-select-sm" id="accion" name="accion">
+                                <option value="">Todas las acciones</option>
+                                {% for accion in acciones_unicas %}
+                                <option value="{{ accion }}" {% if request.args.get('accion') == accion %}selected{% endif %}>
+                                    {{ accion }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="tabla" class="form-label">
+                                <i class="fas fa-table me-1"></i>Tabla
+                            </label>
+                            <select class="form-select form-select-sm" id="tabla" name="tabla">
+                                <option value="">Todas las tablas</option>
+                                {% for tabla in tablas_unicas %}
+                                <option value="{{ tabla }}" {% if request.args.get('tabla') == tabla %}selected{% endif %}>
+                                    {{ tabla }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <div class="d-grid gap-2 w-100">
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-search me-1"></i> Filtrar
+                                </button>
+                                <a href="{{ url_for('main.auditoria') }}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-times me-1"></i> Limpiar
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tabla de registros -->
+            <div class="table-container">
+                <div class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h6 class="mb-0">
+                                <i class="fas fa-table me-2"></i>
+                                Registros de Auditoría
+                                <span class="badge bg-light text-dark ms-2">{{ registros|length }} registros</span>
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 150px;">Fecha y Hora</th>
+                                <th style="width: 120px;">Usuario</th>
+                                <th style="width: 100px;">Acción</th>
+                                <th style="width: 100px;">Tabla</th>
+                                <th style="width: 100px;">ID Registro</th>
+                                <th>Detalles</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for registro in registros %}
+                            <tr>
+                                <td class="text-muted" style="font-size: 0.85rem;">
+                                    {{ registro.fecha.strftime('%d/%m/%Y %H:%M:%S') }}
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-user me-1"></i>{{ registro.usuario }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if registro.accion == 'CREAR' %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-plus me-1"></i>{{ registro.accion }}
+                                        </span>
+                                    {% elif registro.accion == 'ACTUALIZAR' %}
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-edit me-1"></i>{{ registro.accion }}
+                                        </span>
+                                    {% elif registro.accion == 'ELIMINAR' %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-trash me-1"></i>{{ registro.accion }}
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-cog me-1"></i>{{ registro.accion }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">
+                                        <i class="fas fa-database me-1"></i>{{ registro.tabla }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <code>{{ registro.registro_id }}</code>
+                                </td>
+                                <td style="font-size: 0.85rem;">
+                                    <i class="fas fa-info-circle me-1 text-muted"></i>
+                                    {{ registro.detalles }}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state">
+                                        <i class="fas fa-inbox"></i>
+                                        <h5>No se encontraron registros</h5>
+                                        <p>No hay registros de auditoría que coincidan con los filtros aplicados</p>
+                                        <a href="{{ url_for('main.auditoria') }}" class="btn btn-primary">
+                                            <i class="fas fa-refresh me-1"></i>Ver todos los registros
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Highlight current nav item
+            const currentNav = document.querySelector('.nav-link.active');
+            if (currentNav) {
+                currentNav.style.fontWeight = 'bold';
+            }
+
+            // Add hover effects to table rows
+            const tableRows = document.querySelectorAll('tbody tr');
+            tableRows.forEach(function(row) {
+                row.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.01)';
+                    this.style.transition = 'transform 0.2s ease';
+                });
+                
+                row.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe de Equipo</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #022141;
+            --secondary-color: #00bcd4;
+            --accent-color: #ff9800;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+            --gradient-primary: linear-gradient(135deg, #022141 0%, #01376d 100%);
+            --gradient-secondary: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+            --gradient-success: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+            --gradient-warning: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            --gradient-info: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 11px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        /* Formas flotantes animadas */
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.10;
+            z-index: 0;
+            animation: float 8s ease-in-out infinite alternate;
+        }
+        .shape1 { width: 220px; height: 220px; background: #00bcd4; top: -60px; left: -80px; animation-delay: 0s; }
+        .shape2 { width: 120px; height: 120px; background: #022141; bottom: 8%; right: -40px; animation-delay: 2s; }
+        .shape3 { width: 80px; height: 80px; background: #ff9800; top: 70%; left: -40px; animation-delay: 4s; }
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-18px) scale(1.04); }
+        }
+        .navbar {
+            background: var(--gradient-primary) !important;
+            padding: 0.4rem 1rem;
+            box-shadow: 0 1px 6px rgba(2, 33, 65, 0.12);
+        }
+        .navbar-brand {
+            color: white !important;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-size: 0.8rem;
+            margin: 0 6px;
+            border-radius: 4px;
+            transition: all 0.3s;
+            padding: 2px 8px !important;
+        }
+        .nav-link:hover {
+            color: #fff !important;
+            background: rgba(255,255,255,0.12);
+        }
+        .main-card {
+            background: rgba(255,255,255,0.92);
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(2,33,65,0.10);
+            padding: 1.2rem 1rem;
+            position: relative;
+            z-index: 1;
+        }
+        .card-header {
+            background: var(--gradient-primary);
+            color: #fff;
+            border-radius: 16px 16px 0 0 !important;
+            box-shadow: 0 2px 8px rgba(2,33,65,0.08);
+            padding: 0.10rem 0.18rem;
+        }
+        .card-header h3, .card-header h5 {
+            color: #fff;
+            font-weight:700;
+            font-size: 0.92rem;
+            margin: 0;
+            line-height: 1.1;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        .subcard {
+            background: linear-gradient(90deg, #e3f2fd 60%, #b2ebf2 100%);
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,188,212,0.10);
+            padding: 0.7rem 1rem;
+            margin-bottom: 1rem;
+        }
+        .subcard h5 {
+            color: #01376d;
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-bottom: 0.3rem;
+        }
+        .btn-primary, .btn-success, .btn-info {
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            box-shadow: 0 1px 4px rgba(2,33,65,0.10);
+            transition: all 0.2s;
+            padding: 2px 10px;
+        }
+        .btn-primary {
+            background: var(--gradient-primary);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #01376d 0%, #022141 100%);
+        }
+        .btn-success {
+            background: var(--gradient-success);
+        }
+        .btn-success:hover {
+            background: linear-gradient(135deg, #388e3c 0%, #4caf50 100%);
+        }
+        .btn-info {
+            background: var(--gradient-secondary);
+            color: #fff;
+        }
+        .btn-info:hover {
+            background: linear-gradient(135deg, #0097a7 0%, #00bcd4 100%);
+        }
+        .btn-group .btn { margin: 0 2px; }
+        .table thead th {
+            background: var(--gradient-primary);
+            color: #fff;
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 0.35rem 0.3rem;
+        }
+        .table td, .table th {
+            vertical-align: middle;
+            font-size: 0.7rem;
+            padding: 0.32rem 0.3rem;
+        }
+        .badge {
+            padding: 2px 5px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.6rem;
+        }
+        .badge.bg-success {
+            background: var(--gradient-success) !important;
+        }
+        .badge.bg-warning {
+            background: var(--gradient-warning) !important;
+        }
+        .badge.bg-info {
+            background: var(--gradient-info) !important;
+        }
+        .badge.bg-primary {
+            background: var(--gradient-primary) !important;
+        }
+        .badge.bg-danger {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%) !important;
+        }
+        .stat-card {
+            text-align: center;
+            padding: 0.7rem;
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.9) 100%);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 0.5rem;
+        }
+        .stat-card h6 {
+            color: var(--primary-color);
+            margin-bottom: 0.3rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .stat-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .motor-card, .costo-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.9) 100%);
+            border-radius: 8px;
+            padding: 0.7rem;
+            margin-bottom: 0.7rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-align: center;
+        }
+        .costo-card h6 {
+            color: var(--primary-color);
+            margin-bottom: 0.3rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .costo-card p {
+            color: var(--primary-color);
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0;
+        }
+        .alert {
+            border-radius: 6px;
+            border: none;
+            font-size: 0.8rem;
+            padding: 0.5rem 0.7rem;
+        }
+        .alert-success {
+            background: var(--gradient-success);
+            color: white;
+        }
+        .alert-danger {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            color: white;
+        }
+        .alert-warning {
+            background: var(--gradient-warning);
+            color: white;
+        }
+        .alert-info {
+            background: var(--gradient-info);
+            color: white;
+        }
+        .equipment-image {
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .equipment-image:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .equipment-info h4 {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.7rem;
+        }
+        .equipment-info p {
+            color: var(--primary-color);
+            font-size: 0.7rem;
+            margin-bottom: 0.3rem;
+        }
+        .equipment-info strong {
+            color: var(--secondary-color);
+            font-weight: 600;
+        }
+        .placeholder-image {
+            background: linear-gradient(135deg, rgba(0, 188, 212, 0.1) 0%, rgba(2, 33, 65, 0.05) 100%);
+            border: 2px dashed var(--secondary-color);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .placeholder-image:hover {
+            background: linear-gradient(135deg, rgba(0, 188, 212, 0.15) 0%, rgba(2, 33, 65, 0.08) 100%);
+        }
+        .placeholder-image i {
+            color: var(--secondary-color);
+            font-size: 2rem;
+        }
+        @media (max-width: 900px) {
+            .main-card, .card, .card-body { padding: 0.7rem 0.2rem; }
+            .subcard { padding: 0.5rem 0.2rem; }
+            .stat-card, .costo-card { margin-bottom: 0.4rem; }
+        }
+        @media (max-width: 600px) {
+            .main-card, .card, .card-body { padding: 0.3rem 0.05rem; }
+            .subcard { padding: 0.15rem 0.05rem; }
+            .stat-card, .costo-card { margin-bottom: 0.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Formas flotantes animadas -->
+    <div class="floating-shape shape1"></div>
+    <div class="floating-shape shape2"></div>
+    <div class="floating-shape shape3"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand">
+                <i class="fas fa-chart-line me-2"></i>
+                Informe de Equipo
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ url_for('equipment.listar_equipos') }}">
+                    <i class="fas fa-arrow-left me-1"></i>
+                    Regresar
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Main Content -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-chart-bar"></i> Informe de Equipo</h3>
+                <div class="row mb-3 mt-2 justify-content-center">
+                    <div class="col-auto">
+                        <a class="btn btn-primary" href="{{ url_for('equipment.descargar_ficha_tecnica', codigo=equipo.codigo) }}" target="_blank">
+                            <i class="fa fa-file-pdf"></i> Ficha Técnica
+                        </a>
+                    </div>
+                    <div class="col-auto">
+                        <a class="btn btn-success" href="{{ url_for('equipment.hoja_vida_equipo', codigo=equipo.codigo) }}" target="_blank">
+                            <i class="fa fa-file-medical"></i> Hoja de Vida
+                        </a>
+                    </div>
+                    <div class="col-auto">
+                        <a class="btn btn-info" href="{{ url_for('lubrication.cartas_equipo', codigo_equipo=equipo.codigo) }}" target="_blank">
+                            <i class="fa fa-oil-can"></i> Lubricaciones
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Encabezado -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <!-- Imagen del Equipo -->
+                        {% if equipo.imagen %}
+                            <div class="text-center mb-3">
+                                <img src="{{ url_for('static', filename=equipo.imagen) }}" 
+                                     alt="Imagen del equipo {{ equipo.codigo }}" 
+                                     class="img-fluid rounded equipment-image" 
+                                     style="max-width: 200px; max-height: 200px;">
+                            </div>
+                        {% else %}
+                            <div class="text-center mb-3">
+                                <div class="placeholder-image d-flex align-items-center justify-content-center" 
+                                     style="width: 200px; height: 200px;">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                                <small class="text-muted">Sin imagen</small>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-5">
+                        <div class="equipment-info">
+                            <h4><i class="fas fa-cog me-2"></i>{{ equipo.nombre }}</h4>
+                            <p><strong><i class="fas fa-barcode me-1"></i>Código:</strong> {{ equipo.codigo }}</p>
+                            <p><strong><i class="fas fa-map-marker-alt me-1"></i>Ubicación:</strong> {{ equipo.ubicacion }}</p>
+                            <p><strong><i class="fas fa-check-circle me-1"></i>Estado:</strong> 
+                                <span class="badge {% if equipo.estado_eq == 'Funcional' %}bg-success{% elif equipo.estado_eq == 'Dañado' %}bg-danger{% else %}bg-info{% endif %}">
+                                    {{ equipo.estado_eq }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="equipment-info">
+                            <p><strong><i class="fas fa-industry me-1"></i>Fabricante:</strong> {{ equipo.fabricante or 'No especificado' }}</p>
+                            <p><strong><i class="fas fa-cube me-1"></i>Modelo:</strong> {{ equipo.modelo or 'No especificado' }}</p>
+                            <p><strong><i class="fas fa-sort-numeric-up me-1"></i>Serie:</strong> {{ equipo.serie or 'No especificado' }}</p>
+                            <p><strong><i class="fas fa-calendar me-1"></i>Fecha de Ingreso:</strong> {{ equipo.fecha_ingreso.strftime('%d/%m/%Y') if equipo.fecha_ingreso else 'No especificada' }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estadísticas Generales -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-pie"></i> Estadísticas Generales</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="stat-card">
+                                    <h6><i class="fas fa-tools"></i> Total Mantenimientos</h6>
+                                    <h3>{{ mantenimientos|length }}</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card">
+                                    <h6><i class="fas fa-dollar-sign"></i> Costo Total</h6>
+                                    <h3>${{ "%.2f"|format(costo_total) }}</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card">
+                                    <h6><i class="fas fa-clock"></i> Tiempo Promedio</h6>
+                                    <h3>{{ "%.1f"|format(tiempo_promedio) }} hrs</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card">
+                                    <h6><i class="fas fa-percentage"></i> Eficiencia</h6>
+                                    <h3>{{ "%.1f"|format((mantenimientos_completados / mantenimientos|length * 100) if mantenimientos|length > 0 else 0) }}%</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Motores -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-cogs"></i> Motores Asociados</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-tag"></i> Nombre</th>
+                                        <th><i class="fas fa-info-circle"></i> Descripción</th>
+                                        <th><i class="fas fa-cogs"></i> Tipo</th>
+                                        <th><i class="fas fa-sync-alt"></i> Rotación</th>
+                                        <th><i class="fas fa-tachometer-alt"></i> RPM</th>
+                                        <th><i class="fas fa-bolt"></i> Eficiencia</th>
+                                        <th><i class="fas fa-charging-station"></i> Corriente</th>
+                                        <th><i class="fas fa-battery-full"></i> Potencia</th>
+                                        <th><i class="fas fa-plug"></i> Voltaje</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for motor in equipo.motores %}
+                                    <tr>
+                                        <td>{{ motor.nomb_Motor or 'N/A' }}</td>
+                                        <td>{{ motor.descrip_Motor or 'N/A' }}</td>
+                                        <td>{{ motor.tipo_Motor or 'N/A' }}</td>
+                                        <td>{{ motor.rotacion or 'N/A' }}</td>
+                                        <td>{{ motor.rpm_Motor or 'N/A' }}</td>
+                                        <td>{{ motor.eficiencia or 'N/A' }}</td>
+                                        <td>{{ motor.corriente_Motor or 'N/A' }}</td>
+                                        <td>{{ motor.potencia_Motor or 'N/A' }}</td>
+                                        <td>{{ motor.voltaje_Motor or 'N/A' }}</td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="9" class="text-center text-muted">
+                                            <i class="fas fa-info-circle"></i> No hay motores asociados a este equipo
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Costos por Tipo -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-line"></i> Costos por Tipo de Mantenimiento</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for tipo, costo in costos_por_tipo.items() %}
+                            <div class="col-md-4 mb-3">
+                                <div class="costo-card">
+                                    <h6><i class="fas fa-tag"></i> {{ tipo }}</h6>
+                                    <p>${{ "%.2f"|format(costo) }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historial de Mantenimientos -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-history"></i> Historial de Mantenimientos</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-key"></i> ID</th>
+                                        <th><i class="fas fa-calendar"></i> Fecha</th>
+                                        <th><i class="fas fa-tag"></i> Tipo</th>
+                                        <th><i class="fas fa-check-circle"></i> Estado</th>
+                                        <th><i class="fas fa-dollar-sign"></i> Costo</th>
+                                        <th><i class="fas fa-comment"></i> Observaciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for mtto in mantenimientos %}
+                                    <tr>
+                                        <td>{{ mtto.id }}</td>
+                                        <td>{{ mtto.fecha_prog }}</td>
+                                        <td>{{ mtto.tipo_mantenimiento }}</td>
+                                        <td>{{ mtto.estado_inicial }}</td>
+                                        <td>${{ '%.2f'|format(
+                                            (mtto.costo_total if mtto.costo_total not in [None, 0] else ((mtto.costo_rep or 0) + (mtto.costo_herram or 0) + (mtto.costo_mdo or 0)))
+                                        ) }}</td>
+                                        <td>{{ mtto.observaciones }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección: Historial del Equipo -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-history"></i> Historial de Cambios</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if historial and historial|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Tipo de Cambio</th>
+                                        <th>Campo</th>
+                                        <th>Valor Anterior</th>
+                                        <th>Valor Nuevo</th>
+                                        <th>Usuario</th>
+                                        <th>Observaciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for h in historial %}
+                                    <tr>
+                                        <td>{{ h.fecha_cambio.strftime('%Y-%m-%d %H:%M') if h.fecha_cambio else '' }}</td>
+                                        <td>{{ h.tipo_cambio|capitalize }}</td>
+                                        <td>{{ h.campo_modificado or '-' }}</td>
+                                        <td>{{ h.valor_anterior or '-' }}</td>
+                                        <td>{{ h.valor_nuevo or '-' }}</td>
+                                        <td>{{ h.usuario or '-' }}</td>
+                                        <td>{{ h.observaciones or '-' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info mb-0">No hay historial registrado para este equipo.</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

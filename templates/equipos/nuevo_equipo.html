@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Incluir Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Agregar Máquina/Equipo</title>
+    <style>
+        :root {
+            --primary-color: #022141;
+            --secondary-color: #00bcd4;
+            --accent-color: #ff9800;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+            --gradient-primary: linear-gradient(135deg, #022141 0%, #01376d 100%);
+            --gradient-secondary: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+            --gradient-success: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+            --gradient-warning: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            --gradient-info: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+        }
+
+        body { 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 11px;
+        }
+        
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .shape {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(0, 188, 212, 0.05) 0%, rgba(2, 33, 65, 0.03) 100%);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .shape:nth-child(1) {
+            width: 60px;
+            height: 60px;
+            top: 15%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            width: 80px;
+            height: 80px;
+            top: 70%;
+            right: 5%;
+            animation-delay: 3s;
+        }
+
+        .shape:nth-child(3) {
+            width: 40px;
+            height: 40px;
+            bottom: 15%;
+            left: 15%;
+            animation-delay: 6s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-15px) rotate(180deg);
+            }
+        }
+        
+        .navbar { 
+            background: var(--gradient-primary) !important; 
+            padding: 0.25rem;
+            box-shadow: 0 1px 4px rgba(2, 33, 65, 0.3);
+        }
+        
+        .navbar-brand { 
+            color: white !important; 
+            font-size: 1.1rem; 
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .nav-link { 
+            color: rgba(255,255,255,0.9) !important; 
+            font-size: 0.8rem; 
+            margin: 0 3px;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+            padding: 4px 8px !important;
+        }
+        
+        .nav-link:hover { 
+            color: white !important; 
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-1px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0.5rem auto;
+            padding: 0.75rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(2, 33, 65, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(2, 33, 65, 0.15);
+        }
+
+        .card-header {
+            background: var(--gradient-primary);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 12px 12px 0 0 !important;
+            position: relative;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(0, 188, 212, 0.1) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .card-header h2 {
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin: 0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        h2 {    
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        h5 {    
+            text-align: left;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+            margin-top: 0.5rem;
+            margin-right: 0.5rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            background: var(--gradient-secondary);
+            color: white;
+            box-shadow: 0 2px 6px rgba(0, 188, 212, 0.3);
+        }
+        
+        .form-group label {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 0.7rem;
+            margin-bottom: 0.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .form-group label i {
+            color: var(--secondary-color);
+            font-size: 0.6rem;
+        }
+        
+        .form-section {
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-section h4 {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(2, 33, 65, 0.3);
+        }
+        
+        .form-control {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            padding: 0.3rem 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background: white;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 188, 212, 0.25);
+            outline: none;
+        }
+
+        .form-select {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            padding: 0.3rem 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus {
+            background: white;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 188, 212, 0.25);
+            outline: none;
+        }
+        
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.7rem;
+            padding: 0.3rem 0.8rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(2, 33, 65, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #01376d 0%, #022141 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(2, 33, 65, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--gradient-secondary);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.7rem;
+            padding: 0.3rem 0.8rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 188, 212, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #0097a7 0%, #00bcd4 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0, 188, 212, 0.4);
+        }
+
+        .form-check {
+            margin: 0.2rem 0;
+        }
+
+        .form-check-input {
+            width: 0.8rem;
+            height: 0.8rem;
+            margin-top: 0.1rem;
+            border: 2px solid var(--secondary-color);
+            border-radius: 3px;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .form-check-label {
+            color: var(--primary-color);
+            font-weight: 500;
+            font-size: 0.7rem;
+            margin-left: 0.3rem;
+        }
+
+        .form-text {
+            font-size: 0.6rem;
+            color: #6c757d;
+        }
+
+        .form-control-file {
+            font-size: 0.6rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            padding: 0.2rem 0.4rem;
+        }
+
+        .table {
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            font-size: 0.7rem;
+        }
+
+        .table thead th {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 0.3rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+            font-size: 0.6rem;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(0, 188, 212, 0.1) 0%, rgba(2, 33, 65, 0.05) 100%);
+            transform: scale(1.001);
+        }
+
+        .table td {
+            vertical-align: middle;
+            padding: 0.3rem;
+            border: none;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .table-sm td, .table-sm th {
+            padding: 0.2rem 0.25rem;
+            font-size: 0.6rem;
+        }
+
+        .table-responsive {
+            font-size: 0.7rem;
+        }
+
+        .thead-dark th {
+            font-size: 0.6rem;
+            padding: 0.25rem 0.3rem;
+        }
+
+        .form-control-sm {
+            font-size: 0.6rem;
+            padding: 0.15rem 0.25rem;
+        }
+
+        .btn-link {
+            font-size: 0.6rem;
+            padding: 0.15rem 0.3rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        .btn-link:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        #subform-motores {
+            min-height: 100px;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        #subform-motores.oculto {
+            visibility: hidden;
+            height: 0;
+            overflow: hidden;
+        }
+
+        /* Reducir aún más el padding de las celdas de la tabla de motores */
+        #seccion_motores td, #seccion_motores th {
+            padding: 0.15rem 0.2rem !important;
+            vertical-align: middle;
+            font-size: 0.6rem;
+        }
+
+        .badge {
+            padding: 2px 5px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.6rem;
+        }
+
+        .badge-primary {
+            background: var(--gradient-primary);
+        }
+
+        .badge-success {
+            background: var(--gradient-success);
+        }
+
+        .badge-warning {
+            background: var(--gradient-warning);
+        }
+
+        .badge-info {
+            background: var(--gradient-info);
+        }
+
+        .mb-2 {
+            margin-bottom: 0.3rem !important;
+        }
+
+        .mt-2 {
+            margin-top: 0.3rem !important;
+        }
+
+        .mt-3 {
+            margin-top: 0.5rem !important;
+        }
+
+        .mb-3 {
+            margin-bottom: 0.5rem !important;
+        }
+
+        .card-body {
+            padding: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 0.3rem auto;
+                padding: 0.5rem;
+            }
+            
+            .card-body {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Formas flotantes de fondo -->
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <!-- Banner de navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand">
+                <i class="fas fa-cogs me-2"></i>
+                Gestión de Máquinas/Equipos
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ url_for('equipment.listar_equipos') }}">
+                    <i class="fas fa-arrow-left me-1"></i>
+                    Regresar
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-plus-circle"></i>
+                    Agregar Nuevo Equipo
+                </h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('equipment.nuevo_equipo') }}" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    {{ form.csrf_token }}
+                    <div class="form-section">
+                        <h4><i class="fas fa-info-circle"></i> Información General</h4>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-barcode"></i> {{ form.codigo.label }}</label>
+                                    {{ form.codigo(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-tag"></i> {{ form.nombre.label }}</label>
+                                    {{ form.nombre(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-calendar"></i> {{ form.fecha_ingreso.label }}</label>
+                                    {{ form.fecha_ingreso(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-center">
+                                <div class="form-check form-check-inline">
+                                    {{ form.registro_nuevo(class="form-check-input", id="registro_nuevo") }}
+                                    <label class="form-check-label" for="registro_nuevo">Reg. Nuevo</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    {{ form.actualizacion(class="form-check-input", id="actualizacion") }}
+                                    <label class="form-check-label" for="actualizacion">Actualización</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-tag"></i> {{ form.tipo_eq.label }}</label>
+                                    {{ form.tipo_eq(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-ruler"></i> {{ form.marca.label }}</label>
+                                    {{ form.marca(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-ruler"></i> {{ form.clase.label }}</label>
+                                    {{ form.clase(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-tag"></i> {{ form.modelo.label }}</label>
+                                    {{ form.modelo(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-barcode"></i> {{ form.referencia.label }}</label>
+                                    {{ form.referencia(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-hashtag"></i> {{ form.serie.label }}</label>
+                                    {{ form.serie(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-palette"></i> {{ form.color.label }}</label>
+                                    {{ form.color(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-sliders-h"></i> {{ form.tipo_control.label }}</label>
+                                    {{ form.tipo_control(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-map-marker-alt"></i> {{ form.ubicacion.label }}</label>
+                                    {{ form.ubicacion(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-industry"></i> {{ form.proceso.label }}</label>
+                                    {{ form.proceso(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-dollar-sign"></i> {{ form.centro_costos.label }}</label>
+                                    {{ form.centro_costos(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-user"></i> {{ form.propietario.label }}</label>
+                                    {{ form.propietario(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-check-circle"></i> {{ form.estado_eq.label }}</label>
+                                    {{ form.estado_eq(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-calendar-alt"></i> {{ form.anios_operacion.label }}</label>
+                                    {{ form.anios_operacion(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-center">
+                                <div class="form-check form-check-inline">
+                                    {{ form.es_equipo(class="form-check-input", id="es_equipo") }}
+                                    <label class="form-check-label" for="es_equipo">Equipo</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-center">
+                                <div class="form-check form-check-inline">
+                                    {{ form.es_maquina(class="form-check-input", id="es_maquina") }}
+                                    <label class="form-check-label" for="es_maquina">Máquina</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h5><i class="fas fa-industry"></i> Información del Fabricante</h5>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-calendar"></i> {{ form.fecha_fabricacion.label }}</label>
+                                    {{ form.fecha_fabricacion(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-hashtag"></i> {{ form.num_fabricacion.label }}</label>
+                                    {{ form.num_fabricacion(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-industry"></i> {{ form.fabricante.label }}</label>
+                                    {{ form.fabricante(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-user"></i> {{ form.nom_contacto.label }}</label>
+                                    {{ form.nom_contacto(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-phone"></i> {{ form.telefono.label }}</label>
+                                    {{ form.telefono(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4><i class="fas fa-bolt"></i> Consumo y Energía</h4>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-bolt"></i> {{ form.tipo_energia.label }}</label>
+                                    {{ form.tipo_energia(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-plug"></i> {{ form.voltaje.label }}</label>
+                                    {{ form.voltaje(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-screwdriver-wrench"></i> {{ form.tipo_instalacion.label }}</label>
+                                    {{ form.tipo_instalacion(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-charging-station"></i> {{ form.corriente.label }}</label>
+                                    {{ form.corriente(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-battery-full"></i> {{ form.potencia.label }}</label>
+                                    {{ form.potencia(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-snowflake"></i> {{ form.tipo_refrig.label }}</label>
+                                    {{ form.tipo_refrig(class="form-control") }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                            <div class="col-md-2">
+                            <div class="form-group mb-2">
+                                <label><i class="fas fa-gas-pump"></i> {{ form.tipo_comb.label }}</label>
+                                {{ form.tipo_comb(class="form-control") }}
+                            </div>
+                        </div>
+                            <div class="col-md-2">
+                            <div class="form-group mb-2">
+                                <label><i class="fas fa-oil-can"></i> {{ form.tipo_lub.label }}</label>
+                                {{ form.tipo_lub(class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-group mb-2">
+                                <label><i class="fas fa-tools"></i> {{ form.repuestos.label }}</label>
+                                {{ form.repuestos(class="form-control") }}
+                            </div>
+                        </div>
+                    </div>   
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4><i class="fas fa-ruler-combined"></i> Dimensiones</h4>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-arrows-up-down"></i> {{ form.altura.label }}</label>
+                                    {{ form.altura(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-arrows-left-right"></i> {{ form.largo.label }}</label>
+                                    {{ form.largo(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-expand-arrows-alt"></i> {{ form.ancho.label }}</label>
+                                    {{ form.ancho(class="form-control") }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-weight-hanging"></i> {{ form.peso.label }}</label>
+                                    {{ form.peso(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="form-section">
+                        <h4><i class="fas fa-cogs"></i> Motores</h4>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-engine"></i> Número de Motores</label>
+                                    <select id="n_motores" class="form-select">
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="subform-motores" class="oculto">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered" id="seccion_motores">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Nombre</th>
+                                            <th>Descripción</th>
+                                            <th>Tipo</th>
+                                            <th>Rotación</th>
+                                            <th>RPM</th>
+                                            <th>Eficiencia</th>
+                                            <th>Corriente</th>
+                                            <th>Potencia</th>
+                                            <th>Voltaje</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody_motores">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4><i class="fas fa-tachometer-alt"></i> Equipos de Medición</h4>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                    <label><i class="fas fa-gauge"></i> Número de Equipos de Medición</label>
+                                    <select id="n_mediciones" class="form-select">
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="subform-mediciones" class="oculto">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Código</th>
+                                            <th>Nombre</th>
+                                            <th>Ubicación</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody_mediciones">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4><i class="fas fa-file-alt"></i> Documentación</h4>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label><i class="fas fa-play-circle"></i> <b>Operación</b></label>
+                                        {{ form.operacion_file(class="form-control-file") }}
+                                        {% if equipo and equipo.operacion_file %}
+                                            <a class="btn btn-link" href="{{ url_for('static', filename='uploads/documentos/' ~ equipo.operacion_file) }}" target="_blank">
+                                                <i class="fa fa-file-pdf-o"></i> Ver archivo
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label><i class="fas fa-wrench"></i> <b>Mecánico</b></label>
+                                        {{ form.mecanico_file(class="form-control-file") }}
+                                        {% if equipo and equipo.mecanico_file %}
+                                            <a class="btn btn-link" href="{{ url_for('static', filename='uploads/documentos/' ~ equipo.mecanico_file) }}" target="_blank">
+                                                <i class="fa fa-file-pdf-o"></i> Ver archivo
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label><i class="fas fa-bolt"></i> <b>Eléctrico</b></label>
+                                        {{ form.electrico_file(class="form-control-file") }}
+                                        {% if equipo and equipo.electrico_file %}
+                                            <a class="btn btn-link" href="{{ url_for('static', filename='uploads/documentos/' ~ equipo.electrico_file) }}" target="_blank">
+                                                <i class="fa fa-file-pdf-o"></i> Ver archivo
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label><i class="fas fa-puzzle-piece"></i> <b>Partes</b></label>
+                                        {{ form.partes_file(class="form-control-file") }}
+                                        {% if equipo and equipo.partes_file %}
+                                            <a class="btn btn-link" href="{{ url_for('static', filename='uploads/documentos/' ~ equipo.partes_file) }}" target="_blank">
+                                                <i class="fa fa-file-pdf-o"></i> Ver archivo
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row mt-2">
+                                    <div class="col-md-6">
+                                        <label><i class="fas fa-list-ol"></i> <b>Instructivo</b></label>
+                                        {{ form.instructivos_file(class="form-control-file") }}
+                                        {% if equipo and equipo.instructivos_file %}
+                                            <a class="btn btn-link" href="{{ url_for('static', filename='uploads/documentos/' ~ equipo.instructivos_file) }}" target="_blank">
+                                                <i class="fa fa-file-pdf-o"></i> Ver archivo
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label><i class="fas fa-shield-alt"></i> <b>Estándar de seguridad</b></label>
+                                        {{ form.estandar_seguridad_file(class="form-control-file") }}
+                                        {% if equipo and equipo.estandar_seguridad_file %}
+                                            <a class="btn btn-link" href="{{ url_for('static', filename='uploads/documentos/' ~ equipo.estandar_seguridad_file) }}" target="_blank">
+                                                <i class="fa fa-file-pdf-o"></i> Ver archivo
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group mb-2">
+                                        <label><i class="fas fa-oil-can"></i> {{ form.cartas_lubricacion.label }}</label>
+                                        {{ form.cartas_lubricacion(class="form-control") }}
+                                    </div>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <div class="form-check form-check-inline">
+                                        {{ form.ficha_tecnica(class="form-check-input", id="ficha_tecnica") }}
+                                        <label class="form-check-label" for="ficha_tecnica">Ficha técnica</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        {{ form.hoja_vida(class="form-check-input", id="hoja_vida") }}
+                                        <label class="form-check-label" for="hoja_vida">Hoja de vida</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        {{ form.preoperacional(class="form-check-input", id="preoperacional") }}
+                                        <label class="form-check-label" for="preoperacional">Preoperacional</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        {{ form.plan_mantenimiento(class="form-check-input", id="plan_mantenimiento") }}
+                                        <label class="form-check-label" for="plan_mantenimiento">Plan de mantenimiento</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        {{ form.manuales(class="form-check-input", id="manuales") }}
+                                        <label class="form-check-label" for="manuales">Manuales</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-section">
+                                        <h4><i class="fas fa-cogs"></i> Información Adicional</h4>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-2">
+                                                <label><i class="fas fa-cogs"></i> {{ form.funcion_maq.label }}</label>
+                                                {{ form.funcion_maq(class="form-control") }}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-2">
+                                                <label><i class="fas fa-history"></i> {{ form.hist_mtto.label }}</label>
+                                                {{ form.hist_mtto(class="form-control") }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-section">
+                                        <h4><i class="fas fa-comment"></i> Observaciones</h4>  
+                                    </div>
+                                    <div class="col-md-12">  
+                                        <div class="form-group mb-2">
+                                            {{ form.observaciones(class="form-control") }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-section">
+                                <h4><i class="fas fa-image"></i> Imagen del Equipo</h4>
+                                <div class="form-group mb-2">
+                                    {{ form.imagen.label }}
+                                    {{ form.imagen(class="form-control-file") }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-2">
+                                        <label><i class="fas fa-code"></i> {{ form.metodo_codificacion.label }}</label>
+                                        {{ form.metodo_codificacion(class="form-control") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-2">
+                                        <label><i class="fas fa-clock"></i> {{ form.frecuencia_mantenimiento.label }}</label>
+                                        {{ form.frecuencia_mantenimiento(class="form-control") }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-center mt-3" style="gap: 12px;">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Guardar
+                                </button>
+                                <a href="{{ url_for('equipment.listar_equipos') }}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </a>
+                            </div>
+                        </form>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+    window.onload = function() {
+        var selectMotores = document.getElementById('n_motores');
+        var tbodyMotores = document.getElementById('tbody_motores');
+        var subformMotores = document.getElementById('subform-motores');
+        
+        function renderMotores() {
+            var cantidad = parseInt(selectMotores.value) || 0;
+            tbodyMotores.innerHTML = '';
+            
+            if (cantidad > 0) {
+                subformMotores.classList.remove('oculto');
+            for (var i = 0; i < cantidad; i++) {
+                tbodyMotores.innerHTML += `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><input type="text" class="form-control form-control-sm" name="nomb_Motor[]"></td>
+                        <td><input type="text" class="form-control form-control-sm" name="descrip_Motor[]"></td>
+                        <td><input type="text" class="form-control form-control-sm" name="tipo_Motor[]"></td>
+                        <td><input type="text" class="form-control form-control-sm" name="rotacion[]"></td>
+                        <td><input type="text" class="form-control form-control-sm" name="rpm_Motor[]"></td>
+                        <td><input type="text" class="form-control form-control-sm" name="eficiencia[]"></td>
+                        <td><input type="text" class="form-control form-control-sm" name="corriente_Motor[]"></td>
+                        <td><input type="text" class="form-control form-control-sm" name="potencia_Motor[]"></td>
+                        <td><input type="text" class="form-control form-control-sm" name="voltaje_Motor[]"></td>
+                    </tr>
+                `;
+            }
+            } else {
+                subformMotores.classList.add('oculto');
+        }
+        }
+        
+        selectMotores.addEventListener('change', renderMotores);
+        renderMotores();
+
+        // Equipos de medición
+        var selectMediciones = document.getElementById('n_mediciones');
+        var tbodyMediciones = document.getElementById('tbody_mediciones');
+        var subformMediciones = document.getElementById('subform-mediciones');
+        
+        function renderMediciones() {
+            var cantidad = parseInt(selectMediciones.value) || 0;
+            tbodyMediciones.innerHTML = '';
+            
+            if (cantidad > 0) {
+                subformMediciones.classList.remove('oculto');
+            for (var i = 0; i < cantidad; i++) {
+                tbodyMediciones.innerHTML += `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><input type="text" class="form-control form-control-sm" name="codigo_medicion[]"></td>
+                        <td><input type="text" class="form-control form-control-sm" name="nombre_medicion[]"></td>
+                        <td><input type="text" class="form-control form-control-sm" name="ubicacion_medicion[]"></td>
+                    </tr>
+                `;
+            }
+            } else {
+                subformMediciones.classList.add('oculto');
+        }
+        }
+        
+        selectMediciones.addEventListener('change', renderMediciones);
+        renderMediciones();
+    };
+    </script>
+</body>
+</html>
+        
+
+                    
+                
+                
+            
+            
+            
+            
+            
+            
+            

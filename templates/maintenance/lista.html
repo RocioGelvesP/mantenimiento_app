@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Mantenimientos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #022141;
+            --secondary-color: #00bcd4;
+            --accent-color: #ff9800;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+            --gradient-primary: linear-gradient(135deg, #022141 0%, #01376d 100%);
+            --gradient-secondary: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+            --gradient-success: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+            --gradient-warning: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            --gradient-info: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+        }
+
+        body { 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 11px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Formas flotantes animadas */
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-shape {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-shape:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 20%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+
+        .floating-shape:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        .floating-shape:nth-child(4) {
+            width: 100px;
+            height: 100px;
+            bottom: 30%;
+            right: 10%;
+            animation-delay: 1s;
+        }
+
+        .floating-shape:nth-child(5) {
+            width: 40px;
+            height: 40px;
+            top: 50%;
+            left: 5%;
+            animation-delay: 3s;
+        }
+
+        .floating-shape:nth-child(6) {
+            width: 90px;
+            height: 90px;
+            top: 60%;
+            right: 5%;
+            animation-delay: 5s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+                opacity: 1;
+            }
+        }
+
+        .navbar { 
+            background: var(--gradient-primary) !important; 
+            padding: 0.25rem;
+            box-shadow: 0 1px 4px rgba(2, 33, 65, 0.3);
+        }
+
+        .navbar-brand { 
+            color: white !important; 
+            font-size: 1.1rem; 
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .nav-link { 
+            color: rgba(255,255,255,0.9) !important; 
+            font-size: 0.8rem; 
+            margin: 0 3px;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+            padding: 4px 8px !important;
+        }
+
+        .nav-link:hover { 
+            color: white !important; 
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary { 
+            background: var(--gradient-primary); 
+            border: none;
+            border-radius: 3px;
+            padding: 4px 10px;
+            font-weight: 600;
+            font-size: 0.7rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(2, 33, 65, 0.3);
+        }
+
+        .btn-primary:hover { 
+            background: linear-gradient(135deg, #01376d 0%, #022141 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(2, 33, 65, 0.4);
+        }
+
+        .btn-info {
+            background: var(--gradient-secondary);
+            border: none;
+            border-radius: 3px;
+            padding: 3px 7px;
+            font-weight: 600;
+            font-size: 0.65rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 188, 212, 0.3);
+        }
+
+        .btn-info:hover {
+            background: linear-gradient(135deg, #0097a7 0%, #00bcd4 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 188, 212, 0.4);
+        }
+
+        .btn-success {
+            background: var(--gradient-success);
+            border: none;
+            border-radius: 3px;
+            padding: 3px 7px;
+            font-weight: 600;
+            font-size: 0.65rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #388e3c 0%, #4caf50 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            border: none;
+            border-radius: 3px;
+            padding: 3px 7px;
+            font-weight: 600;
+            font-size: 0.65rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(108, 117, 125, 0.4);
+        }
+
+        .btn-warning {
+            background: var(--gradient-warning);
+            border: none;
+            border-radius: 3px;
+            padding: 3px 7px;
+            font-weight: 600;
+            font-size: 0.65rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(255, 152, 0, 0.3);
+        }
+
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #f57c00 0%, #ff9800 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(255, 152, 0, 0.4);
+        }
+
+        .btn-outline-success {
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+            background: transparent;
+            border-radius: 3px;
+            padding: 3px 7px;
+            font-weight: 600;
+            font-size: 0.65rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-success:hover {
+            background: var(--gradient-success);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-info {
+            color: var(--secondary-color);
+            border: 1px solid var(--secondary-color);
+            background: transparent;
+            border-radius: 3px;
+            padding: 3px 7px;
+            font-weight: 600;
+            font-size: 0.65rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-info:hover {
+            background: var(--gradient-secondary);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-warning {
+            color: var(--warning-color);
+            border: 1px solid var(--warning-color);
+            background: transparent;
+            border-radius: 3px;
+            padding: 3px 7px;
+            font-weight: 600;
+            font-size: 0.65rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-warning:hover {
+            background: var(--gradient-warning);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .card {
+            border: none;
+            border-radius: 6px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            background: var(--gradient-primary);
+            border: none;
+            padding: 0.4rem;
+            border-radius: 6px 6px 0 0 !important;
+        }
+
+        .stats-card {
+            background: var(--gradient-primary);
+            border-radius: 4px;
+            padding: 0.3rem;
+            color: white;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 4px rgba(2, 33, 65, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .stats-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(2, 33, 65, 0.4);
+        }
+
+        .stats-card.success {
+            background: var(--gradient-success);
+            box-shadow: 0 1px 4px rgba(76, 175, 80, 0.3);
+        }
+
+        .stats-card.warning {
+            background: var(--gradient-warning);
+            box-shadow: 0 1px 4px rgba(255, 152, 0, 0.3);
+        }
+
+        .stats-card.info {
+            background: var(--gradient-info);
+            box-shadow: 0 1px 4px rgba(0, 188, 212, 0.3);
+        }
+
+        .table {
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            font-size: 0.7rem;
+        }
+
+        .table thead th {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 0.3rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+            font-size: 0.6rem;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(0, 188, 212, 0.1) 0%, rgba(2, 33, 65, 0.05) 100%);
+            transform: scale(1.001);
+        }
+
+        .table td {
+            vertical-align: middle;
+            padding: 0.3rem;
+            border: none;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .badge {
+            padding: 2px 5px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.6rem;
+        }
+
+        .badge.bg-success {
+            background: var(--gradient-success) !important;
+        }
+
+        .badge.bg-warning {
+            background: var(--gradient-warning) !important;
+        }
+
+        .badge.bg-info {
+            background: var(--gradient-secondary) !important;
+        }
+
+        .badge.bg-primary {
+            background: var(--gradient-primary) !important;
+        }
+
+        .badge.bg-danger {
+            background: var(--gradient-warning) !important;
+        }
+
+        .btn-group .btn {
+            border-radius: 3px;
+            margin: 0 1px;
+            transition: all 0.3s ease;
+            font-size: 0.6rem;
+        }
+
+        .btn-group .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .pagination .page-link {
+            border: none;
+            color: var(--primary-color);
+            border-radius: 3px;
+            margin: 0 1px;
+            transition: all 0.3s ease;
+            padding: 0.2rem 0.3rem;
+            font-size: 0.7rem;
+        }
+
+        .pagination .page-link:hover {
+            background: var(--gradient-primary);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .pagination .page-item.active .page-link {
+            background: var(--gradient-primary);
+            border: none;
+        }
+
+        .form-control, .form-select {
+            border-radius: 3px;
+            border: 1px solid rgba(0,0,0,0.1);
+            padding: 0.25rem 0.4rem;
+            font-size: 0.7rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 188, 212, 0.25);
+        }
+
+        .equipment-name {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 0.75rem;
+        }
+
+        .equipment-location {
+            color: #6c757d;
+            font-size: 0.6rem;
+            font-style: italic;
+        }
+
+        .empty-state {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 6px;
+            padding: 0.8rem;
+            text-align: center;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .empty-state i {
+            color: var(--secondary-color);
+            margin-bottom: 0.3rem;
+        }
+
+        .container {
+            max-width: 1400px;
+        }
+
+        .container.mt-4 {
+            margin-top: 0.5rem !important;
+        }
+
+        .row.mb-4 {
+            margin-bottom: 0.5rem !important;
+        }
+
+        .row.mt-4 {
+            margin-top: 0.5rem !important;
+        }
+
+        .card-body.p-0 {
+            padding: 0 !important;
+        }
+
+        .card-footer {
+            padding: 0.4rem 0.6rem;
+        }
+
+        .text-center.mt-3 {
+            margin-top: 0.4rem !important;
+        }
+
+        .text-center.mt-3 p {
+            margin-bottom: 0 !important;
+        }
+
+        .btn-sm {
+            padding: 0.2rem 0.4rem;
+            font-size: 0.6rem;
+        }
+
+        .fa-2x {
+            font-size: 1rem;
+        }
+
+        .fa-3x {
+            font-size: 1.4rem;
+        }
+
+        .stats-card h3 {
+            font-size: 0.8rem;
+            margin-bottom: 0.1rem;
+        }
+
+        .stats-card p {
+            font-size: 0.6rem;
+            margin-bottom: 0;
+        }
+
+        .card-header h4, .card-header h5 {
+            font-size: 0.8rem;
+        }
+
+        .empty-state h4 {
+            font-size: 0.9rem;
+        }
+
+        .empty-state p {
+            font-size: 0.7rem;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 0.75rem;
+            font-weight: bold;
+        }
+
+        .alert {
+            border-radius: 3px;
+            padding: 0.4rem 0.6rem;
+            font-size: 0.7rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress {
+            height: 6px;
+            border-radius: 3px;
+        }
+
+        .progress-bar {
+            background: var(--gradient-warning);
+        }
+
+        .border-end {
+            border-color: rgba(255,255,255,0.2) !important;
+        }
+
+        @media (max-width: 768px) {
+            .stats-card {
+                margin-bottom: 0.4rem;
+        }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn-group .btn {
+                margin: 1px 0;
+            }
+
+            .container.mt-4 {
+                margin-top: 0.5rem !important;
+            }
+
+            .row.mb-4 {
+                margin-bottom: 0.5rem !important;
+            }
+        }
+
+        .fila-activo { background: #fff !important; }
+        .fila-completado { background: #d4edda !important; }
+        .fila-cancelado { background: #e2e3e5 !important; }
+        .fila-proximo { background: #fff3cd !important; }
+        .fila-vencido { background: #f8d7da !important; }
+        .fila-espera { background: #ffe066 !important; }
+
+        .table tr.fila-proximo > td,
+        tr.fila-proximo > td {
+            background: #fff3cd !important;
+        }
+
+        /* Máxima especificidad para filas de la tabla según estado */
+        .table > tbody > tr.fila-vencido > td,
+        tbody > tr.fila-vencido > td {
+            background: #f8d7da !important;
+        }
+        .table > tbody > tr.fila-proximo > td,
+        tbody > tr.fila-proximo > td {
+            background: #fff3cd !important;
+        }
+        .table > tbody > tr.fila-espera > td,
+        tbody > tr.fila-espera > td {
+            background: #ffe066 !important;
+        }
+        .table > tbody > tr.fila-completado > td,
+        tbody > tr.fila-completado > td {
+            background: #d4edda !important;
+        }
+        .table > tbody > tr.fila-cancelado > td,
+        tbody > tr.fila-cancelado > td {
+            background: #e2e3e5 !important;
+        }
+        .table > tbody > tr.fila-activo > td,
+        tbody > tr.fila-activo > td {
+            background: #fff !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Formas flotantes animadas -->
+    <div class="floating-shapes">
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand">
+                <i class="fas fa-calendar-alt me-2"></i>
+                Gestión de Mantenimientos
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('home_bp.index') }}">
+                            <i class="fas fa-home me-1"></i> Inicio
+                        </a>
+                    </li>
+                    {% if current_user.is_admin() %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('usuarios.lista_usuarios') }}">
+                            <i class="fas fa-users me-1"></i> Usuarios
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if current_user.is_admin() or current_user.is_supervisor() %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('equipment.lista_equipos') }}">
+                            <i class="fas fa-tools me-1"></i> Equipos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('lubrication.lista_cartas') }}">
+                            <i class="fas fa-oil-can me-1"></i> Lubricaciones
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('companies.lista') }}">
+                            <i class="fas fa-building me-1"></i> Empresas
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    {% if current_user.is_admin() or current_user.is_supervisor() %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('maintenance.programar') }}">
+                            <i class="fas fa-plus-circle me-1"></i> Agregar
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Mensajes flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="container-fluid mt-3">
+            
+            <!-- Estadísticas por Estado -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0 text-white">
+                                <i class="fas fa-chart-pie me-2"></i> Estadísticas por Estado
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                {% if estadisticas_estados %}
+                                    {% for estado, stats in estadisticas_estados.items() %}
+                                        <div class="col-md-2 col-sm-4 col-6 mb-1">
+                                            <div class="text-center p-1 rounded" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 1px solid #dee2e6;">
+                                                {% if estado == 'Completado' %}
+                                                    <div style="color: #198754;">
+                                                        <i class="fas fa-check-circle fa-2x mb-1"></i>
+                                                        <h6 class="mb-0" style="font-size: 0.6rem; color: #198754;">{{ estado }}</h6>
+                                                        <h4 class="mb-0 fw-bold" style="font-size: 0.9rem; color: #198754;">{{ stats.count }}</h4>
+                                                        <small class="text-muted" style="font-size: 0.7rem;">{{ stats.porcentaje }}%</small>
+                                                    </div>
+                                                {% elif estado == 'Cancelado' %}
+                                                    <div style="color: #dc3545;">
+                                                        <i class="fas fa-times-circle fa-2x mb-1"></i>
+                                                        <h6 class="mb-0" style="font-size: 0.6rem; color: #dc3545;">{{ estado }}</h6>
+                                                        <h4 class="mb-0 fw-bold" style="font-size: 0.9rem; color: #dc3545;">{{ stats.count }}</h4>
+                                                        <small class="text-muted" style="font-size: 0.7rem;">{{ stats.porcentaje }}%</small>
+                                                    </div>
+                                                {% elif estado == 'En proceso' %}
+                                                    <div style="color: #0dcaf0;">
+                                                        <i class="fas fa-clock fa-2x mb-1"></i>
+                                                        <h6 class="mb-0" style="font-size: 0.6rem; color: #0dcaf0;">{{ estado }}</h6>
+                                                        <h4 class="mb-0 fw-bold" style="font-size: 0.9rem; color: #0dcaf0;">{{ stats.count }}</h4>
+                                                        <small class="text-muted" style="font-size: 0.7rem;">{{ stats.porcentaje }}%</small>
+                                                    </div>
+                                                {% elif estado == 'Vencido' %}
+                                                    <div style="color: #ff0000;">
+                                                        <i class="fas fa-exclamation-triangle fa-2x mb-1"></i>
+                                                        <h6 class="mb-0" style="font-size: 0.6rem; color: #ff0000;">{{ estado }}</h6>
+                                                        <h4 class="mb-0 fw-bold" style="font-size: 0.9rem; color: #ff0000;">{{ stats.count }}</h4>
+                                                        <small class="text-muted" style="font-size: 0.7rem;">{{ stats.porcentaje }}%</small>
+                                                    </div>
+                                                {% elif estado == 'Programado' %}
+                                                    <div style="color: #0d6efd;">
+                                                        <i class="fas fa-calendar fa-2x mb-1"></i>
+                                                        <h6 class="mb-0" style="font-size: 0.6rem; color: #0d6efd;">{{ estado }}</h6>
+                                                        <h4 class="mb-0 fw-bold" style="font-size: 0.9rem; color: #0d6efd;">{{ stats.count }}</h4>
+                                                        <small class="text-muted" style="font-size: 0.7rem;">{{ stats.porcentaje }}%</small>
+                                                    </div>
+                                                {% elif estado == 'Asignado' %}
+                                                    <div style="color: #6f42c1;">
+                                                        <i class="fas fa-cogs fa-2x mb-1"></i>
+                                                        <h6 class="mb-0" style="font-size: 0.6rem; color: #6f42c1;">{{ estado }}</h6>
+                                                        <h4 class="mb-0 fw-bold" style="font-size: 0.9rem; color: #6f42c1;">{{ stats.count }}</h4>
+                                                        <small class="text-muted" style="font-size: 0.7rem;">{{ stats.porcentaje }}%</small>
+                                                    </div>
+                                                {% elif estado == 'En espera(Repuestos)' %}
+                                                    <div style="color: #fd7e14;">
+                                                        <i class="fas fa-tools fa-2x mb-1"></i>
+                                                        <h6 class="mb-0" style="font-size: 0.6rem; color: #fd7e14;">{{ estado }}</h6>
+                                                        <h4 class="mb-0 fw-bold" style="font-size: 0.9rem; color: #fd7e14;">{{ stats.count }}</h4>
+                                                        <small class="text-muted" style="font-size: 0.7rem;">{{ stats.porcentaje }}%</small>
+                                                    </div>
+                                                {% elif estado == 'Aplazado' %}
+                                                    <div style="color: #ffc107;">
+                                                        <i class="fas fa-pause-circle fa-2x mb-1"></i>
+                                                        <h6 class="mb-0" style="font-size: 0.6rem; color: #ffc107;">{{ estado }}</h6>
+                                                        <h4 class="mb-0 fw-bold" style="font-size: 0.9rem; color: #ffc107;">{{ stats.count }}</h4>
+                                                        <small class="text-muted" style="font-size: 0.7rem;">{{ stats.porcentaje }}%</small>
+                                                    </div>
+                                                {% elif estado == 'Pausado' %}
+                                                    <div style="color: #20c997;">
+                                                        <i class="fas fa-stop-circle fa-2x mb-1"></i>
+                                                        <h6 class="mb-0" style="font-size: 0.6rem; color: #20c997;">{{ estado }}</h6>
+                                                        <h4 class="mb-0 fw-bold" style="font-size: 0.9rem; color: #20c997;">{{ stats.count }}</h4>
+                                                        <small class="text-muted" style="font-size: 0.7rem;">{{ stats.porcentaje }}%</small>
+                                                    </div>
+                                                {% else %}
+                                                    <div style="color: #6c757d;">
+                                                        <i class="fas fa-cog fa-2x mb-1"></i>
+                                                        <h6 class="mb-0" style="font-size: 0.6rem; color: #6c757d;">{{ estado }}</h6>
+                                                        <h4 class="mb-0 fw-bold" style="font-size: 0.9rem; color: #6c757d;">{{ stats.count }}</h4>
+                                                        <small class="text-muted" style="font-size: 0.7rem;">{{ stats.porcentaje }}%</small>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="col-12 text-center">
+                                        <p class="text-muted">No hay datos para mostrar</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Resumen general -->
+                            <div class="row mt-2">
+                                <div class="col-12">
+                                    <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: linear-gradient(135deg, #022141 0%, #01376d 100%); color: white;">
+                                        <div>
+                                            <h6 class="mb-0" style="font-size: 0.6rem;">Total de Mantenimientos</h6>
+                                            <h3 class="mb-0 fw-bold" style="font-size: 1rem;">{{ total_mantenimientos }}</h3>
+                                        </div>
+                                        <div class="text-center">
+                                            <h6 class="mb-0" style="font-size: 0.6rem;">Vencidos</h6>
+                                            <h4 class="mb-0 text-warning" style="font-size: 0.9rem;">{{ mantenimientos_vencidos }}</h4>
+                                        </div>
+                                        <div class="text-center">
+                                            <h6 class="mb-0" style="font-size: 0.6rem;">Esta Semana</h6>
+                                            <h4 class="mb-0 text-info" style="font-size: 0.9rem;">{{ mantenimientos_esta_semana }}</h4>
+                                        </div>
+                                        <div class="text-center">
+                                            <h6 class="mb-0" style="font-size: 0.6rem;">Este Mes</h6>
+                                            <h4 class="mb-0 text-primary" style="font-size: 0.9rem;">{{ mantenimientos_este_mes }}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas por Tipo de Mantenimiento -->
+            {% if tipos_mantenimiento_stats %}
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0 text-white">
+                                <i class="fas fa-chart-bar me-2"></i> Estadísticas por Tipo
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                {% for tipo, stats in tipos_mantenimiento_stats.items() %}
+                                    <div class="col-md-3 col-sm-6 mb-1">
+                                        <div class="text-center p-2 rounded" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 1px solid #dee2e6;">
+                                            {% if tipo == 'Preventivo' %}
+                                                <div style="color: #0d6efd;">
+                                                    <i class="fas fa-shield-alt fa-2x mb-1"></i>
+                                                    <h6 class="mb-0" style="font-size: 0.6rem; color: #0d6efd;">{{ tipo }}</h6>
+                                                    <h4 class="mb-0 fw-bold" style="font-size: 0.9rem; color: #0d6efd;">{{ stats.count }}</h4>
+                                                    <small class="text-muted" style="font-size: 0.7rem;">{{ stats.porcentaje }}%</small>
+                                                </div>
+                                            {% elif tipo == 'Correctivo' %}
+                                                <div style="color: #fd7e14;">
+                                                    <i class="fas fa-wrench fa-2x mb-1"></i>
+                                                    <h6 class="mb-0" style="font-size: 0.6rem; color: #fd7e14;">{{ tipo }}</h6>
+                                                    <h4 class="mb-0 fw-bold" style="font-size: 0.9rem; color: #fd7e14;">{{ stats.count }}</h4>
+                                                    <small class="text-muted" style="font-size: 0.7rem;">{{ stats.porcentaje }}%</small>
+                                                </div>
+                                            {% elif tipo == 'Predictivo' %}
+                                                <div style="color: #0dcaf0;">
+                                                    <i class="fas fa-chart-line fa-2x mb-1"></i>
+                                                    <h6 class="mb-0" style="font-size: 0.6rem; color: #0dcaf0;">{{ tipo }}</h6>
+                                                    <h4 class="mb-0 fw-bold" style="font-size: 0.9rem; color: #0dcaf0;">{{ stats.count }}</h4>
+                                                    <small class="text-muted" style="font-size: 0.7rem;">{{ stats.porcentaje }}%</small>
+                                                </div>
+                                            {% else %}
+                                                <div style="color: #6c757d;">
+                                                    <i class="fas fa-cog fa-2x mb-1"></i>
+                                                    <h6 class="mb-0" style="font-size: 0.6rem; color: #6c757d;">{{ tipo }}</h6>
+                                                    <h4 class="mb-0 fw-bold" style="font-size: 0.9rem; color: #6c757d;">{{ stats.count }}</h4>
+                                                    <small class="text-muted" style="font-size: 0.7rem;">{{ stats.porcentaje }}%</small>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Estadísticas para técnicos -->
+        {% if stats_tecnico %}
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0 text-white" style="font-size: 0.8rem;">
+                            <i class="fas fa-chart-bar me-2"></i> Mis Estadísticas de Mantenimientos
+                        </h5>
+                    </div>
+                    <div class="card-body p-2">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <div class="border-end">
+                                    <h3 class="mb-1" style="color: var(--primary-color); font-size: 1rem;">{{ stats_tecnico.programados }}</h3>
+                                    <p class="text-muted mb-0" style="font-size: 0.6rem;">Programados</p>
+                                    <small class="text-muted" style="font-size: 0.5rem;">En espera de ejecución</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="border-end">
+                                    <h3 class="mb-1" style="color: var(--success-color); font-size: 1rem;">{{ stats_tecnico.completados }}</h3>
+                                    <p class="text-muted mb-0" style="font-size: 0.6rem;">Completados</p>
+                                    <small class="text-muted" style="font-size: 0.5rem;">Mantenimientos finalizados</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="border-end">
+                                    <h3 class="mb-1" style="color: var(--secondary-color); font-size: 1rem;">{{ stats_tecnico.total_asignados }}</h3>
+                                    <p class="text-muted mb-0" style="font-size: 0.6rem;">Total Asignados</p>
+                                    <small class="text-muted" style="font-size: 0.5rem;">Todos los mantenimientos</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <h3 class="mb-1" style="color: var(--warning-color); font-size: 1rem;">{{ stats_tecnico.porcentaje_completado }}%</h3>
+                                <p class="text-muted mb-0" style="font-size: 0.6rem;">Progreso</p>
+                                <div class="progress mt-1">
+                                    <div class="progress-bar" role="progressbar" 
+                                         style="width: {{ stats_tecnico.porcentaje_completado }}%;" 
+                                         aria-valuenow="{{ stats_tecnico.porcentaje_completado }}" 
+                                         aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                </div>
+                                <small class="text-muted" style="font-size: 0.5rem;">Eficiencia general</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Notificaciones de mantenimientos completados (solo para admin y supervisor) -->
+        {% if current_user.is_admin() or current_user.is_supervisor() %}
+        {% set mantenimientos_completados_recientes = mantenimientos | selectattr('estado_final', 'equalto', 'Completado') | list %}
+        {% if mantenimientos_completados_recientes %}
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <h5 class="alert-heading" style="font-size: 0.9rem;">
+                        <i class="fas fa-check-circle me-1"></i> Mantenimientos Completados Recientemente
+                    </h5>
+                    <p class="mb-2" style="font-size: 0.7rem;">Los siguientes técnicos han completado mantenimientos:</p>
+                    <div class="row">
+                        {% for mtto in mantenimientos_completados_recientes[:5] %}
+                        <div class="col-md-6 mb-2">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-user-check text-success me-2"></i>
+                                <div>
+                                    <strong style="font-size: 0.7rem;">{{ mtto.tecnico_realizador_display }}</strong> completó 
+                                    <strong style="font-size: 0.7rem;">{{ mtto.codigo }}</strong> ({{ mtto.nombre }})
+                                    {% if mtto.hora_final %}
+                                    <br><small class="text-muted" style="font-size: 0.6rem;">{{ mtto.hora_final.strftime('%d/%m/%Y %H:%M') }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if mantenimientos_completados_recientes | length > 5 %}
+                    <p class="mb-0 mt-2">
+                        <small class="text-muted" style="font-size: 0.6rem;">Y {{ (mantenimientos_completados_recientes | length) - 5 }} mantenimientos más completados.</small>
+                    </p>
+                    {% endif %}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endif %}
+        
+        <!-- Botón para reporte de equipos sin preventivos (solo admin y supervisor) -->
+        {% if equipos_sin_preventivo and (current_user.is_admin() or current_user.is_supervisor()) %}
+        <div class="row mb-3">
+            <div class="col-12 text-center">
+                <a href="{{ url_for('maintenance.equipos_sin_preventivo') }}" class="btn btn-warning">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    Ver {{ equipos_sin_preventivo|length }} Máquinas/Equipos Sin Mantenimientos Preventivos
+                </a>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Botones de descarga -->
+        <div class="row mb-3">
+            <div class="col-12 text-end">
+                <a href="{{ url_for('maintenance.descargar_todos', **request.args) }}" class="btn btn-outline-success me-2" target="_blank">
+                    <i class="fas fa-file-pdf me-1"></i> Descargar PDF
+                </a>
+                <a href="{{ url_for('maintenance.descargar_informe_excel', **request.args) }}" class="btn btn-outline-info me-2">
+                    <i class="fas fa-file-excel me-1"></i> Descargar Excel
+                </a>
+                {% if current_user.is_super_admin() or current_user.is_admin() or current_user.is_supervisor() %}
+                <a href="{{ url_for('maintenance.estadisticas_tecnicos', year=year) }}" class="btn btn-outline-warning">
+                    <i class="fas fa-chart-line me-1"></i> Estadísticas de Técnicos
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Filtros -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="mb-0 text-white">
+                    <i class="fas fa-filter me-2"></i> Filtros de Búsqueda
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('maintenance.lista') }}">
+                    <div class="row g-2">
+                        <div class="col-md-1">
+                            <label for="id_filtro" class="form-label" style="font-size: 0.7rem;">ID</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
+                                <input type="number" class="form-control" id="id_filtro" name="id" placeholder="ID" value="{{ filtro_id or '' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="fecha_inicio_filtro" class="form-label" style="font-size: 0.7rem;">Fecha Inicio</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                <input type="date" class="form-control" id="fecha_inicio_filtro" name="fecha_inicio" value="{{ filtro_fecha_inicio or '' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="fecha_fin_filtro" class="form-label" style="font-size: 0.7rem;">Fecha Fin</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                <input type="date" class="form-control" id="fecha_fin_filtro" name="fecha_fin" value="{{ filtro_fecha_fin or '' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <label for="year_filtro" class="form-label" style="font-size: 0.7rem;">Año</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                <select class="form-select" id="year_filtro" name="year">
+                                <option value="">Todos</option>
+                                    {% for year_option in years %}
+                                    <option value="{{ year_option }}" {% if year_option|string == year|string %}selected{% endif %}>{{ year_option }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        </div>
+                        <div class="col-md-1">
+                            <label for="month_filtro" class="form-label" style="font-size: 0.7rem;">Mes</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-calendar-day"></i></span>
+                                <select class="form-select" id="month_filtro" name="month">
+                                    <option value="">Todos</option>
+                                    <option value="1" {% if month == 1 %}selected{% endif %}>Ene</option>
+                                    <option value="2" {% if month == 2 %}selected{% endif %}>Feb</option>
+                                    <option value="3" {% if month == 3 %}selected{% endif %}>Mar</option>
+                                    <option value="4" {% if month == 4 %}selected{% endif %}>Abr</option>
+                                    <option value="5" {% if month == 5 %}selected{% endif %}>May</option>
+                                    <option value="6" {% if month == 6 %}selected{% endif %}>Jun</option>
+                                    <option value="7" {% if month == 7 %}selected{% endif %}>Jul</option>
+                                    <option value="8" {% if month == 8 %}selected{% endif %}>Ago</option>
+                                    <option value="9" {% if month == 9 %}selected{% endif %}>Sep</option>
+                                    <option value="10" {% if month == 10 %}selected{% endif %}>Oct</option>
+                                    <option value="11" {% if month == 11 %}selected{% endif %}>Nov</option>
+                                    <option value="12" {% if month == 12 %}selected{% endif %}>Dic</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="estado_inicial" class="form-label" style="font-size: 0.7rem;">Estado</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
+                                <select class="form-select" id="estado_inicial" name="estado_inicial">
+                                    <option value="" {% if not filtro_estado %}selected{% endif %}>Todos</option>
+                                    <option value="Programado" {% if filtro_estado == 'Programado' %}selected{% endif %}>Programado</option>
+                                    <option value="En Proceso" {% if filtro_estado == 'En Proceso' %}selected{% endif %}>En Proceso</option>
+                                    <option value="Completado" {% if filtro_estado == 'Completado' %}selected{% endif %}>Completado</option>
+                                    <option value="Cancelado" {% if filtro_estado == 'Cancelado' %}selected{% endif %}>Cancelado</option>
+                                    <option value="Vencido" {% if filtro_estado == 'Vencido' %}selected{% endif %}>Vencido</option>
+                                    <option value="Aplazado" {% if filtro_estado == 'Aplazado' %}selected{% endif %}>Aplazado</option>
+                                    <option value="Pausado" {% if filtro_estado == 'Pausado' %}selected{% endif %}>Pausado</option>
+                                    <option value="En espera(Repuestos)" {% if filtro_estado == 'En espera(Repuestos)' %}selected{% endif %}>En espera(Repuestos)</option>
+                            </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="equipo_filtro" class="form-label" style="font-size: 0.7rem;">Equipo</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-cogs"></i></span>
+                                <select class="form-select" id="equipo_filtro" name="equipo">
+                                    <option value="">Todos los equipos</option>
+                                    {% for codigo, nombre in equipos %}
+                                    <option value="{{ codigo }}" {% if codigo == filtro_equipo %}selected{% endif %}>{{ codigo }}</option>
+                                {% endfor %}
+                            </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                        <label for="tecnico_filtro" class="form-label" style="font-size: 0.7rem;">Técnico</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <select class="form-select" id="tecnico_filtro" name="tecnico">
+                                <option value="">Todos</option>
+                                    {% for tecnico in tecnicos %}
+                                    <option value="{{ tecnico }}" {% if tecnico == filtro_tecnico %}selected{% endif %}>{{ tecnico }}</option>
+                                {% endfor %}
+                            </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label for="tipo_mantenimiento_filtro" class="form-label" style="font-size: 0.7rem;">Tipo de Mantenimiento</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-tools"></i></span>
+                                <select class="form-select" id="tipo_mantenimiento_filtro" name="tipo_mantenimiento">
+                                <option value="">Todos</option>
+                                    {% for tipo in tipos_mantenimiento %}
+                                    <option value="{{ tipo }}" {% if filtro_tipo_mantenimiento == tipo %}selected{% endif %}>{{ tipo }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <div class="d-flex gap-2 w-100">
+                            <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search me-1"></i> Buscar
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="limpiarFiltros()">
+                                    <i class="fas fa-times me-1"></i> Limpiar
+                            </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tabla de mantenimientos -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0 text-white">
+                    <i class="fas fa-calendar-alt me-2"></i> Lista de Mantenimientos
+                </h5>
+            </div>
+            <div class="card-body p-0">
+        <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                                <th><i class="fas fa-hashtag me-2"></i>ID</th>
+                                <th><i class="fas fa-hashtag me-2"></i>Código</th>
+                                <th><i class="fas fa-cogs me-2"></i>Equipo</th>
+                                <th><i class="fas fa-tools me-2"></i>Tipo</th>
+                                <th><i class="fas fa-user me-2"></i>Técnico</th>
+                                <th><i class="fas fa-calendar me-2"></i>Fecha Programada</th>
+                                <th><i class="fas fa-calendar-plus me-2"></i>Próximo Mantenimiento</th>
+                                <th><i class="fas fa-sync-alt me-2"></i>Frecuencia</th>
+                                <th><i class="fas fa-info-circle me-2"></i>Estado</th>
+                                <th><i class="fas fa-cogs me-2"></i>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                            {% if mantenimientos %}
+                                {% for mantenimiento in mantenimientos %}
+                                    <tr{% if mantenimiento.id in ids_vencidos %} class="fila-vencido"{% elif mantenimiento.id in ids_proximos %} class="fila-proximo"{% elif mantenimiento.estado_inicial == 'En espera(Repuestos)' %} class="fila-espera"{% elif mantenimiento.estado_inicial == 'Completado' %} class="fila-completado"{% elif mantenimiento.estado_inicial == 'Cancelado' %} class="fila-cancelado"{% elif mantenimiento.estado_inicial in ['Programado', 'Asignado', 'En proceso', 'En Proceso'] %} class="fila-activo"{% endif %}>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ mantenimiento.id }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="equipment-name">{{ mantenimiento.codigo }}</span>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <strong>{{ mantenimiento.nombre }}</strong>
+                                                {% if mantenimiento.ubicacion %}
+                                                    <br><small class="text-muted">{{ mantenimiento.ubicacion }}</small>
+                            {% endif %}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if mantenimiento.tipo_mantenimiento == 'Preventivo' %}
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-shield-alt me-1"></i> Preventivo
+                                                </span>
+                                            {% elif mantenimiento.tipo_mantenimiento == 'Correctivo' %}
+                                                <span class="badge bg-warning">
+                                                    <i class="fas fa-wrench me-1"></i> Correctivo
+                                                </span>
+                                            {% elif mantenimiento.tipo_mantenimiento == 'Predictivo' %}
+                                                <span class="badge bg-info">
+                                                    <i class="fas fa-chart-line me-1"></i> Predictivo
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">
+                                                    <i class="fas fa-cog me-1"></i> {{ mantenimiento.tipo_mantenimiento }}
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span>{{ mantenimiento.tecnico_asignado_display or 'No asignado' }}</span>
+                        </td>
+                        <td>
+                                            <small>{{ mantenimiento.fecha_prog.strftime('%d/%m/%Y') if mantenimiento.fecha_prog else 'No programada' }}</small>
+                        </td>
+                        <td>
+                                            <small>
+                                                {% if mantenimiento.prox_mtto %}
+                                                    {{ mantenimiento.prox_mtto.strftime('%d/%m/%Y') }}
+                            {% else %}
+                                                    <span class="text-muted">No calculada</span>
+                            {% endif %}
+                                            </small>
+                        </td>
+                        <td>
+                            <span>{{ mantenimiento.frecuencia or '' }}</span>
+                        </td>
+                        <td>
+                            {% if mantenimiento.id in ids_vencidos %}
+                                <span class="badge" style="background: #ff0000 !important; color: #fff !important; border: none !important; font-weight: bold;">
+                                    <i class="fas fa-exclamation-triangle me-1" style="color: #fff !important;"></i>
+                                    <span style="color: #fff !important;">Vencido</span>
+                                </span>
+                            {% elif mantenimiento.id in ids_proximos %}
+                                <span class="badge" style="background: #ffc107 !important; color: #fff !important; border: none !important; font-weight: bold;">
+                                    <i class="fas fa-exclamation-triangle me-1" style="color: #fff !important;"></i>
+                                    Próximo a vencer
+                                </span>
+                            {% elif mantenimiento.estado_inicial == 'Completado' %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check me-1"></i> Completado
+                                </span>
+                            {% elif mantenimiento.estado_inicial == 'En Proceso' or mantenimiento.estado_inicial == 'En proceso' %}
+                                <span class="badge bg-info">
+                                    <i class="fas fa-clock me-1"></i> En Proceso
+                                </span>
+                            {% elif mantenimiento.estado_inicial == 'Cancelado' %}
+                                <span class="badge bg-dark">
+                                    <i class="fas fa-times me-1"></i> Cancelado
+                                </span>
+                            {% elif mantenimiento.estado_inicial == 'Programado' %}
+                                <span class="badge bg-primary">
+                                    <i class="fas fa-calendar me-1"></i> Programado
+                                </span>
+                            {% elif mantenimiento.estado_inicial == 'Asignado' %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-user-check me-1"></i> Asignado
+                                </span>
+                            {% elif mantenimiento.estado_inicial == 'En espera(Repuestos)' %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-tools me-1"></i> En espera(Repuestos)
+                                </span>
+                            {% elif mantenimiento.estado_inicial == 'Aplazado' %}
+                                <span class="badge" style="background: #6f42c1 !important; color: #fff !important;">
+                                    <i class="fas fa-pause me-1"></i> Aplazado
+                                </span>
+                            {% elif mantenimiento.estado_inicial == 'Pausado' %}
+                                <span class="badge" style="background: #20c997 !important; color: #fff !important;">
+                                    <i class="fas fa-pause-circle me-1"></i> Pausado
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary">
+                                    <i class="fas fa-info-circle me-1"></i> {{ mantenimiento.estado_inicial }}
+                                    </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('maintenance.ver_mantenimiento', id=mantenimiento.id) }}" class="btn btn-info btn-sm" title="Ver">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                {% if current_user.can_delete() or (mantenimiento.estado_final != 'Completado' and mantenimiento.estado_final != 'Cancelado') %}
+                                                <a href="{{ url_for('maintenance.editar_mantenimiento', id=mantenimiento.id) }}" class="btn btn-primary btn-sm" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% endif %}
+                                                <a href="{{ url_for('maintenance.imprimir_mantenimiento', id=mantenimiento.id) }}" class="btn btn-success btn-sm" title="Imprimir">
+                                                    <i class="fas fa-print"></i>
+                                                </a>
+                                                {% if current_user.can_delete() %}
+                                                <form method="POST" action="{{ url_for('maintenance.eliminar_mantenimiento', id=mantenimiento.id) }}" style="display: inline;" onsubmit="return confirmarEliminacion()">
+                                                    {{ form_eliminar.hidden_tag() }}
+                                    <button type="submit" class="btn btn-danger btn-sm" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                </button>
+                                                </form>
+                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="9" class="text-center">
+                                        <div class="empty-state">
+                                            <i class="fas fa-calendar-alt fa-3x"></i>
+                                            <h4 class="mt-3">No hay mantenimientos registrados</h4>
+                                            <p>Comienza programando tu primer mantenimiento.</p>
+                                            {% if current_user.is_admin() or current_user.is_supervisor() %}
+                                            <a href="{{ url_for('maintenance.programar') }}" class="btn btn-primary">
+                                                <i class="fas fa-plus me-1"></i> Programar Mantenimiento
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                            {% endif %}
+                </tbody>
+            </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paginación -->
+        {% if pagination and pagination.pages > 1 %}
+            <div class="row mt-3">
+                <div class="col-12">
+                    <nav aria-label="Navegación de páginas">
+                        <ul class="pagination justify-content-center">
+                            {% if pagination.has_prev %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('maintenance.lista', page=pagination.prev_num, **request.args) }}">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for page_num in pagination.iter_pages() %}
+                                {% if page_num %}
+                                    {% if page_num != pagination.page %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ url_for('maintenance.lista', page=page_num, **request.args) }}">{{ page_num }}</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ page_num }}</span>
+                                        </li>
+                                    {% endif %}
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if pagination.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('maintenance.lista', page=pagination.next_num, **request.args) }}">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function confirmarEliminacion() {
+            return confirm("¿Estás seguro de que deseas eliminar este mantenimiento? Esta acción no se puede deshacer.");
+        }
+
+        function limpiarFiltros() {
+            // Redirigir a la URL base sin parámetros
+            window.location.href = "{{ url_for('maintenance.lista') }}";
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mantenimientos Programados - Formato Individual</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; margin: 20px; }
+        .page-break { page-break-after: always; }
+        @page { size: A4 landscape; }
+    </style>
+</head>
+<body>
+    {% for mantenimiento in mantenimientos %}
+        {% include 'maintenance/imprimir.html' %}
+        {% if not loop.last %}
+            <div class="page-break"></div>
+        {% endif %}
+    {% endfor %}
+    <script>
+// Mostrar número de página en pantalla (no afecta PDF)
+window.onload = function() {
+    var pageSpans = document.getElementsByClassName('pageNumber');
+    for (var i = 0; i < pageSpans.length; i++) {
+        pageSpans[i].textContent = 1;
+    }
+};
+    </script>
+</body>
+</html> 

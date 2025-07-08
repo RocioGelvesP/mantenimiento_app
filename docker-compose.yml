@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: mantenimiento_app
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+      - SECRET_KEY=tu_clave_secreta_muy_segura_aqui
+      - DATABASE_URL=sqlite:///mantenimiento.db
+    volumes:
+      # Persistir la base de datos SQLite
+      - ./data:/app/instance
+      # Persistir archivos subidos
+      - ./static/uploads:/app/static/uploads
+      # Persistir logs
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge 

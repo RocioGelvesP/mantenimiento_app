@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programar Mantenimiento</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #022141;
+            --secondary-color: #00bcd4;
+            --accent-color: #ff9800;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+            --gradient-primary: linear-gradient(135deg, #022141 0%, #01376d 100%);
+            --gradient-secondary: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+            --gradient-success: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+            --gradient-warning: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            --gradient-info: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+        }
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 11px;
+        }
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+            pointer-events: none;
+        }
+        .shape {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(0, 188, 212, 0.05) 0%, rgba(2, 33, 65, 0.03) 100%);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
+        }
+        .shape:nth-child(1) { width: 60px; height: 60px; top: 15%; left: 5%; animation-delay: 0s; }
+        .shape:nth-child(2) { width: 80px; height: 80px; top: 70%; right: 5%; animation-delay: 3s; }
+        .shape:nth-child(3) { width: 40px; height: 40px; bottom: 15%; left: 15%; animation-delay: 6s; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(180deg); }
+        }
+        .navbar {
+            background: var(--gradient-primary) !important;
+            padding: 0.25rem;
+            box-shadow: 0 1px 4px rgba(2, 33, 65, 0.3);
+        }
+        .navbar-brand {
+            color: white !important;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-size: 0.8rem;
+            margin: 0 3px;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+            padding: 4px 8px !important;
+        }
+        .nav-link:hover {
+            color: white !important;
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-1px);
+        }
+        .main-container {
+            max-width: 1200px;
+            margin: 1rem auto;
+            padding: 1.5rem;
+        }
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(2, 33, 65, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(2, 33, 65, 0.15);
+        }
+        .card-header {
+            background: var(--gradient-primary);
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 12px 12px 0 0 !important;
+            position: relative;
+        }
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(0, 188, 212, 0.1) 0%, transparent 100%);
+            pointer-events: none;
+        }
+        .card-title {
+            color: white;
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin: 0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .card-body {
+            padding: 2rem;
+        }
+        .form-label {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .form-label i {
+            color: var(--secondary-color);
+            font-size: 0.75rem;
+        }
+        .form-control, .form-select {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            background: white;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 188, 212, 0.25);
+            outline: none;
+        }
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(2, 33, 65, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #01376d 0%, #022141 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(2, 33, 65, 0.4);
+        }
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(108, 117, 125, 0.3);
+        }
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #5a6268 0%, #6c757d 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(108, 117, 125, 0.4);
+        }
+        .alert {
+            border-radius: 6px;
+            border: none;
+            font-size: 0.8rem;
+            padding: 0.75rem 1rem;
+        }
+        .alert-info {
+            background: var(--gradient-info);
+            color: white;
+        }
+        .alert-success {
+            background: var(--gradient-success);
+            color: white;
+        }
+        .alert-danger {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            color: white;
+        }
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 0.5rem;
+                padding: 1rem;
+            }
+            .card-body {
+                padding: 1.5rem;
+            }
+            .card-title {
+                font-size: 1.1rem;
+            }
+        }
+        .subcard {
+            background: linear-gradient(135deg, #022141 0%, #223A5E 100%);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(2,33,65,0.07);
+            padding: 0.5rem 1.2rem;
+            margin-bottom: 0.7rem;
+            display: flex;
+            align-items: center;
+            border-left: 5px solid var(--secondary-color);
+        }
+        .subcard-title {
+            font-size: 1.02rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <span class="navbar-brand">
+                <i class="fas fa-calendar-plus me-2"></i>
+                Programar Mantenimiento
+            </span>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ url_for('maintenance.lista') }}">
+                    <i class="fas fa-arrow-left me-1"></i>
+                    Regresar
+                </a>
+            </div>
+        </div>
+    </nav>
+    <div class="main-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="fas fa-calendar-plus"></i>
+                    Programar Mantenimiento
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" action="{{ url_for('maintenance.programar') }}">
+                    {{ form.hidden_tag() }}
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <strong>Por favor corrige los siguientes errores:</strong>
+                            <ul class="mb-0">
+                            {% for field, errors in form.errors.items() %}
+                                {% for error in errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle"></i>
+                        <strong>¡Nueva Funcionalidad!</strong> 
+                        <ul class="mb-0 mt-2">
+                            <li><strong>Múltiples Mantenimientos Preventivos:</strong> Ahora puedes programar múltiples mantenimientos preventivos para el mismo equipo, siempre que tengan diferentes servicios o frecuencias.</li>
+                            <li><strong>Ejemplo:</strong> Un equipo puede tener "Lubricación Mensual" y "Revisión Trimestral" al mismo tiempo.</li>
+                            <li><strong>Mantenimientos Correctivos y Predictivos:</strong> Se pueden programar para cualquier equipo sin restricciones.</li>
+                        </ul>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <div class="subcard mb-3 mt-3">
+                        <h6 class="subcard-title mb-0"><i class="fas fa-cubes me-2"></i>Información General</h6>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-2 d-flex align-items-center">
+                            <div class="mb-3 w-100">
+                                <label class="form-label"><i class="fas fa-hashtag me-1"></i> {{ form.codigo.label.text }}</label>
+                                {{ form.codigo(class="form-select") }}
+                            </div>
+                        </div>    
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-cogs me-1"></i> {{ form.nombre.label.text }}</label>
+                                {{ form.nombre(class="form-control", readonly=true) }}
+                            </div>
+                        </div>
+                    <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-map-marker-alt me-1"></i> {{ form.ubicacion.label.text }}</label>
+                            {{ form.ubicacion(class="form-control", readonly=true) }}
+                        </div>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-center">
+                            <div class="mb-3 w-100">
+                                <label class="form-label"><i class="fas fa-calendar-day me-1"></i> {{ form.fecha_prog.label.text }}</label>
+                            {{ form.fecha_prog(class="form-control", type="date") }}
+                            {% for error in form.fecha_prog.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-center">
+                            <div class="mb-3 w-100">
+                                <label class="form-label"><i class="fas fa-clock me-1"></i> {{ form.hora.label.text }}</label>
+                            {{ form.hora(class="form-control", type="time") }}
+                            {% for error in form.hora.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                    <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-building me-1"></i> {{ form.company_id.label.text }}</label>
+                            {{ form.company_id(class="form-select") }}
+                            {% for error in form.company_id.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-wrench me-1"></i> {{ form.servicio.label.text }}</label>
+                            {{ form.servicio(class="form-control") }}
+                            {% for error in form.servicio.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div> 
+                <div class="row g-3">
+                    <div class="col-md-2 d-flex align-items-center">
+                            <div class="mb-3 w-100">
+                                <label class="form-label"><i class="fas fa-tools me-1"></i> {{ form.tipo_mantenimiento.label.text }}</label>
+                            {{ form.tipo_mantenimiento(class="form-select") }}
+                            {% for error in form.tipo_mantenimiento.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-center">
+                            <div class="mb-3 w-100">
+                                <label class="form-label"><i class="fas fa-hourglass-half me-1"></i> {{ form.tiempo.label.text }}</label>
+                            {{ form.tiempo(class="form-control") }}
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="subcard mb-3 mt-3">
+                        <h6 class="subcard-title mb-0"><i class="fas fa-cubes me-2"></i>Recursos Necesarios</h6>
+                    </div>
+                    <div class="row g-3">
+                            <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-cogs"></i> {{ form.repuestos.label.text }}</label>
+                                    {{ form.repuestos(class="form-control") }}
+                                </div>
+                            </div>                    
+                            <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-tools"></i> {{ form.herramientas.label.text }}</label>
+                                {{ form.herramientas(class="form-control") }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-user-check"></i> {{ form.autorizado_por.label.text }}</label>
+                                {{ form.autorizado_por(class="form-control") }}
+                                {% for error in form.autorizado_por.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-user-cog"></i> {{ form.tecnico_asignado.label.text }}</label>
+                                {{ form.tecnico_asignado(class="form-select") }}
+                                {% for error in form.tecnico_asignado.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-user"></i> Técnico Realizador</label>
+                                <select name="tecnico_realizador_selector" id="tecnico_realizador_selector" class="form-select">
+                                    {% for value, label in opciones_tecnico_realizador %}
+                                        <option value="{{ value }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3" id="tecnico_realizador_texto_container" style="display: none;">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-user-edit"></i> Especificar Técnico/Empresa</label>
+                                <input type="text" name="tecnico_realizador_texto" id="tecnico_realizador_texto" class="form-control" placeholder="Ingrese nombre del técnico o empresa">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-thermometer-half"></i> {{ form.estado_inicial.label.text }}</label>
+                                {{ form.estado_inicial(class="form-select") }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-sync-alt"></i> {{ form.frecuencia.label.text }}</label>
+                                {{ form.frecuencia(class="form-control") }}
+                                {% for error in form.frecuencia.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-calendar-check"></i> {{ form.prox_mtto.label.text }}</label>
+                                {{ form.prox_mtto(class="form-control", type="date") }}
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="subcard mb-3 mt-3">
+                        <h6 class="subcard-title mb-0"><i class="fas fa-dollar-sign me-2"></i>Costos</h6>
+                    </div>
+                    <div class="row g-3">
+                            <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-tools"></i> {{ form.costo_rep.label.text }}</label>
+                                    {{ form.costo_rep(class="form-control", id="costo_rep") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-wrench"></i> {{ form.costo_herram.label.text }}</label>
+                                    {{ form.costo_herram(class="form-control", id="costo_herram") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-user-clock"></i> {{ form.costo_mdo.label.text }}</label>
+                                    {{ form.costo_mdo(class="form-control", id="costo_mdo") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4 offset-md-8">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-calculator"></i> Costo Total</label>
+                                <input type="text" class="form-control" id="costo_total" value="0.00" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                    <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-comment"></i> {{ form.observaciones.label.text }}</label>
+                            {{ form.observaciones(class="form-control", rows="3") }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center mt-4" style="gap: 0.75rem;">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>
+                            Guardar
+                        </button>
+                        <a href="{{ url_for('maintenance.lista') }}" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i>
+                            Cancelar
+                        </a>
+                </div>
+                </form>
+            </div>
+            </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const codigoSelect = document.querySelector('#codigo');
+        const ubicacionInput = document.querySelector('#ubicacion');
+        const nombreInput = document.querySelector('#nombre');
+        const tipoMantenimientoSelect = document.querySelector('#tipo_mantenimiento');
+        
+        // Variable para almacenar el equipo seleccionado antes del filtrado
+        let equipoSeleccionadoAntes = '';
+        
+        // Función para verificar si un equipo tiene mantenimiento preventivo
+        function verificarPreventivoExistente(codigoEquipo, servicio = null, frecuencia = null) {
+            if (!codigoEquipo) return Promise.resolve(false);
+            
+            let url = `/mantenimiento/verificar-preventivo/${codigoEquipo}`;
+            const params = new URLSearchParams();
+            if (servicio) params.append('servicio', servicio);
+            if (frecuencia) params.append('frecuencia', frecuencia);
+            if (params.toString()) {
+                url += '?' + params.toString();
+            }
+            
+            return fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    return data.tiene_preventivo;
+                })
+                .catch(error => {
+                    console.error('Error al verificar preventivo:', error);
+                    return false;
+                });
+        }
+        
+        // Función para mostrar/ocultar mensaje de error
+        function mostrarMensajeError(mostrar, mensaje = '') {
+            let mensajeDiv = document.getElementById('mensaje-error-equipo');
+            
+            if (!mensajeDiv) {
+                mensajeDiv = document.createElement('div');
+                mensajeDiv.id = 'mensaje-error-equipo';
+                mensajeDiv.className = 'alert alert-warning alert-dismissible fade show mt-2';
+                mensajeDiv.innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span id="texto-mensaje">${mensaje}</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                
+                // Insertar después del selector de código
+                const codigoContainer = codigoSelect.closest('.form-group');
+                codigoContainer.appendChild(mensajeDiv);
+            }
+            
+            if (mostrar) {
+                document.getElementById('texto-mensaje').textContent = mensaje;
+                mensajeDiv.style.display = 'block';
+            } else {
+                mensajeDiv.style.display = 'none';
+            }
+        }
+        
+        // Función para validar combinación equipo-tipo
+        function validarCombinacionEquipoTipo() {
+            const codigoSeleccionado = codigoSelect.value;
+            const tipoSeleccionado = tipoMantenimientoSelect.value;
+            const servicioSeleccionado = document.getElementById('servicio')?.value;
+            const frecuenciaSeleccionada = document.getElementById('frecuencia')?.value;
+            
+            console.log('Validando:', codigoSeleccionado, tipoSeleccionado, servicioSeleccionado, frecuenciaSeleccionada); // Debug
+            
+            if (codigoSeleccionado && tipoSeleccionado === 'Preventivo') {
+                // Solo validar si se han seleccionado servicio y frecuencia
+                if (servicioSeleccionado && frecuenciaSeleccionada && frecuenciaSeleccionada !== 'Seleccionar') {
+                    verificarPreventivoExistente(codigoSeleccionado, servicioSeleccionado, frecuenciaSeleccionada).then(tienePreventivo => {
+                        console.log('Tiene preventivo específico:', tienePreventivo); // Debug
+                        if (tienePreventivo) {
+                            mostrarMensajeError(true, 
+                                `⚠️ El equipo ${codigoSeleccionado} ya tiene un mantenimiento preventivo con el servicio '${servicioSeleccionado}' y frecuencia '${frecuenciaSeleccionada}' programado para el año ${new Date().getFullYear()}. ` +
+                                '💡 Puedes continuar con un servicio o frecuencia diferente, o cambiar el equipo.'
+                            );
+                        } else {
+                            mostrarMensajeError(false);
+                        }
+                    });
+                } else {
+                    // Si no se han seleccionado servicio y frecuencia, solo mostrar información
+                    verificarPreventivoExistente(codigoSeleccionado).then(tienePreventivo => {
+                        if (tienePreventivo) {
+                            mostrarMensajeError(true, 
+                                `ℹ️ El equipo ${codigoSeleccionado} ya tiene mantenimiento(s) preventivo(s) programado(s) para el año ${new Date().getFullYear()}. ` +
+                                '✅ Puedes continuar programando con un servicio y frecuencia diferentes.'
+                            );
+                        } else {
+                            mostrarMensajeError(false);
+                        }
+                    });
+                }
+            } else {
+                mostrarMensajeError(false);
+            }
+        }
+        
+        // Función para filtrar equipos cuando se selecciona mantenimiento preventivo
+        function filtrarEquipos() {
+            const tipoSeleccionado = tipoMantenimientoSelect.value;
+            
+            // Guardar el equipo seleccionado antes del filtrado
+            equipoSeleccionadoAntes = codigoSelect.value;
+            
+            // Ocultar mensaje de error al cambiar tipo
+            mostrarMensajeError(false);
+            
+            // Ahora permitimos múltiples mantenimientos preventivos, así que cargamos todos los equipos
+            fetch('/mantenimiento/todos-equipos-json')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Limpiar opciones actuales
+                        codigoSelect.innerHTML = '<option value="">Seleccione un equipo</option>';
+                        
+                        // Agregar todos los equipos
+                        data.equipos.forEach(equipo => {
+                            const option = document.createElement('option');
+                            option.value = equipo.codigo;
+                            option.textContent = equipo.codigo;
+                            codigoSelect.appendChild(option);
+                        });
+                        
+                        // NO limpiar campos relacionados si ya hay un equipo seleccionado
+                        if (!equipoSeleccionadoAntes) {
+                            if (ubicacionInput) ubicacionInput.value = '';
+                            if (nombreInput) nombreInput.value = '';
+                        } else {
+                            // Si hay un equipo seleccionado, mantenerlo y disparar el cambio
+                            codigoSelect.value = equipoSeleccionadoAntes;
+                            codigoSelect.dispatchEvent(new Event('change')); // Disparar evento para cargar datos
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al cargar equipos:', error);
+                });
+        }
+        
+        // Event listener para el cambio de tipo de mantenimiento
+        if (tipoMantenimientoSelect) {
+            tipoMantenimientoSelect.addEventListener('change', function() {
+                filtrarEquipos();
+                validarCombinacionEquipoTipo();
+            });
+        }
+        
+        // Event listeners para servicio y frecuencia
+        const servicioInput = document.getElementById('servicio');
+        const frecuenciaSelectValidacion = document.getElementById('frecuencia');
+        
+        if (servicioInput) {
+            servicioInput.addEventListener('input', function() {
+                if (tipoMantenimientoSelect.value === 'Preventivo') {
+                    validarCombinacionEquipoTipo();
+                }
+            });
+        }
+        
+        if (frecuenciaSelectValidacion) {
+            frecuenciaSelectValidacion.addEventListener('change', function() {
+                if (tipoMantenimientoSelect.value === 'Preventivo') {
+                    validarCombinacionEquipoTipo();
+                }
+            });
+        }
+        
+        // Event listener para el cambio de equipo
+        if (codigoSelect) {
+            codigoSelect.addEventListener('change', function() {
+                const equipoSeleccionado = this.value;
+                if (equipoSeleccionado) {
+                    fetch(`/mantenimiento/equipo/${equipoSeleccionado}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                ubicacionInput.value = data.equipo.ubicacion || '';
+                                nombreInput.value = data.equipo.nombre || '';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error al obtener información del equipo:', error);
+                            // Limpiar campos en caso de error para evitar datos incorrectos
+                            ubicacionInput.value = '';
+                            nombreInput.value = '';
+                        });
+                } else {
+                    ubicacionInput.value = '';
+                    nombreInput.value = '';
+                }
+            });
+        }
+        
+        // Calcular costo total
+        const costoRep = document.getElementById('costo_rep');
+        const costoHerram = document.getElementById('costo_herram');
+        const costoMdo = document.getElementById('costo_mdo');
+        const costoTotal = document.getElementById('costo_total');
+        
+        function calcularCostoTotal() {
+            const rep = parseFloat(costoRep.value) || 0;
+            const herram = parseFloat(costoHerram.value) || 0;
+            const mdo = parseFloat(costoMdo.value) || 0;
+            const total = rep + herram + mdo;
+            costoTotal.value = total.toFixed(2);
+        }
+        
+        if (costoRep && costoHerram && costoMdo && costoTotal) {
+            costoRep.addEventListener('input', calcularCostoTotal);
+            costoHerram.addEventListener('input', calcularCostoTotal);
+            costoMdo.addEventListener('input', calcularCostoTotal);
+        }
+
+        const fechaProgInput = document.querySelector('#fecha_prog');
+        const frecuenciaSelect = document.querySelector('#frecuencia');
+        const proxMttoInput = document.querySelector('#prox_mtto');
+
+        function calcularProximoMantenimiento() {
+            const fechaStr = fechaProgInput.value;
+            const frecuencia = frecuenciaSelect.value;
+            if (!fechaStr || !frecuencia || frecuencia === 'Seleccionar') {
+                proxMttoInput.value = '';
+                return;
+            }
+            const fecha = new Date(fechaStr);
+            let prox = new Date(fecha);
+            switch (frecuencia) {
+                case 'Diario': prox.setDate(fecha.getDate() + 1); break;
+                case 'Semanal': prox.setDate(fecha.getDate() + 7); break;
+                case 'Quincenal': prox.setDate(fecha.getDate() + 15); break;
+                case 'Mensual': prox.setMonth(fecha.getMonth() + 1); break;
+                case 'Bimestral': prox.setMonth(fecha.getMonth() + 2); break;
+                case 'Trimestral': prox.setMonth(fecha.getMonth() + 3); break;
+                case 'Semestral': prox.setMonth(fecha.getMonth() + 6); break;
+                case 'Anual': prox.setFullYear(fecha.getFullYear() + 1); break;
+                default: prox = ''; break;
+            }
+            if (prox && prox instanceof Date && !isNaN(prox)) {
+                const yyyy = prox.getFullYear();
+                const mm = String(prox.getMonth() + 1).padStart(2, '0');
+                const dd = String(prox.getDate()).padStart(2, '0');
+                proxMttoInput.value = `${yyyy}-${mm}-${dd}`;
+            } else {
+                proxMttoInput.value = '';
+            }
+        }
+        if (fechaProgInput && frecuenciaSelect && proxMttoInput) {
+            fechaProgInput.addEventListener('change', calcularProximoMantenimiento);
+            frecuenciaSelect.addEventListener('change', calcularProximoMantenimiento);
+            // Inicializar al cargar
+            calcularProximoMantenimiento();
+        }
+
+        const form = document.querySelector('form');
+        if (form && codigoSelect) {
+            form.addEventListener('submit', function(e) {
+                const valor = codigoSelect.value;
+                let existe = false;
+                for (let i = 0; i < codigoSelect.options.length; i++) {
+                    if (codigoSelect.options[i].value === valor) {
+                        existe = true;
+                        break;
+                    }
+                }
+                if (!existe && valor) {
+                    // Agregar la opción seleccionada si no existe
+                    const opt = document.createElement('option');
+                    opt.value = valor;
+                    opt.text = valor;
+                    opt.selected = true;
+                    codigoSelect.appendChild(opt);
+                }
+            });
+        }
+
+        // Manejo del selector de técnico realizador
+        const tecnicoRealizadorSelector = document.getElementById('tecnico_realizador_selector');
+        const tecnicoRealizadorTextoContainer = document.getElementById('tecnico_realizador_texto_container');
+        const tecnicoRealizadorTexto = document.getElementById('tecnico_realizador_texto');
+        
+        tecnicoRealizadorSelector.addEventListener('change', function() {
+            if (this.value === 'OTRO') {
+                tecnicoRealizadorTextoContainer.style.display = 'block';
+                tecnicoRealizadorTexto.required = true;
+            } else {
+                tecnicoRealizadorTextoContainer.style.display = 'none';
+                tecnicoRealizadorTexto.required = false;
+                tecnicoRealizadorTexto.value = '';
+            }
+        });
+        
+        // Inicializar estado del campo de texto
+        if (tecnicoRealizadorSelector.value === 'OTRO') {
+            tecnicoRealizadorTextoContainer.style.display = 'block';
+            tecnicoRealizadorTexto.required = true;
+        }
+    });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ficha Técnica</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        }
+        .container {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        header {
+            background-color: #ffff;
+            color: rgb(12, 1, 1);
+            text-align: center;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        .header, .section-title {
+            background-color: #737475;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            padding: 5px;
+        }
+        .header-table, .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 auto;
+        }
+        .header-table td, .data-table td {
+            border: 1px solid black;
+            padding: 2px;
+            text-align: center;
+            vertical-align: top;
+        }
+        .header-table .logo {
+            width: 20%;
+            text-align: left;
+        }
+        .header-table .title {
+            width: 60%;
+        }
+        .header-table .info {
+            width: 20%;
+            font-size: 9px;
+        }
+        .section {
+            margin-bottom: 5px;
+        }
+        .section-title {
+            font-size: 14px;
+            padding: 2px;
+        }
+        .data-table td {
+            font-size: 10px;
+        }
+        .field-label {
+            font-weight: bold;
+            background-color: #f0f0f0;
+            padding: 2px;
+            font-size: 14px;
+        }
+        .image {
+            width: 100px;
+            height: auto;
+            margin: 10px;
+            display: block;
+        }
+        
+    </style>
+</head>
+<body>
+    <table class="header-table" style="table-layout:fixed; width:100%; border-collapse:collapse;">
+        <tr>
+            <!-- Logo -->
+            <td style="width: 111px; height:55.5px; text-align:center; vertical-align:middle; padding:0;">
+                <img src="{{ url_for('static', filename='logo.png', _external=True) }}" alt="Logo" style="max-width:70px; max-height:70px; display:block; margin:auto;">
+            </td>
+            <!-- Centro: Dos cuadros horizontales -->
+            <td style="padding:0; border:none; height:55.5px; vertical-align:middle;">
+                <table style="width:232px; height:10px; border-collapse:collapse; table-layout:fixed;">
+                    <tr>
+                        <td style="border:1px solid #000; text-align:center; font-weight:bold; font-size:18px; height:70px; vertical-align:middle; width:50%; word-break:break-word; padding:0;">
+                            INR INVERSIONES
+                            <br>
+                            REINOSO Y CIA. LTDA.
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td style="padding:0; border:none; height:70px; vertical-align:middle;">
+                <table style="width:233px; height:10px; border-collapse:collapse; table-layout:fixed;">
+                    <tr>
+                        <td style="border:1px solid #000; text-align:center; font-size:14px; font-weight:bold; height:70px; vertical-align:middle; width:50%; word-break:break-word; padding:0;">
+                            FICHA TÉCNICA DE EQUIPOS
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <!-- Derecha: 4 cuadros -->
+            <td style="width:120px; padding:0; border:none; vertical-align:top;">
+                <table style="width:100%; border-collapse:collapse; table-layout:fixed;">
+                    <tr>
+                        <td style="border:1px solid #000; text-align:center; font-size:11px; font-weight:bold; height:17px; vertical-align:middle; padding:0;">Código</td>
+                    </tr>
+                    <tr>
+                        <td style="border:1px solid #000; text-align:center; font-size:11px; height:17px; vertical-align:middle; padding:0;">71-MT-56</td>
+                    </tr>
+                    <tr>
+                        <td style="border:1px solid #000; text-align:center; font-size:11px; font-weight:bold; height:17px; vertical-align:middle; padding:0;">Edición</td>
+                    </tr>
+                    <tr>
+                        <td style="border:1px solid #000; text-align:center; font-size:11px; height:16.5px; vertical-align:middle; padding:0;">5/Jul/2025</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+<!-- NOTA: El numerador de página se gestiona desde las opciones de pdfkit en el backend con 'footer-center': 'Página [page] de [topage]' -->
+    <!-- Datos Generales -->
+    <div class="section" style="width: 100%; margin: 10px 0; text-align: center;"></div>
+    <table style="width: 100%; text-align: center; border-collapse: collapse; margin-bottom: 10px;">
+        <tr>
+            <td style="padding: 8px;"><strong>Registro Nuevo:</strong> {% if equipo.registro_nuevo %}Sí{% else %}No{% endif %} </td>
+            <td style="padding: 8px;"><strong>Actualización:</strong> {% if equipo.actualizacion %}Sí{% else %}No{% endif %} </td>
+        </tr>
+    </table>
+    <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%; margin-top: 5px; margin-bottom: 10px;">
+        <div style="flex: 1; margin-right: 2px;">
+            <table class="data-table" style="width: 100%; margin-bottom: 10px;">
+                <tr>
+                    <td style="text-align: center;"><strong>Código Equipo</strong></td>
+                    <td style="text-align: center;"><strong>Nombre Equipo</strong></td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">{{ equipo.codigo }}</td>
+                    <td style="text-align: center;">{{ equipo.nombre }}</td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="padding: 0; text-align: center; height: 260px;">
+                        {% if equipo.imagen %}
+                            <div style="width: 100%; height: 250px; display: flex; justify-content: center; align-items: center;">
+                                <img src="{{ request.url_root }}static/{{ equipo.imagen }}" alt="Imagen del Equipo" style="max-width: 100%; max-height: 100%; object-fit: contain; border: 1.5px solid #888; background: #fff; padding: 4px;">
+                            </div>
+                        {% else %}
+                            <p>No hay imagen disponible</p>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <!-- Bloque: Datos Generales -->
+    <div class="section-title">Datos Generales</div>
+    <table class="data-table" style="margin-bottom: 10px;">
+        <tr>
+            <td><strong>Fecha Ingreso</strong></td>
+            <td><strong>Tipo Equipo</strong></td>
+            <td><strong>Ubicación</strong></td>
+            <td><strong>Marca</strong></td>
+        </tr>
+        <tr>
+            <td>{{ equipo.fecha_ingreso }}</td>
+            <td>{{ equipo.tipo_eq }}</td>
+            <td>{{ equipo.ubicacion }}</td>
+            <td>{{ equipo.marca }}</td>
+        </tr>
+        <tr>
+            <td><strong>Referencia</strong></td>
+            <td><strong>Serie</strong></td>
+            <td><strong>Color</strong></td>
+            <td><strong>Estado</strong></td>
+        </tr>
+        <tr>
+            <td>{{ equipo.referencia }}</td>
+            <td>{{ equipo.serie }}</td>
+            <td>{{ equipo.color }}</td>
+            <td>{{ equipo.estado_eq }}</td>
+        </tr>
+    </table>
+    <!-- Bloque: Dimensiones -->
+    <div class="section-title">Dimensiones</div>
+    <table class="data-table" style="margin-bottom: 10px;">
+        <tr>
+            <td><strong>Altura</strong></td>
+            <td><strong>Largo</strong></td>
+            <td><strong>Ancho</strong></td>
+            <td><strong>Peso</strong></td>
+        </tr>
+        <tr>
+            <td>{{ equipo.altura }}</td>
+            <td>{{ equipo.largo }}</td>
+            <td>{{ equipo.ancho }}</td>
+            <td>{{ equipo.peso }}</td>
+        </tr>
+    </table>
+    <!-- Bloque: Información Energética -->
+    <div class="section-title">Información Energética</div>
+    <table class="data-table" style="margin-bottom: 10px;">
+        <tr>
+            <td><strong>Tipo de Energía</strong></td>
+            <td><strong>Corriente</strong></td>
+            <td><strong>Potencia Instalada</strong></td>
+            <td><strong>Voltaje</strong></td>
+        </tr>
+        <tr>
+            <td>{{ equipo.tipo_energia }}</td>
+            <td>{{ equipo.corriente }}</td>
+            <td>{{ equipo.potencia_instalada }}</td>
+            <td>{{ equipo.voltaje }}</td>
+        </tr>
+    </table>
+    <!-- Bloque: Información Motores -->
+    <div class="section-title">Información Motores</div>
+    <table class="data-table" style="margin-bottom: 10px;">
+        <tr>
+            <td><strong>N°</strong></td>
+            <td><strong>Nombre Motor</strong></td>
+            <td><strong>Descripción</strong></td>
+            <td><strong>Tipo</strong></td>
+            <td><strong>Dirección de Rotación</strong></td>
+            <td><strong>RPM</strong></td>
+            <td><strong>Eficiencia</strong></td>
+            <td><strong>Corriente</strong></td>
+            <td><strong>Potencia Instalada</strong></td>
+            <td><strong>Voltaje</strong></td>
+        </tr>
+        {% for motor in equipo.motores %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ motor.nomb_Motor or '' }}</td>
+            <td>{{ motor.descrip_Motor or '' }}</td>
+            <td>{{ motor.tipo_Motor or '' }}</td>
+            <td>{{ motor.rotacion or '' }}</td>
+            <td>{{ motor.rpm_Motor or '' }}</td>
+            <td>{{ motor.eficiencia or '' }}</td>
+            <td>{{ motor.corriente_Motor or '' }}</td>
+            <td>{{ motor.potencia_Motor or '' }}</td>
+            <td>{{ motor.voltaje_Motor or '' }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="10" style="text-align:center; color:#888;">No hay motores asociados a este equipo</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <!-- Bloque: Información de Consumo -->
+    <div class="section-title">Información de Consumo</div>
+    <table class="data-table" style="margin-bottom: 10px;">
+        <tr>
+            <td><strong>Tipo Refrigerante</strong></td>
+            <td><strong>Tipo Lubricante</strong></td>
+            <td><strong>Tipo Combustible</strong></td>
+        </tr>
+        <tr>
+            <td style="padding: 7px;">{{ equipo.tipo_refrigerante }}</td>
+            <td style="padding: 7px;">{{ equipo.tipo_lubricante }}</td>
+            <td style="padding: 7px;">{{ equipo.tipo_combustible }}</td>
+        </tr>
+        <tr>
+            <td colspan="3"><strong>Repuestos</strong>: {{ equipo.repuestos }}</td>
+        </tr>
+    </table>
+    <!-- Historial de Mantenimientos -->
+    <div style="width: 100%; border-collapse: collapse; margin-top: 5px;">
+        <div class="section-title">Historial de Mantenimientos</div>
+        <table class="data-table">
+            <tr>
+                <td>{{ equipo.hist_mtto }}</td>
+            </tr>
+        </table>
+    </div>
+    <!-- Función de la Máquina -->
+    <div style="width: 100%; border-collapse: collapse; margin-top: 5px;">
+        <div class="section-title">Función de la Máquina</div>
+        <table class="data-table">
+            <tr>
+                <td>{{ equipo.funcion_maq }}</td>
+            </tr>
+        </table>
+    </div>
+    <!-- Bloque: Checklists -->
+    <div class="section-title">Documentación</div>
+    <table class="data-table" style="margin-bottom: 10px;">
+        <tr>
+            <td><strong>Ficha Técnica</strong></td>
+            <td><strong>Hoja de Vida</strong></td>
+            <td><strong>Preoperacional</strong></td>
+            <td><strong>Plan de Mantenimiento</strong></td>
+            <td><strong>Inspección de Seguridad</strong></td>
+            <td><strong>Procedimientos de Operación</strong></td>
+            <td><strong>Manuales</strong></td>
+            <td><strong>Certificaciones</strong></td>
+            <td><strong>Registro de Mantenimientos</strong></td>
+        </tr>
+        <tr>
+            <td>{% if equipo.ficha_tecnica %}Sí{% else %}No{% endif %}</td>
+            <td>{% if equipo.hoja_vida %}Sí{% else %}No{% endif %}</td>
+            <td>{% if equipo.preoperacional %}Sí{% else %}No{% endif %}</td>
+            <td>{% if equipo.plan_mantenimiento %}Sí{% else %}No{% endif %}</td>
+            <td>{% if equipo.inspeccion_seguridad %}Sí{% else %}No{% endif %}</td>
+            <td>{% if equipo.procedimientos_operacion %}Sí{% else %}No{% endif %}</td>
+            <td>{% if equipo.manual_usuario %}Sí{% else %}No{% endif %}</td>
+            <td>{% if equipo.certificaciones %}Sí{% else %}No{% endif %}</td>
+            <td>{% if equipo.registro_mantenimientos %}Sí{% else %}No{% endif %}</td>
+        </tr>
+    </table>
+    <!-- Información de Manuales -->
+    <div style="width: 100%; border-collapse: collapse; margin-top: 5px;">
+        <div class="section-title">Manuales</div>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 0; margin-bottom: 0;">
+            <tr>
+                <td style="border: 1px solid black; padding: 4px; text-align: center;"><strong>Operación</strong></td>
+                <td style="border: 1px solid black; padding: 4px; text-align: center;"><strong>Eléctrico</strong></td>
+                <td style="border: 1px solid black; padding: 4px; text-align: center;"><strong>Mecánicos</strong></td>
+                <td style="border: 1px solid black; padding: 4px; text-align: center;"><strong>Partes</strong></td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid black; padding: 4px; text-align: center;">{% if equipo.operacion %}Sí{% else %}No{% endif %}</td>
+                <td style="border: 1px solid black; padding: 4px; text-align: center;">{% if equipo.electrico %}Sí{% else %}No{% endif %}</td>
+                <td style="border: 1px solid black; padding: 4px; text-align: center;">{% if equipo.mecanico %}Sí{% else %}No{% endif %}</td>
+                <td style="border: 1px solid black; padding: 4px; text-align: center;">{% if equipo.partes %}Sí{% else %}No{% endif %}</td>
+            </tr>
+        </table>
+        </div>
+    </div>
+    <!-- Bloque: Observaciones -->
+    <div class="section-title">Observaciones</div>
+    <table class="data-table" style="margin-bottom: 10px;">
+        <tr>
+            <td style="padding: 7px;">{{ equipo.observaciones }}</td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

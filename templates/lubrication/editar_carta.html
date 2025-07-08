@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="fas fa-edit"></i> Editar Carta de Lubricación - {{ equipo.codigo }} - {{ equipo.nombre }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form.numero.label(class="form-label") }}
+                                    {{ form.numero(class="form-control") }}
+                                    {% if form.numero.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.numero.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form.mecanismo.label(class="form-label") }}
+                                    {{ form.mecanismo(class="form-control") }}
+                                    {% if form.mecanismo.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.mecanismo.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form.cantidad.label(class="form-label") }}
+                                    {{ form.cantidad(class="form-control") }}
+                                    {% if form.cantidad.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.cantidad.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form.tipo_lubricante.label(class="form-label") }}
+                                    {{ form.tipo_lubricante(class="form-control") }}
+                                    {% if form.tipo_lubricante.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.tipo_lubricante.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form.producto.label(class="form-label") }}
+                                    {{ form.producto(class="form-control") }}
+                                    {% if form.producto.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.producto.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form.metodo_lubricacion.label(class="form-label") }}
+                                    {{ form.metodo_lubricacion(class="form-control") }}
+                                    {% if form.metodo_lubricacion.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.metodo_lubricacion.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form.frecuencia_inspeccion.label(class="form-label") }}
+                                    {{ form.frecuencia_inspeccion(class="form-control") }}
+                                    {% if form.frecuencia_inspeccion.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.frecuencia_inspeccion.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            {{ form.observaciones.label(class="form-label") }}
+                            {{ form.observaciones(class="form-control", rows="3") }}
+                            {% if form.observaciones.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.observaciones.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('lubrication.cartas_equipo', codigo_equipo=equipo.codigo) }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancelar
+                            </a>
+                            {{ form.submit(class="btn btn-warning") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
