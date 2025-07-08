@@ -12,11 +12,34 @@ def get_pdf_config():
 	if sistema == 'Windows':
 		path_wkhtmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
 	elif sistema == 'Linux':
-		path_wkhtmltopdf = '/usr/bin/wkhtmltopdf'
+		# Buscar wkhtmltopdf en múltiples ubicaciones comunes
+		possible_paths = [
+			'/usr/bin/wkhtmltopdf',
+			'/usr/local/bin/wkhtmltopdf',
+			'/opt/wkhtmltopdf/bin/wkhtmltopdf'
+		]
+		
+		path_wkhtmltopdf = None
+		for path in possible_paths:
+			if os.path.exists(path):
+				path_wkhtmltopdf = path
+				break
+		
+		# Si no se encuentra en las rutas comunes, intentar usar 'which'
+		if path_wkhtmltopdf is None:
+			import subprocess
+			try:
+				result = subprocess.run(['which', 'wkhtmltopdf'], 
+									   capture_output=True, text=True, timeout=5)
+				if result.returncode == 0:
+					path_wkhtmltopdf = result.stdout.strip()
+			except (subprocess.TimeoutExpired, FileNotFoundError):
+				pass
+		
+		if path_wkhtmltopdf is None:
+			raise FileNotFoundError(f"No se encontró wkhtmltopdf en ninguna ubicación conocida")
 	else:
 		raise OSError(f"Sistema no compatible: {sistema}")
-	if not os.path.exists(path_wkhtmltopdf):
-		raise FileNotFoundError(f"No se encontró wkhtmltopdf en: {path_wkhtmltopdf}")
 
 	return pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
 

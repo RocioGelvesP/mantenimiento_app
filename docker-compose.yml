@@ -6,6 +6,7 @@ services:
     container_name: mantenimiento_app
     ports:
       - "5000:5000"
+    entrypoint: ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=production
