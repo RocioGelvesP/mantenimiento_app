@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Carta de Lubricación</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 11px; margin: 0; padding: 0; }
+        .header-table, .data-table, .tabla-lubricacion { width: 100%; border-collapse: collapse; }
+        .header-table td, .data-table td, .tabla-lubricacion td, .tabla-lubricacion th { border: 1px solid #000; padding: 3px; }
+        .header-table .logo { width: 80px; text-align: center; }
+        .header-table .title { font-size: 15px; font-weight: bold; text-align: center; }
+        .header-table .info { font-size: 10px; text-align: center; }
+        .section-title { background: #e9e9e9; font-weight: bold; text-align: center; }
+        .info-table td { font-weight: bold; background: #ececec; padding: 4px 12px; }
+        .img-lub { max-width: 100%; max-height: 180px; border: 1px solid #888; display: block; margin: 0 auto; }
+        .tabla-lubricacion th { background: #e9e9e9; font-size: 11px; }
+        .tabla-lubricacion td { font-size: 10px; }
+        .leyenda { margin-top: 10px; }
+        .leyenda span { margin-right: 20px; font-size: 11px; }
+        .icon-aceite { color: red; font-weight: bold; }
+        .icon-grasa { color: #1a237e; font-weight: bold; }
+        .icon-verificar { color: #388e3c; font-weight: bold; }
+        /* Pie de página fijo para PDF */
+        .footer-convenciones {
+            position: fixed;
+            bottom: 5px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            z-index: 10;
+        }
+        /* Paginación en PDF */
+        .page-number {
+            position: fixed;
+            bottom: 5px;
+            right: 40px;
+            font-size: 13px;
+            color: #333;
+        }
+        @page {
+            @bottom-right {
+                content: "Página " counter(page) " de " counter(pages);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Encabezado -->
+    <table class="header-table" style="table-layout:fixed; width:100%; border-collapse:collapse;">
+        <tr>
+            <!-- Logo -->
+            <td style="width: 112px; height:55.5px; text-align:center; vertical-align:middle; padding:0;">
+                <img src="{{ url_for('static', filename='logo.png', _external=True) }}" alt="Logo" style="max-width:70px; max-height:70px; display:block; margin:auto;">
+            </td>
+            <!-- Centro: Dos cuadros horizontales -->
+            <td style="padding:0; border:none; height:55.5px; vertical-align:middle;">
+                <table style="width:205px; height:10px; border-collapse:collapse; table-layout:fixed;">
+                    <tr>
+                        <td style="border:1px solid #000; text-align:center; font-weight:bold; font-size:14px; height:70px; vertical-align:middle; width:50%; word-break:break-word; padding:0;">
+                            INR INVERSIONES<br>REINOSO Y CIA. LTDA.
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td style="padding:0; border:none; height:70px; vertical-align:middle;">
+                <table style="width:205px; height:10px; border-collapse:collapse; table-layout:fixed;">
+                    <tr>
+                        <td style="border:1px solid #000; text-align:center; font-size:14px; font-weight:bold; height:70px; vertical-align:middle; width:50%; word-break:break-word; padding:0;">
+                            CARTA DE LUBRICACIÓN
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <!-- Derecha: 4 cuadros -->
+            <td style="width:120px; padding:0; border:none; vertical-align:top;">
+                <table style="width:100%; border-collapse:collapse; table-layout:fixed;">
+                    <tr>
+                        <td style="border:1px solid #000; text-align:center; font-size:11px; font-weight:bold; height:17px; vertical-align:middle; padding:0;">Código</td>
+                    </tr>
+                    <tr>
+                        <td style="border:1px solid #000; text-align:center; font-size:11px; height:17px; vertical-align:middle; padding:0;">71-MT-65</td>
+                    </tr>
+                    <tr>
+                        <td style="border:1px solid #000; text-align:center; font-size:11px; font-weight:bold; height:17px; vertical-align:middle; padding:0;">Edición</td>
+                    </tr>
+                    <tr>
+                        <td style="border:1px solid #000; text-align:center; font-size:11px; height:16.5px; vertical-align:middle; padding:0;">28/Abr/2025</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Datos de equipo -->
+    <table class="data-table" style="width:100%; margin:auto; text-align: center; border-collapse: collapse;">
+        <tr>
+            <td style="width: 49.5%; border: 1px solid #000; text-align:center; font-weight:bold;">CÓDIGO</td>
+            <td style="width: 50.5%; border: 1px solid #000; text-align:center; font-weight:bold;">NOMBRE DEL EQUIPO</td>
+        </tr>
+        <tr>
+            <td style="border: 1px solid #000; text-align:center;">{{ equipo.codigo }}</td>
+            <td style="border: 1px solid #000; text-align:center;">{{ equipo.nombre }}</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="border: 1px solid #000; text-align:center; padding: 2px;">
+                {% if equipo.imagen_lubricacion %}
+                    <img src="{{ request.url_root }}static/uploads/{{ equipo.imagen_lubricacion }}" style="width:100%; max-width:100%; max-height:180px; height:auto; object-fit:contain; border: 1px solid #888; display:block; margin:auto;" alt="Imagen Lubricación">
+                {% else %}
+                    <div style="background: #e9ecef; border: 1px solid #888; padding: 30px;">No hay imagen del punto de lubricación</div>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+
+    <!-- Tabla de lubricación -->
+    <table class="tabla-lubricacion" style="width:100%; margin:auto; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th>N°</th>
+                <th>Mecanismo</th>
+                <th>Cant.</th>
+                <th>Tipo Lubricación</th>
+                <th>Producto</th>
+                <th>Método Lubricación</th>
+                <th>Frecuencia Inspección</th>
+                <th>Observaciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lub in lubricaciones %}
+            <tr>
+                <td style="text-align:center;">{{ loop.index }}</td>
+                <td>{{ lub.mecanismo }}</td>
+                <td style="text-align:center;">{{ lub.cantidad }}</td>
+                <td>{{ lub.tipo_lubricante }}</td>
+                <td>{{ lub.producto }}</td>
+                <td>{{ lub.metodo_lubricacion }}</td>
+                <td>{{ lub.frecuencia_inspeccion }}</td>
+                <td>{{ lub.observaciones }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pie de página de convenciones -->
+    <div class="footer-convenciones">
+        <table style="width:92%; margin:auto; border-collapse:collapse;">
+            <tr>
+                <td style="text-align:left; padding:4px; font-size:12px;">
+                    <strong>Convenciones:</strong>
+                    <span style="margin-left: 10px;"><span class="icon-aceite" style="font-size:28px; vertical-align:middle;">●</span> Aceite</span>
+                    <span style="margin-left: 10px;"><span class="icon-grasa" style="font-size:28px; vertical-align:middle;">▲</span> Grasa</span>
+                    <span style="margin-left: 10px;"><span class="icon-verificar" style="font-size:28px; vertical-align:middle;">■</span> Verificar</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="page-number">
+        <span class="page"></span>
+    </div>
+</body>
+</html> 

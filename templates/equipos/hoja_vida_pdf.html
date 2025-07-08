@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Hoja de Vida del Equipo</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 1cm;
+        }
+        body { 
+            background-color: #fff; 
+            font-family: Arial, sans-serif; 
+            font-size: 10px; 
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        }
+        .container { width: 98%; margin: 0 auto; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #222; padding: 3px; }
+        .titulo { text-align: center; font-size: 18px; font-weight: bold; color: #022141; margin: 15px 0 10px 0; }
+        .section-title { background: #ececec; color: #000; font-weight: bold; padding: 5px; font-size: 11px; }
+        .info-table td { border: none; padding: 2px 6px; }
+        .img-fluid { max-width: 120px; max-height: 120px; border-radius: 4px; }
+        .stats-table { width: 100%; margin-top: 10px; }
+        .stats-table td { border: 1px solid #ddd; padding: 4px; }
+        .stats-table th { background: #f8f9fa; font-weight: bold; }
+        .motores-table { margin-top: 10px; }
+        .motores-table th { background: #f8f9fa; font-weight: bold; }
+        .header-table { margin-bottom: 15px; }
+        .header-table td { border: 1px solid #000; padding: 2px; }
+        .logo-cell { width: 80px; text-align: center; vertical-align: middle; }
+        .company-cell { text-align: center; font-weight: bold; font-size: 12px; }
+        .title-cell { text-align: center; font-weight: bold; font-size: 11px; }
+        .code-cell { width: 100px; text-align: center; font-size: 10px; }
+    </style>
+</head>
+<body>
+    <table class="header-table" style="table-layout:fixed; width:100%; border-collapse:collapse;">
+        <tr>
+            <!-- Logo -->
+            <td style="width: 112px; height:55.5px; text-align:center; vertical-align:middle; padding:0;">
+                <img src="{{ url_for('static', filename='logo.png', _external=True) }}" alt="Logo" style="max-width:70px; max-height:70px; display:block; margin:auto;">
+            </td>
+            <!-- Centro: Dos cuadros horizontales -->
+            <td style="padding:0; border:none; height:55.5px; vertical-align:middle;">
+                <table style="width:398px; height:10px; border-collapse:collapse; table-layout:fixed;">
+                    <tr>
+                        <td style="border:1px solid #000; text-align:center; font-weight:bold; font-size:18px; height:70px; vertical-align:middle; width:50%; word-break:break-word; padding:0;">
+                            INR INVERSIONES
+                            <br>
+                            REINOSO Y CIA. LTDA.
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td style="padding:0; border:none; height:70px; vertical-align:middle;">
+                <table style="width:398px; height:10px; border-collapse:collapse; table-layout:fixed;">
+                    <tr>
+                        <td style="border:1px solid #000; text-align:center; font-size:14px; font-weight:bold; height:70px; vertical-align:middle; width:50%; word-break:break-word; padding:0;">
+                            HOJA DE VIDA DE EQUIPOS
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <!-- Derecha: 4 cuadros -->
+            <td style="width:120px; padding:0; border:none; vertical-align:top;">
+                <table style="width:100%; border-collapse:collapse; table-layout:fixed;">
+                    <tr>
+                        <td style="border:1px solid #000; text-align:center; font-size:11px; height:17px; vertical-align:middle; padding:0;">Código</td>
+                    </tr>
+                    <tr>
+                        <td style="border:1px solid #000; text-align:center; font-size:11px; height:17px; vertical-align:middle; padding:0;">71-MT-72</td>
+                    </tr>
+                    <tr>
+                        <td style="border:1px solid #000; text-align:center; font-size:11px; font-weight:bold; height:17px; vertical-align:middle; padding:0;">Edición</td>
+                    </tr>
+                    <tr>
+                        <td style="border:1px solid #000; text-align:center; font-size:11px; height:16.5px; vertical-align:middle; padding:0;">25/Jun/2025</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+
+    <!-- Información General -->
+    <table class="info-table" style="margin-bottom: 15px; width: 100%;">
+        <tr>
+            <td rowspan="5" style="width: 130px; text-align: center; vertical-align: top;">
+                {% if equipo.imagen %}
+                    <img src="{{ base_url }}static/{{ equipo.imagen }}" alt="Imagen del Equipo" class="img-fluid">
+                {% else %}
+                    <div style="background: #f0f0f0; border-radius: 4px; padding: 15px; color: #888; font-size: 9px;">No hay imagen disponible</div>
+                {% endif %}
+            </td>
+            <td style="width: 25%;"><b>Código:</b> {{ equipo.codigo }}</td>
+            <td style="width: 25%;"><b>Marca:</b> {{ equipo.marca }}</td>
+            <td style="width: 25%;"><b>Modelo:</b> {{ equipo.modelo }}</td>
+        </tr>
+        <tr>
+            <td><b>Nombre:</b> {{ equipo.nombre }}</td>
+            <td><b>Serie:</b> {{ equipo.serie }}</td>
+            <td><b>Estado:</b> {{ equipo.estado_eq }}</td>
+        </tr>
+        <tr>
+            <td><b>Ubicación:</b> {{ equipo.ubicacion }}</td>
+            <td><b>Fecha Ingreso:</b> {{ equipo.fecha_ingreso.strftime('%d/%m/%Y') if equipo.fecha_ingreso else 'No especificado' }}</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td colspan="3"></td>
+        </tr>
+        <tr>
+            <td colspan="3"></td>
+        </tr>
+    </table>
+
+    <!-- Mantenimientos Realizados -->
+    <div class="section-title">Mantenimientos Realizados</div>
+    <table style="margin-bottom: 15px; font-size: 9px;">
+        <thead>
+            <tr>
+                <th>F. Inicio</th>
+                <th>F. Fin</th>
+                <th>Tiempo</th>
+                <th>Tipo</th>
+                <th>Servicio</th>
+                <th>Técnico</th>
+                <th>Repuestos</th>
+                <th>Herramientas</th>
+                <th>Observaciones</th>
+                <th>C. Rep.</th>
+                <th>C. Herr.</th>
+                <th>C. MDO</th>
+                <th>Costo Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mtto in mantenimientos %}
+            <tr>
+                <td>{{ mtto.hora_inicial.strftime('%d/%m/%Y %H:%M') if mtto.hora_inicial else '' }}</td>
+                <td>{{ mtto.hora_final.strftime('%d/%m/%Y %H:%M') if mtto.hora_final else '' }}</td>
+                <td>{{ mtto.tiempo_gastado or '' }}</td>
+                <td>{{ mtto.tipo_mantenimiento }}</td>
+                <td>{{ mtto.servicio }}</td>
+                <td>{{ mtto.tecnico_realizador or mtto.tecnico_asignado }}</td>
+                <td>{{ mtto.repuestos }}</td>
+                <td>{{ mtto.herramientas }}</td>
+                <td>{{ mtto.observaciones or '' }}</td>
+                <td>${{ '{:,.2f}'.format(mtto.costo_rep if mtto.costo_rep is not none else 0) }}</td>
+                <td>${{ '{:,.2f}'.format(mtto.costo_herram if mtto.costo_herram is not none else 0) }}</td>
+                <td>${{ '{:,.2f}'.format(mtto.costo_mdo if mtto.costo_mdo is not none else 0) }}</td>
+                <td>${{ '{:,.2f}'.format((mtto.costo_rep or 0) + (mtto.costo_herram or 0) + (mtto.costo_mdo or 0)) }}</td>
+            </tr>
+            {% endfor %}
+            <!-- Fila de totales -->
+            <tr style="font-weight:bold; background:#f8f9fa;">
+                <td colspan="9" style="text-align:right;">Totales:</td>
+                <td>${{ '{:,.2f}'.format(mantenimientos|sum(attribute='costo_rep') or 0) }}</td>
+                <td>${{ '{:,.2f}'.format(mantenimientos|sum(attribute='costo_herram') or 0) }}</td>
+                <td>${{ '{:,.2f}'.format(mantenimientos|sum(attribute='costo_mdo') or 0) }}</td>
+                <td>${{ '{:,.2f}'.format((mantenimientos|sum(attribute='costo_rep') or 0) + (mantenimientos|sum(attribute='costo_herram') or 0) + (mantenimientos|sum(attribute='costo_mdo') or 0)) }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Totales de Mantenimientos --> <!-- Estadísticas -->
+    <div class="section-title">Estadísticas</div>
+    <table class="stats-table" style="width: 100%; margin-bottom: 15px; font-size: 10px; border: 1px solid #000;">
+        <tr>
+            <th style="text-align: center; border: 1.5px solid #000;">Total Mttos Prog.</th>
+            <th style="text-align: center; border: 1.5px solid #000;">Total Pendientes</th>
+            <th style="text-align: center; border: 1.5px solid #000;">Total Completados</th>
+            <th style="text-align: center; border: 1.5px solid #000;">Prog. Vs Comp.</th>
+        </tr>
+        <tr>
+            <td style="text-align: center; border: 1.5px solid #000;">{{ total_mantenimientos }}</td>
+            <td style="text-align: center; border: 1.5px solid #000;">{{ total_programados }}</td>
+            <td style="text-align: center; border: 1.5px solid #000;">{{ total_completados }}</td>
+            <td class="text-center" style="border: 1.5px solid #000;">{{ '{:.0f}'.format(tasa_completacion) }}%</td>
+        </tr>
+    </table>
+</body>
+</html> 

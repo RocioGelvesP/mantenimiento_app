@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cartas de Lubricación - {{ equipo.codigo }}</title>
+    <style>
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+        }
+        
+        .equipo-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .carta {
+            page-break-inside: avoid;
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        
+        .carta-header {
+            background-color: #022141;
+            color: white;
+            padding: 10px;
+            margin: -20px -20px 20px -20px;
+            border-radius: 5px 5px 0 0;
+            text-align: center;
+        }
+        
+        .carta-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .field {
+            margin-bottom: 10px;
+        }
+        
+        .field-label {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .field-value {
+            padding: 5px;
+            background-color: #f8f9fa;
+            border-radius: 3px;
+            min-height: 20px;
+        }
+        
+        .observaciones {
+            grid-column: 1 / -1;
+            margin-top: 15px;
+        }
+        
+        .observaciones .field-value {
+            min-height: 60px;
+        }
+        
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #022141;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .print-button:hover {
+            background-color: #053657;
+        }
+        
+        @media print {
+            .print-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="print-button no-print" onclick="window.print()">
+        <i class="fas fa-print"></i> Imprimir
+    </button>
+    
+    <div class="header">
+        <h1>Cartas de Lubricación</h1>
+        <h2>{{ equipo.codigo }} - {{ equipo.nombre }}</h2>
+        <p>Fecha de impresión: {{ moment().format('DD/MM/YYYY HH:mm') }}</p>
+    </div>
+    
+    <div class="equipo-info">
+        <h3>Información del Equipo</h3>
+        <p><strong>Código:</strong> {{ equipo.codigo }}</p>
+        <p><strong>Nombre:</strong> {{ equipo.nombre }}</p>
+        <p><strong>Ubicación:</strong> {{ equipo.ubicacion or 'No especificada' }}</p>
+        <p><strong>Fabricante:</strong> {{ equipo.fabricante or 'No especificado' }}</p>
+        <p><strong>Modelo:</strong> {{ equipo.modelo or 'No especificado' }}</p>
+    </div>
+    
+    {% if lubricaciones %}
+        {% for lubricacion in lubricaciones %}
+        <div class="carta">
+            <div class="carta-header">
+                <h3>Carta de Lubricación N° {{ lubricacion.numero }}</h3>
+            </div>
+            <div class="carta-content">
+                <div class="field">
+                    <div class="field-label">Mecanismo:</div>
+                    <div class="field-value">{{ lubricacion.mecanismo or 'No especificado' }}</div>
+                </div>
+                <div class="field">
+                    <div class="field-label">Cantidad:</div>
+                    <div class="field-value">{{ lubricacion.cantidad or 'No especificada' }}</div>
+                </div>
+                <div class="field">
+                    <div class="field-label">Tipo de Lubricante:</div>
+                    <div class="field-value">{{ lubricacion.tipo_lubricante or 'No especificado' }}</div>
+                </div>
+                <div class="field">
+                    <div class="field-label">Producto:</div>
+                    <div class="field-value">{{ lubricacion.producto or 'No especificado' }}</div>
+                </div>
+                <div class="field">
+                    <div class="field-label">Método de Lubricación:</div>
+                    <div class="field-value">{{ lubricacion.metodo_lubricacion or 'No especificado' }}</div>
+                </div>
+                <div class="field">
+                    <div class="field-label">Frecuencia de Inspección:</div>
+                    <div class="field-value">{{ lubricacion.frecuencia_inspeccion or 'No especificada' }}</div>
+                </div>
+                {% if lubricacion.observaciones %}
+                <div class="field observaciones">
+                    <div class="field-label">Observaciones:</div>
+                    <div class="field-value">{{ lubricacion.observaciones }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div style="text-align: center; padding: 50px;">
+            <h3>No hay cartas de lubricación registradas para este equipo</h3>
+        </div>
+    {% endif %}
+    
+    <script>
+        // Auto-print when page loads
+        window.onload = function() {
+            // Uncomment the next line to auto-print
+            // window.print();
+        };
+    </script>
+</body>
+</html> 

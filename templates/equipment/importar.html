@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Importar Equipos - Sistema de Mantenimientos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #022141;
+            --secondary-color: #00bcd4;
+            --accent-color: #ff9800;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+            --gradient-primary: linear-gradient(135deg, #022141 0%, #01376d 100%);
+            --gradient-secondary: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+            --gradient-success: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+            --gradient-warning: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            --gradient-info: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+        }
+
+        body { 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 11px;
+        }
+
+        .navbar { 
+            background: var(--gradient-primary) !important; 
+            padding: 0.25rem;
+            box-shadow: 0 1px 4px rgba(2, 33, 65, 0.3);
+        }
+
+        .navbar-brand { 
+            color: white !important; 
+            font-size: 1.1rem; 
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .nav-link { 
+            color: rgba(255,255,255,0.9) !important; 
+            font-size: 0.8rem; 
+            margin: 0 3px;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+            padding: 4px 8px !important;
+        }
+
+        .nav-link:hover { 
+            color: white !important; 
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-1px);
+        }
+
+        .main-container {
+            max-width: 800px;
+            margin: 1rem auto;
+            padding: 1.5rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(2, 33, 65, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(2, 33, 65, 0.15);
+        }
+
+        .card-header {
+            background: var(--gradient-primary);
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 12px 12px 0 0 !important;
+            position: relative;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(0, 188, 212, 0.1) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .card-title {
+            color: white;
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin: 0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .subcard {
+            background: linear-gradient(135deg, #022141 0%, #223A5E 100%);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(2,33,65,0.07);
+            padding: 0.5rem 1.2rem;
+            margin-bottom: 0.7rem;
+            display: flex;
+            align-items: center;
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        .subcard-title {
+            font-size: 1.02rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-label {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .form-label i {
+            color: var(--secondary-color);
+            font-size: 0.75rem;
+        }
+
+        .form-control {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background: white;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 188, 212, 0.25);
+            outline: none;
+        }
+
+        .form-text {
+            color: var(--secondary-color);
+            font-size: 0.7rem;
+            font-weight: 500;
+            margin-top: 0.3rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(2, 33, 65, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #01376d 0%, #022141 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(2, 33, 65, 0.4);
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-info {
+            background: var(--gradient-secondary);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 188, 212, 0.3);
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: linear-gradient(135deg, #0097a7 0%, #00bcd4 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0, 188, 212, 0.4);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #5a6268 0%, #6c757d 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(108, 117, 125, 0.4);
+        }
+
+        .btn-group {
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .alert {
+            border-radius: 6px;
+            border: none;
+            font-size: 0.8rem;
+            padding: 0.75rem 1rem;
+        }
+
+        .alert-success {
+            background: var(--gradient-success);
+            color: white;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            color: white;
+        }
+
+        .alert-warning {
+            background: var(--gradient-warning);
+            color: white;
+        }
+
+        .alert-info {
+            background: var(--gradient-info);
+            color: white;
+        }
+
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .shape {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(0, 188, 212, 0.05) 0%, rgba(2, 33, 65, 0.03) 100%);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .shape:nth-child(1) {
+            width: 60px;
+            height: 60px;
+            top: 15%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            width: 80px;
+            height: 80px;
+            top: 70%;
+            right: 5%;
+            animation-delay: 3s;
+        }
+
+        .shape:nth-child(3) {
+            width: 40px;
+            height: 40px;
+            bottom: 15%;
+            left: 15%;
+            animation-delay: 6s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-15px) rotate(180deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 0.5rem;
+                padding: 1rem;
+            }
+            
+            .card-body {
+                padding: 1.5rem;
+            }
+            
+            .card-title {
+                font-size: 1.1rem;
+            }
+
+            .btn-group {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn-group .btn {
+                margin: 0.2rem 0;
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Formas flotantes de fondo -->
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <span class="navbar-brand">
+                <i class="fas fa-cogs me-2"></i>
+                Gestión de Equipos
+            </span>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ url_for('equipment.listar_equipos') }}">
+                    <i class="fas fa-arrow-left me-1"></i>
+                    Volver a Equipos
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="main-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+                <div class="card">
+                    <div class="card-header">
+                <h5 class="card-title">
+                    <i class="fas fa-file-import"></i>
+                    Importar Equipos desde Excel
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Subcard con información -->
+                <div class="subcard">
+                    <div class="subcard-title">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Información Importante
+                    </div>
+                </div>
+                
+                        <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-4">
+                        <label for="archivo" class="form-label">
+                            <i class="fas fa-file-excel"></i>
+                            Seleccione el archivo Excel
+                        </label>
+                                <input type="file" class="form-control" id="archivo" name="archivo" accept=".xls,.xlsx" required>
+                                <div class="form-text">
+                            <i class="fas fa-check-circle me-1"></i>
+                            El archivo debe contener las siguientes columnas: <strong>codigo, nombre, modelo, serie, ubicacion</strong>
+                                </div>
+                            </div>
+                    
+                    <div class="mb-4">
+                                <a href="{{ url_for('equipment.descargar_plantilla') }}" class="btn btn-info">
+                            <i class="fas fa-download me-1"></i>
+                            Descargar Plantilla
+                                </a>
+                            </div>
+                    
+                    <div class="btn-group">
+                            <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-upload me-1"></i>
+                            Importar
+                            </button>
+                        <a href="{{ url_for('equipment.listar_equipos') }}" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i>
+                            Cancelar
+                            </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

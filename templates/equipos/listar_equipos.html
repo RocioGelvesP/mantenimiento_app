@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Máquinas/Equipos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #022141;
+            --secondary-color: #00bcd4;
+            --accent-color: #ff9800;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+            --gradient-primary: linear-gradient(135deg, #022141 0%, #01376d 100%);
+            --gradient-secondary: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+            --gradient-success: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+            --gradient-warning: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            --gradient-info: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 11px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Formas flotantes animadas */
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.10;
+            z-index: 0;
+            animation: float 8s ease-in-out infinite alternate;
+        }
+        .shape1 { width: 220px; height: 220px; background: #00bcd4; top: -60px; left: -80px; animation-delay: 0s; }
+        .shape2 { width: 120px; height: 120px; background: #022141; bottom: 8%; right: -40px; animation-delay: 2s; }
+        .shape3 { width: 80px; height: 80px; background: #ff9800; top: 70%; left: -40px; animation-delay: 4s; }
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-18px) scale(1.04); }
+        }
+        .navbar {
+            background: var(--gradient-primary) !important;
+            padding: 0.3rem 0.8rem;
+            box-shadow: 0 1px 6px rgba(2, 33, 65, 0.12);
+        }
+        .navbar-brand {
+            color: white !important;
+            font-size: 1rem;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-size: 0.75rem;
+            margin: 0 4px;
+            border-radius: 4px;
+            transition: all 0.3s;
+            padding: 1px 6px !important;
+        }
+        .nav-link:hover {
+            color: #fff !important;
+            background: rgba(255,255,255,0.12);
+        }
+        .main-card {
+            background: rgba(255,255,255,0.92);
+            border-radius: 12px;
+            box-shadow: 0 3px 18px rgba(2,33,65,0.10);
+            padding: 0.8rem 0.8rem;
+            position: relative;
+            z-index: 1;
+        }
+        .card-header {
+            background: var(--gradient-primary);
+            color: #fff;
+            border-radius: 12px 12px 0 0 !important;
+            box-shadow: 0 2px 6px rgba(2,33,65,0.08);
+            padding: 0.5rem 1rem;
+        }
+        .card-header h4, .card-header h3, .card-header h5 {
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin: 0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .subcard {
+            background: linear-gradient(90deg, #e3f2fd 60%, #b2ebf2 100%);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,188,212,0.10);
+            padding: 0.3rem 0.6rem;
+            margin-bottom: 0.4rem;
+        }
+        .subcard h5 {
+            color: #01376d;
+            font-weight: bold;
+            font-size: 0.8rem;
+            margin-bottom: 0.1rem;
+        }
+        .btn-primary, .btn-success, .btn-info, .btn-secondary, .btn-danger {
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            box-shadow: 0 1px 3px rgba(2,33,65,0.10);
+            transition: all 0.2s;
+            padding: 1px 8px;
+        }
+        .btn-primary {
+            background: var(--gradient-primary);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #01376d 0%, #022141 100%);
+        }
+        .btn-success {
+            background: var(--gradient-success);
+        }
+        .btn-success:hover {
+            background: linear-gradient(135deg, #388e3c 0%, #4caf50 100%);
+        }
+        .btn-info {
+            background: var(--gradient-secondary);
+            color: #fff;
+        }
+        .btn-info:hover {
+            background: linear-gradient(135deg, #0097a7 0%, #00bcd4 100%);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: #fff;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%);
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+        }
+        .btn-group .btn { margin: 0 2px; }
+        .table thead th {
+            background: var(--gradient-primary);
+            color: #fff;
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 0.35rem 0.3rem;
+        }
+        .table td, .table th {
+            vertical-align: middle;
+            font-size: 0.7rem;
+            padding: 0.32rem 0.3rem;
+        }
+        .badge {
+            padding: 2px 5px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.6rem;
+        }
+        .badge.bg-success {
+            background: var(--gradient-success) !important;
+        }
+        .badge.bg-warning {
+            background: var(--gradient-warning) !important;
+        }
+        .badge.bg-info {
+            background: var(--gradient-info) !important;
+        }
+        .badge.bg-primary {
+            background: var(--gradient-primary) !important;
+        }
+        .badge.bg-danger {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%) !important;
+        }
+        .badge.bg-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+        }
+        .empty-state {
+            background: white;
+            border-radius: 6px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+        }
+        .empty-state i {
+            color: var(--secondary-color);
+            margin-bottom: 0.4rem;
+        }
+        @media (max-width: 900px) {
+            .main-card, .card, .card-body { padding: 0.5rem 0.1rem; }
+            .subcard { padding: 0.3rem 0.1rem; }
+        }
+        @media (max-width: 600px) {
+            .main-card, .card, .card-body { padding: 0.2rem 0.05rem; }
+            .subcard { padding: 0.1rem 0.05rem; }
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .table th, .table td {
+            white-space: nowrap;
+            min-width: 80px;
+            padding: 0.25rem 0.2rem;
+        }
+        .table th:first-child, .table td:first-child {
+            min-width: 100px;
+        }
+        .table th:nth-child(2), .table td:nth-child(2) {
+            min-width: 150px;
+            white-space: normal;
+        }
+        .table th:last-child, .table td:last-child {
+            min-width: 120px;
+        }
+        .card-body {
+            padding: 0.5rem;
+        }
+        .input-group {
+            margin-bottom: 0.2rem;
+        }
+        .input-group-text {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.4rem;
+        }
+        .form-control {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.4rem;
+        }
+    </style>
+    <script>
+        function confirmarEliminacion() {
+            return confirm("¿Estás seguro de que deseas eliminar esta máquina/equipo? Esta acción no se puede deshacer.");
+        }
+    </script>
+</head>
+<body>
+    <!-- Formas flotantes animadas -->
+    <div class="floating-shape shape1"></div>
+    <div class="floating-shape shape2"></div>
+    <div class="floating-shape shape3"></div>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand">
+                <i class="fas fa-cogs me-2"></i>
+                Gestión de Máquinas/Equipos
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.index') }}">
+                            <i class="fas fa-home me-1"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('usuarios.lista_usuarios') }}">
+                            <i class="fas fa-users me-1"></i> Usuarios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('lubrication.lista_cartas') }}">
+                            <i class="fas fa-oil-can me-1"></i> Lubricaciones
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('companies.lista') }}">
+                            <i class="fas fa-building me-1"></i> Empresas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('maintenance.lista') }}">
+                            <i class="fas fa-calendar-alt me-1"></i> Mantenimientos
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('equipment.nuevo_equipo') }}">
+                            <i class="fas fa-plus-circle me-1"></i> Agregar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('equipment.importar_equipos') }}">
+                            <i class="fas fa-file-import me-1"></i> Importar
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-1">
+        <!-- Estadísticas en subcards -->
+        <div class="row mb-1">
+            <div class="col-md-3 mb-1">
+                <div class="subcard text-center">
+                    <h5><i class="fas fa-cogs me-1"></i> Total Equipos</h5>
+                    <div class="display-6 fw-bold text-primary">{{ equipos|length }}</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-1">
+                <div class="subcard text-center">
+                    <h5><i class="fas fa-check-circle me-1"></i> Activos</h5>
+                    <div class="display-6 fw-bold text-success">{{ equipos_activos|length }}</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-1">
+                <div class="subcard text-center">
+                    <h5><i class="fas fa-exclamation-triangle me-1"></i> Inactivos</h5>
+                    <div class="display-6 fw-bold text-warning">{{ equipos_inactivos|length }}</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-1">
+                <div class="subcard text-center">
+                    <h5><i class="fas fa-ban me-1"></i> De baja</h5>
+                    <div class="display-6 fw-bold text-danger">{{ equipos_de_baja|length }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones de descarga -->
+        <div class="row mb-1">
+            <div class="col-12">
+                <a href="{{ url_for('equipment.exportar_equipos') }}" class="btn btn-success me-2">
+                    <i class="fas fa-download me-1"></i> Descargar Excel
+                </a>
+                <a href="{{ url_for('equipment.listado_maestro') }}" class="btn btn-info me-2">
+                    <i class="fas fa-file-alt me-1"></i> Listado Maestro
+                </a>
+                <a href="{{ url_for('equipment.historiales_equipos') }}" class="btn btn-gradient-yellow me-2 fw-bold px-2 py-1" style="background: linear-gradient(90deg, #ffe082 0%, #ffb300 100%); color: #222; border: none; box-shadow: 0 2px 8px rgba(255,193,7,0.10); font-size: 0.75rem; min-width: 120px; text-align: center; padding-top: 2px; padding-bottom: 2px; line-height: 1.1;" title="Ver historial general de equipos">
+                    <i class="fas fa-history me-1" style="font-size: 0.82rem; vertical-align: middle;"></i> Historial de Cambios
+                </a>
+            </div>
+        </div>
+
+        <!-- Mensajes flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Filtros -->
+        <div class="main-card mb-1">
+            <div class="card-header">
+                <h4 class="mb-0 text-white">
+                    <i class="fas fa-filter me-2"></i> 
+                    Filtros de Búsqueda
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('equipment.listar_equipos') }}" class="row g-1">
+                    <div class="col-md-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
+                            <input type="text" name="codigo" class="form-control" placeholder="Código" value="{{ request.args.get('codigo', '') }}">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-cogs"></i></span>
+                            <input type="text" name="nombre" class="form-control" placeholder="Nombre" value="{{ request.args.get('nombre', '') }}">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            <input type="date" name="fecha_ingreso" class="form-control" value="{{ request.args.get('fecha_ingreso', '') }}">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                            <input type="text" name="ubicacion" class="form-control" placeholder="Ubicación" value="{{ request.args.get('ubicacion', '') }}">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
+                            <input type="text" name="estado_eq" class="form-control" placeholder="Estado" value="{{ request.args.get('estado_eq', '') }}">
+                        </div>
+                    </div>
+                    <div class="col-md-2 d-flex gap-1">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i> Buscar
+                        </button>
+                        <a href="{{ url_for('equipment.listar_equipos') }}" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i> Limpiar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tabla de equipos -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0 text-white">
+                    <i class="fas fa-cogs me-2"></i> 
+                    Lista de Equipos
+                </h4>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-hashtag me-2"></i>Código</th>
+                                <th><i class="fas fa-cogs me-2"></i>Nombre</th>
+                                <th><i class="fas fa-map-marker-alt me-2"></i>Ubicación</th>
+                                <th><i class="fas fa-calendar me-2"></i>Fecha Ingreso</th>
+                                <th><i class="fas fa-info-circle me-2"></i>Estado</th>
+                                <th><i class="fas fa-tools me-2"></i>Último Mant.</th>
+                                <th><i class="fas fa-calendar-check me-2"></i>Fecha Último</th>
+                                <th><i class="fas fa-clock me-2"></i>Próximo Mant.</th>
+                                <th><i class="fas fa-calendar-plus me-2"></i>Fecha Próximo</th>
+                                <th><i class="fas fa-cogs me-2"></i>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if equipos %}
+                                {% for equipo in equipos %}
+                                    <tr>
+                                        <td>
+                                            <span class="equipment-name">{{ equipo.codigo }}</span>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <strong>{{ equipo.nombre }}</strong>
+                                                {% if equipo.descripcion %}
+                                                    <br><small class="text-muted">{{ equipo.descripcion[:50] }}{% if equipo.descripcion|length > 50 %}...{% endif %}</small>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="equipment-location">{{ equipo.ubicacion or 'No especificada' }}</span>
+                                        </td>
+                                        <td>
+                                            <small>{{ equipo.fecha_ingreso.strftime('%d/%m/%Y') if equipo.fecha_ingreso else 'No especificada' }}</small>
+                                        </td>
+                                        <td>
+                                            {% if equipo.estado_eq and equipo.estado_eq.strip().lower() == 'activo' %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check me-1"></i> Activo
+                                                </span>
+                                            {% elif equipo.estado_eq and equipo.estado_eq.strip().lower() == 'de baja' %}
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-ban me-1"></i> De baja
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-warning">
+                                                    <i class="fas fa-exclamation-triangle me-1"></i> Inactivo
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if equipo.ultimo_tipo_mant %}
+                                                {% if equipo.ultimo_tipo_mant == 'Preventivo' %}
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-shield-alt me-1"></i> {{ equipo.ultimo_tipo_mant }}
+                                                    </span>
+                                                {% elif equipo.ultimo_tipo_mant == 'Correctivo' %}
+                                                    <span class="badge bg-danger">
+                                                        <i class="fas fa-wrench me-1"></i> {{ equipo.ultimo_tipo_mant }}
+                                                    </span>
+                                                {% elif equipo.ultimo_tipo_mant == 'Predictivo' %}
+                                                    <span class="badge bg-info">
+                                                        <i class="fas fa-chart-line me-1"></i> {{ equipo.ultimo_tipo_mant }}
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">
+                                                        <i class="fas fa-cog me-1"></i> {{ equipo.ultimo_tipo_mant }}
+                                                    </span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="text-muted">Sin mantenimiento</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small>{{ equipo.ultima_fecha_mant.strftime('%d/%m/%Y') if equipo.ultima_fecha_mant else 'No registrada' }}</small>
+                                        </td>
+                                        <td>
+                                            {% if equipo.proximo_tipo_mant %}
+                                                {% if equipo.proximo_tipo_mant == 'Preventivo' %}
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-shield-alt me-1"></i> {{ equipo.proximo_tipo_mant }}
+                                                    </span>
+                                                {% elif equipo.proximo_tipo_mant == 'Correctivo' %}
+                                                    <span class="badge bg-danger">
+                                                        <i class="fas fa-wrench me-1"></i> {{ equipo.proximo_tipo_mant }}
+                                                    </span>
+                                                {% elif equipo.proximo_tipo_mant == 'Predictivo' %}
+                                                    <span class="badge bg-info">
+                                                        <i class="fas fa-chart-line me-1"></i> {{ equipo.proximo_tipo_mant }}
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">
+                                                        <i class="fas fa-cog me-1"></i> {{ equipo.proximo_tipo_mant }}
+                                                    </span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="text-muted">Sin programar</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small>{{ equipo.fecha_prox_mant.strftime('%d/%m/%Y') if equipo.fecha_prox_mant else 'No programada' }}</small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('equipment.informe_equipo', codigo=equipo.codigo) }}" class="btn btn-info btn-sm" title="Ver">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{{ url_for('equipment.editar_equipo', codigo=equipo.codigo) }}" class="btn btn-primary btn-sm" title="Editar">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                {% if current_user.is_super_admin() %}
+                                                <form method="POST" action="{{ url_for('equipment.eliminar_equipo', codigo=equipo.codigo) }}" style="display: inline;" onsubmit="return confirmarEliminacion()">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Eliminar">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="10" class="text-center">
+                                        <div class="empty-state">
+                                            <i class="fas fa-cogs fa-3x"></i>
+                                            <h4 class="mt-3">No hay equipos registrados</h4>
+                                            <p>Comienza agregando tu primer equipo al sistema.</p>
+                                            <a href="{{ url_for('equipment.nuevo_equipo') }}" class="btn btn-primary">
+                                                <i class="fas fa-plus me-1"></i> Agregar Equipo
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paginación -->
+        {% if pagination and pagination.pages > 1 %}
+            <div class="row mt-3">
+                <div class="col-12">
+                    <nav aria-label="Navegación de páginas">
+                        <ul class="pagination justify-content-center">
+                            {% if pagination.has_prev %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('equipment.listar_equipos', page=pagination.prev_num, **request.args) }}">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for page_num in pagination.iter_pages() %}
+                                {% if page_num %}
+                                    {% if page_num != pagination.page %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ url_for('equipment.listar_equipos', page=page_num, **request.args) }}">{{ page_num }}</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ page_num }}</span>
+                                        </li>
+                                    {% endif %}
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if pagination.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('equipment.listar_equipos', page=pagination.next_num, **request.args) }}">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

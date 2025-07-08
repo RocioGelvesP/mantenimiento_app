@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Incluir Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Editar Equipo</title>
+    <style>
+        body { background-color: #ececec; }
+        .navbar { background-color: #022141 !important; padding: 0.5rem; }
+        .navbar-brand { color: white !important; font-size: 1.5rem; font-weight: bold; }
+        .nav-link { color: rgba(255,255,255,0.8) !important; font-size: 1.1rem; margin: 0 10px; }
+        .nav-link:hover { color: white !important; }
+        .btn-primary { background-color: #022141; border: none; }
+        .btn-primary:hover { background-color: #01376d; }
+        .card {
+            background-color: #cecece;
+            border-radius: px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.20);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            background-color: #cecece;
+            padding: 30px;
+            border-radius: 30px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 10);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 5px;
+            color: #022141;
+        }
+        
+        .mb-3, .mb-4, .mb-5, .form-section {
+            margin-bottom: 0.1rem !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Banner de navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #022141;">
+        <a class="navbar-brand" style="font-size: 1.5rem; font-weight: bold;">Gestión de Máquinas/Equipos</a>
+        <div class="collapse navbar-collapse"></div>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('equipment.listar_equipos') }}" style="color: #FFFFFF;"><i class="fas fa-undo"></i>Regresar</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Historial de Cambios</h2>
+            <p class="text-muted;">Código: {{ equipo.codigo}} - {{ equipo.nombre }}</p>
+        </div>
+    </div>
+
+    <div class="card">  
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead style="background-color: #022141; color: #fff;">
+                        <tr>
+                            <th>Fecha y Hora</th>
+                            <th>Tipo de Cambio</th>
+                            <th>Campo</th>
+                            <th>Valor Anterior</th>
+                            <th>Valor Nuevo</th>
+                            <th>Usuario</th>
+                            <th>Observaciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for registro in historial %}
+                        <tr>
+                            <td>{{ registro.fecha_cambio.strftime('%d/%m/%Y %I:%M:%S %p') }}</td>
+                            <td>
+                                {% if registro.tipo_cambio == 'creacion' %}
+                                    <span class="badge bg-success">Creación</span>
+                                {% elif registro.tipo_cambio == 'actualizacion' %}
+                                    <span class="badge bg-primary">Actualización</span>
+                                {% elif registro.tipo_cambio == 'eliminacion' %}
+                                    <span class="badge bg-danger">Eliminación</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if registro.campo_modificado == 'motores' %}
+                                    <span class="badge bg-info">Motores</span>
+                                {% elif registro.campo_modificado == 'equipos_medicion' %}
+                                    <span class="badge bg-warning">Equipos de Medición</span>
+                                {% else %}
+                                    {{ registro.campo_modificado or '-' }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if registro.campo_modificado == 'motores' %}
+                                    {{ registro.valor_anterior }} motor(es)
+                                {% elif registro.campo_modificado == 'equipos_medicion' %}
+                                    {{ registro.valor_anterior }} equipo(s)
+                                {% else %}
+                                    {{ registro.valor_anterior or '-' }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if registro.campo_modificado == 'motores' %}
+                                    {{ registro.valor_nuevo }} motor(es)
+                                {% elif registro.campo_modificado == 'equipos_medicion' %}
+                                    {{ registro.valor_nuevo }} equipo(s)
+                                {% else %}
+                                    {{ registro.valor_nuevo or '-' }}
+                                {% endif %}
+                            </td>
+                            <td>{{ registro.usuario or '-' }}</td>
+                            <td>{{ registro.observaciones }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center">No hay registros de cambios</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+ 

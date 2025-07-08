@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Máquinas/Equipos Sin Mantenimientos Preventivos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #022141;
+            --secondary-color: #00bcd4;
+            --accent-color: #ff9800;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+            --gradient-primary: linear-gradient(135deg, #022141 0%, #01376d 100%);
+            --gradient-secondary: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+            --gradient-success: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+            --gradient-warning: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            --gradient-info: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+        }
+        body {
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 11px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            overflow: hidden;
+        }
+        /* Formas flotantes animadas más tenues y pequeñas */
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.10;
+            z-index: 0;
+            animation: float 8s ease-in-out infinite alternate;
+        }
+        .shape1 { width: 180px; height: 180px; background: #00bcd4; top: -40px; left: -60px; animation-delay: 0s; }
+        .shape2 { width: 100px; height: 100px; background: #022141; bottom: 8%; right: -30px; animation-delay: 2s; }
+        .shape3 { width: 70px; height: 70px; background: #ff9800; top: 65%; left: -30px; animation-delay: 4s; }
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-15px) scale(1.04); }
+        }
+        .navbar {
+            background: linear-gradient(90deg, #022141 60%, #00bcd4 100%) !important;
+            padding: 0.3rem 0.7rem;
+            box-shadow: 0 1px 6px rgba(2, 33, 65, 0.12);
+        }
+        .navbar-brand {
+            color: white !important;
+            font-size: 1rem;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-size: 0.85rem;
+            margin: 0 4px;
+            border-radius: 4px;
+            transition: all 0.3s;
+            padding: 2px 8px !important;
+        }
+        .nav-link:hover {
+            color: #fff !important;
+            background: rgba(255,255,255,0.12);
+        }
+        .main-card {
+            background: rgba(255,255,255,0.90);
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(2,33,65,0.08);
+            padding: 1rem 0.6rem;
+            position: relative;
+            z-index: 1;
+        }
+        .card-header {
+            background: linear-gradient(90deg, #022141 60%, #00bcd4 100%);
+            color: #fff;
+            border-radius: 14px 14px 0 0 !important;
+            box-shadow: 0 2px 8px rgba(2,33,65,0.08);
+            padding: 0.5rem 1rem;
+        }
+        .card-header h3.mb-0 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 0;
+        }
+        .subcard {
+            background: linear-gradient(90deg, #e3f2fd 60%, #b2ebf2 100%);
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0,188,212,0.08);
+            padding: 0.4rem 0.6rem;
+            margin-bottom: 0.5rem;
+        }
+        .subcard h5 {
+            color: #01376d;
+            font-weight: bold;
+            font-size: 0.92rem;
+            margin-bottom: 0.2rem;
+        }
+        .display-6 { font-size: 1.2rem; }
+        .btn-primary, .btn-info, .btn-success, .btn-danger, .btn-warning {
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            box-shadow: 0 1px 2px rgba(2,33,65,0.08);
+            transition: all 0.2s;
+            padding: 2px 10px;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #022141 60%, #00bcd4 100%);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #01376d 60%, #00bcd4 100%);
+        }
+        .btn-info {
+            background: linear-gradient(90deg, #00bcd4 60%, #0097a7 100%);
+            color: #fff;
+        }
+        .btn-info:hover {
+            background: linear-gradient(90deg, #0097a7 60%, #00bcd4 100%);
+        }
+        .btn-warning {
+            background: linear-gradient(90deg, #ffc107 60%, #ff9800 100%);
+            color: #000;
+        }
+        .btn-warning:hover {
+            background: linear-gradient(90deg, #ff9800 60%, #ffc107 100%);
+            color: #000;
+        }
+        .btn-group .btn { margin: 0 1px; }
+        .table thead th {
+            background: linear-gradient(90deg, #022141 60%, #00bcd4 100%);
+            color: #fff;
+            font-size: 0.78rem;
+            text-align: center;
+            padding: 0.35rem 0.3rem;
+        }
+        .table td, .table th {
+            vertical-align: middle;
+            font-size: 0.78rem;
+            padding: 0.32rem 0.3rem;
+        }
+        .badge-danger { background: #dc3545 !important; }
+        .badge-warning { background: #ffc107 !important; color: #000 !important; }
+        .badge-success { background: #28a745 !important; }
+        .alert-warning {
+            background: linear-gradient(90deg, #fff3cd 60%, #ffeaa7 100%);
+            border: none;
+            color: #856404;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(255,193,7,0.08);
+            font-size: 0.72rem;
+            padding: 0.25rem 0.4rem;
+            margin-bottom: 0.5rem;
+        }
+        .alert-success {
+            background: linear-gradient(90deg, #d4edda 60%, #b2f2e5 100%);
+            border: none;
+            color: #155724;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(40,167,69,0.08);
+            font-size: 0.72rem;
+            padding: 0.25rem 0.4rem;
+            margin-bottom: 0.5rem;
+        }
+        @media (max-width: 900px) {
+            .main-card { padding: 0.7rem 0.2rem; }
+            .subcard { padding: 0.3rem 0.2rem; }
+            .display-6 { font-size: 1rem; }
+        }
+        @media (max-width: 600px) {
+            .main-card { padding: 0.3rem 0.05rem; }
+            .subcard { padding: 0.15rem 0.05rem; }
+            .table-responsive { font-size: 0.8rem; }
+            .display-6 { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Formas flotantes animadas -->
+    <div class="floating-shape shape1"></div>
+    <div class="floating-shape shape2"></div>
+    <div class="floating-shape shape3"></div>
+    <!-- Banner de navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand"><i class="fas fa-tools me-2"></i>Gestión de Mantenimientos</a>
+        <div class="collapse navbar-collapse"></div>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('maintenance.lista') }}"><i class="fas fa-undo"></i> Regresar</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-11 col-xl-10">
+                <div class="main-card">
+                    <div class="card-header">
+                        <h3 class="mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Reporte de Máquinas/Equipos sin Mantenimientos Preventivos - {{ año_actual }}
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Resumen en subcards -->
+                        <div class="row mb-4">
+                            <div class="col-md-3 mb-2">
+                                <div class="subcard text-center">
+                                    <h5><i class="fas fa-database me-1"></i> Total Equipos</h5>
+                                    <div class="display-6 fw-bold">{{ total_equipos }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <div class="subcard text-center">
+                                    <h5><i class="fas fa-check-circle me-1"></i> Con Preventivo</h5>
+                                    <div class="display-6 fw-bold">{{ equipos_con_preventivo }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <div class="subcard text-center">
+                                    <h5><i class="fas fa-exclamation-circle me-1"></i> Sin Preventivo</h5>
+                                    <div class="display-6 fw-bold">{{ equipos_sin_preventivo|length }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <div class="subcard text-center">
+                                    <h5><i class="fas fa-percentage me-1"></i> Porcentaje Crítico</h5>
+                                    <div class="display-6 fw-bold">{{ "%.1f"|format((equipos_sin_preventivo|length / total_equipos * 100) if total_equipos > 0 else 0) }}%</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% if equipos_sin_preventivo %}
+                            <div class="alert alert-warning">
+                                <h5><i class="fas fa-exclamation-triangle me-1"></i> Atención</h5>
+                                <p class="mb-0">
+                                    Se encontraron <strong>{{ equipos_sin_preventivo|length }}</strong> máquinas/equipos sin mantenimientos preventivos programados para el año {{ año_actual }}. 
+                                    Se recomienda programar mantenimientos preventivos para estas máquinas/equipos lo antes posible.
+                                </p>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th><i class="fas fa-barcode me-1"></i> Código</th>
+                                            <th><i class="fas fa-tag me-1"></i> Nombre</th>
+                                            <th><i class="fas fa-map-marker-alt me-1"></i> Ubicación</th>
+                                            <th><i class="fas fa-history me-1"></i> Último Preventivo</th>
+                                            <th><i class="fas fa-hourglass-half me-1"></i> Días Sin Preventivo</th>
+                                            <th><i class="fas fa-flag me-1"></i> Estado</th>
+                                            <th><i class="fas fa-cogs me-1"></i> Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in equipos_sin_preventivo %}
+                                        <tr>
+                                            <td><strong>{{ item.equipo.codigo }}</strong></td>
+                                            <td>{{ item.equipo.nombre }}</td>
+                                            <td>{{ item.equipo.ubicacion or 'No especificada' }}</td>
+                                            <td>
+                                                {% if item.ultimo_preventivo %}
+                                                    {{ item.ultimo_preventivo.fecha_prog.strftime('%d/%m/%Y') }}
+                                                {% else %}
+                                                    <span class="text-muted">Nunca</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if item.dias_sin_preventivo %}
+                                                    <span class="badge {% if item.dias_sin_preventivo > 365 %}badge-danger{% elif item.dias_sin_preventivo > 180 %}badge-warning{% else %}badge-success{% endif %}">
+                                                        {{ item.dias_sin_preventivo }} días
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge badge-danger">Sin historial</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge {% if item.equipo.estado_eq == 'Funcional' %}badge-success{% elif item.equipo.estado_eq == 'Dañado' %}badge-danger{% else %}badge-warning{% endif %}">
+                                                    {{ item.equipo.estado_eq or 'No especificado' }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group d-flex justify-content-center" role="group">
+                                                    <a href="{{ url_for('maintenance.programar') }}?equipo={{ item.equipo.codigo }}&nombre={{ item.equipo.nombre }}&ubicacion={{ item.equipo.ubicacion or '' }}&tipo_mantenimiento=Preventivo" 
+                                                       class="btn btn-sm btn-primary" title="Programar Mantenimiento">
+                                                        <i class="fas fa-calendar-plus"></i>
+                                                    </a>
+                                                    <a href="{{ url_for('equipment.informe_equipo', codigo=item.equipo.codigo) }}" 
+                                                       class="btn btn-sm btn-info" title="Ver Detalles">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-success">
+                                <h5><i class="fas fa-check-circle me-1"></i> ¡Excelente!</h5>
+                                <p class="mb-0">
+                                    Todos los equipos tienen mantenimientos preventivos programados para el año {{ año_actual }}.
+                                </p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

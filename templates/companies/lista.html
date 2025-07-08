@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Empresas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #022141;
+            --secondary-color: #00bcd4;
+            --accent-color: #ff9800;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+            --gradient-primary: linear-gradient(135deg, #022141 0%, #01376d 100%);
+            --gradient-secondary: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+            --gradient-success: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+            --gradient-warning: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            --gradient-info: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+        }
+
+        body { 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 11px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Formas flotantes animadas */
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-shape {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-shape:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 20%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+
+        .floating-shape:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        .floating-shape:nth-child(4) {
+            width: 100px;
+            height: 100px;
+            bottom: 30%;
+            right: 10%;
+            animation-delay: 1s;
+        }
+
+        .floating-shape:nth-child(5) {
+            width: 40px;
+            height: 40px;
+            top: 50%;
+            left: 5%;
+            animation-delay: 3s;
+        }
+
+        .floating-shape:nth-child(6) {
+            width: 90px;
+            height: 90px;
+            top: 60%;
+            right: 5%;
+            animation-delay: 5s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+                opacity: 1;
+            }
+        }
+
+        .navbar { 
+            background: var(--gradient-primary) !important; 
+            padding: 0.25rem;
+            box-shadow: 0 1px 4px rgba(2, 33, 65, 0.3);
+        }
+
+        .navbar-brand { 
+            color: white !important; 
+            font-size: 1.1rem; 
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .nav-link { 
+            color: rgba(255,255,255,0.9) !important; 
+            font-size: 0.8rem; 
+            margin: 0 3px;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+            padding: 4px 8px !important;
+        }
+
+        .nav-link:hover { 
+            color: white !important; 
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary { 
+            background: var(--gradient-primary); 
+            border: none;
+            border-radius: 3px;
+            padding: 4px 10px;
+            font-weight: 600;
+            font-size: 0.7rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(2, 33, 65, 0.3);
+        }
+
+        .btn-primary:hover { 
+            background: linear-gradient(135deg, #01376d 0%, #022141 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(2, 33, 65, 0.4);
+        }
+
+        .btn-info {
+            background: var(--gradient-secondary);
+            border: none;
+            border-radius: 3px;
+            padding: 3px 7px;
+            font-weight: 600;
+            font-size: 0.65rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 188, 212, 0.3);
+        }
+
+        .btn-info:hover {
+            background: linear-gradient(135deg, #0097a7 0%, #00bcd4 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 188, 212, 0.4);
+        }
+
+        .btn-success {
+            background: var(--gradient-success);
+            border: none;
+            border-radius: 3px;
+            padding: 3px 7px;
+            font-weight: 600;
+            font-size: 0.65rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #388e3c 0%, #4caf50 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            border: none;
+            border-radius: 3px;
+            padding: 3px 7px;
+            font-weight: 600;
+            font-size: 0.65rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(108, 117, 125, 0.4);
+        }
+
+        .btn-danger {
+            background: var(--gradient-warning);
+            border: none;
+            border-radius: 3px;
+            padding: 3px 7px;
+            font-weight: 600;
+            font-size: 0.65rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(244, 67, 54, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(244, 67, 54, 0.4);
+        }
+
+        .card {
+            border: none;
+            border-radius: 6px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            background: var(--gradient-primary);
+            border: none;
+            padding: 0.4rem;
+            border-radius: 6px 6px 0 0 !important;
+        }
+
+        .stats-card {
+            background: var(--gradient-primary);
+            border-radius: 6px;
+            padding: 0.4rem;
+            color: white;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 6px rgba(2, 33, 65, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .stats-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 10px rgba(2, 33, 65, 0.4);
+        }
+
+        .stats-card.success {
+            background: var(--gradient-success);
+            box-shadow: 0 1px 6px rgba(76, 175, 80, 0.3);
+        }
+
+        .stats-card.warning {
+            background: var(--gradient-warning);
+            box-shadow: 0 1px 6px rgba(255, 152, 0, 0.3);
+        }
+
+        .stats-card.info {
+            background: var(--gradient-info);
+            box-shadow: 0 1px 6px rgba(0, 188, 212, 0.3);
+        }
+
+        .table {
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            font-size: 0.7rem;
+        }
+
+        .table thead th {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 0.3rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+            font-size: 0.6rem;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(0, 188, 212, 0.1) 0%, rgba(2, 33, 65, 0.05) 100%);
+            transform: scale(1.001);
+        }
+
+        .table td {
+            vertical-align: middle;
+            padding: 0.3rem;
+            border: none;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .badge {
+            padding: 2px 5px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.6rem;
+        }
+
+        .badge.bg-success {
+            background: var(--gradient-success) !important;
+        }
+
+        .badge.bg-warning {
+            background: var(--gradient-warning) !important;
+        }
+
+        .badge.bg-info {
+            background: var(--gradient-secondary) !important;
+        }
+
+        .badge.bg-primary {
+            background: var(--gradient-primary) !important;
+        }
+
+        .badge.bg-danger {
+            background: var(--gradient-warning) !important;
+        }
+
+        .btn-group .btn {
+            border-radius: 3px;
+            margin: 0 1px;
+            transition: all 0.3s ease;
+            font-size: 0.6rem;
+        }
+
+        .btn-group .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .pagination .page-link {
+            border: none;
+            color: var(--primary-color);
+            border-radius: 3px;
+            margin: 0 1px;
+            transition: all 0.3s ease;
+            padding: 0.2rem 0.3rem;
+            font-size: 0.7rem;
+        }
+
+        .pagination .page-link:hover {
+            background: var(--gradient-primary);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .pagination .page-item.active .page-link {
+            background: var(--gradient-primary);
+            border: none;
+        }
+
+        .form-control {
+            border-radius: 3px;
+            border: 1px solid rgba(0,0,0,0.1);
+            padding: 0.25rem 0.4rem;
+            font-size: 0.7rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 188, 212, 0.25);
+        }
+
+        .company-name {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 0.75rem;
+        }
+
+        .company-nit {
+            color: #6c757d;
+            font-size: 0.6rem;
+            font-style: italic;
+        }
+
+        .empty-state {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 6px;
+            padding: 0.8rem;
+            text-align: center;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .empty-state i {
+            color: var(--secondary-color);
+            margin-bottom: 0.3rem;
+        }
+
+        .container {
+            max-width: 1400px;
+        }
+
+        .container.mt-4 {
+            margin-top: 0.5rem !important;
+        }
+
+        .row.mb-4 {
+            margin-bottom: 0.5rem !important;
+        }
+
+        .row.mt-4 {
+            margin-top: 0.5rem !important;
+        }
+
+        .card-body.p-0 {
+            padding: 0 !important;
+        }
+
+        .card-footer {
+            padding: 0.3rem 0.5rem;
+        }
+
+        .text-center.mt-3 {
+            margin-top: 0.3rem !important;
+        }
+
+        .text-center.mt-3 p {
+            margin-bottom: 0 !important;
+        }
+
+        .btn-sm {
+            padding: 0.15rem 0.3rem;
+            font-size: 0.6rem;
+        }
+
+        .fa-2x {
+            font-size: 1.2rem;
+        }
+
+        .fa-3x {
+            font-size: 1.6rem;
+        }
+
+        .stats-card h3 {
+            font-size: 0.9rem;
+            margin-bottom: 0.1rem;
+        }
+
+        .stats-card p {
+            font-size: 0.65rem;
+            margin-bottom: 0;
+        }
+
+        .card-header h4, .card-header h5 {
+            font-size: 0.85rem;
+        }
+
+        .empty-state h4 {
+            font-size: 0.85rem;
+        }
+
+        .empty-state p {
+            font-size: 0.65rem;
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 0.6rem;
+            font-weight: bold;
+        }
+
+        .alert {
+            border-radius: 3px;
+            padding: 0.4rem 0.6rem;
+            font-size: 0.7rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-content {
+            border-radius: 6px;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .modal-title {
+            font-size: 0.9rem;
+        }
+
+        .modal-body {
+            font-size: 0.7rem;
+        }
+
+        .modal-footer {
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .stats-card {
+                margin-bottom: 0.4rem;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn-group .btn {
+                margin: 1px 0;
+            }
+
+            .container.mt-4 {
+                margin-top: 0.5rem !important;
+            }
+
+            .row.mb-4 {
+                margin-bottom: 0.5rem !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Formas flotantes animadas -->
+    <div class="floating-shapes">
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand">
+                <i class="fas fa-building me-2"></i>
+                Gestión de Empresas
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.index') }}">
+                            <i class="fas fa-home me-1"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('usuarios.lista_usuarios') }}">
+                            <i class="fas fa-users me-1"></i> Usuarios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('equipment.lista_equipos') }}">
+                            <i class="fas fa-tools me-1"></i> Equipos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('lubrication.lista_cartas') }}">
+                            <i class="fas fa-oil-can me-1"></i> Lubricaciones
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('maintenance.lista') }}">
+                            <i class="fas fa-calendar-alt me-1"></i> Mantenimientos
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('companies.nueva') }}">
+                            <i class="fas fa-plus-circle me-1"></i> Agregar
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Estadísticas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card info">
+                    <i class="fas fa-building fa-2x mb-3"></i>
+                    <h3 class="mb-2">{{ companies|length }}</h3>
+                    <p class="mb-0">Total Empresas</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card success">
+                    <i class="fas fa-check-circle fa-2x mb-3"></i>
+                    <h3 class="mb-2">{{ companies|selectattr('activo', 'equalto', true)|list|length }}</h3>
+                    <p class="mb-0">Activas</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card warning">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                    <h3 class="mb-2">{{ companies|selectattr('activo', 'equalto', false)|list|length }}</h3>
+                    <p class="mb-0">Inactivas</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <i class="fas fa-industry fa-2x mb-3"></i>
+                    <h3 class="mb-2">{{ companies|map(attribute='tipo_empresa')|unique|list|length }}</h3>
+                    <p class="mb-0">Tipos</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de empresas -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0 text-white">
+                    <i class="fas fa-building me-2"></i> 
+                    Lista de Empresas
+                </h4>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-hashtag me-2"></i>NIT</th>
+                                <th><i class="fas fa-building me-2"></i>Nombre</th>
+                                <th><i class="fas fa-industry me-2"></i>Tipo</th>
+                                <th><i class="fas fa-user me-2"></i>Contacto</th>
+                                <th><i class="fas fa-phone me-2"></i>Teléfono</th>
+                                <th><i class="fas fa-envelope me-2"></i>Email</th>
+                                <th><i class="fas fa-info-circle me-2"></i>Estado</th>
+                                <th><i class="fas fa-cogs me-2"></i>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if companies %}
+                                {% for company in companies %}
+                                    <tr>
+                                        <td>
+                                            <span class="company-nit">{{ company.nit }}</span>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <strong class="company-name">{{ company.nombre }}</strong>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span>{{ company.tipo_empresa or 'No especificado' }}</span>
+                                        </td>
+                                        <td>
+                                            <span>{{ company.contacto or 'No especificado' }}</span>
+                                        </td>
+                                        <td>
+                                            <small>{{ company.telefono or 'No especificado' }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="company-nit">{{ company.email or 'No especificado' }}</span>
+                                        </td>
+                                        <td>
+                                            {% if company.activo %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check me-1"></i> Activa
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-times me-1"></i> Inactiva
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('companies.editar', id=company.id) }}" class="btn btn-primary btn-sm" title="Editar">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                {% if current_user.can_delete() %}
+                                                <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminacion({{ company.id }})" title="Eliminar">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="8" class="text-center">
+                                        <div class="empty-state">
+                                            <i class="fas fa-building fa-3x"></i>
+                                            <h4 class="mt-3">No hay empresas registradas</h4>
+                                            <p>Comienza agregando tu primera empresa al sistema.</p>
+                                            <a href="{{ url_for('companies.nueva') }}" class="btn btn-primary">
+                                                <i class="fas fa-plus me-1"></i> Agregar Empresa
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación para eliminar -->
+    <div class="modal fade" id="modalEliminar" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Confirmar Eliminación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Está seguro que desea eliminar esta empresa?</p>
+                    <p class="text-muted small">
+                        <i class="fas fa-info-circle me-1"></i> 
+                        Nota: No se podrá eliminar la empresa si tiene equipos o mantenimientos asociados.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Cancelar
+                    </button>
+                    <form id="formEliminar" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i> Eliminar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function confirmarEliminacion(id) {
+            const modal = document.getElementById('modalEliminar');
+            const form = document.getElementById('formEliminar');
+            form.action = "{{ url_for('companies.eliminar', id=0) }}".replace('0', id);
+            const modalInstance = new bootstrap.Modal(modal);
+            modalInstance.show();
+        }
+    </script>
+</body>
+</html>

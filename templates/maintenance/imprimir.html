@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Actividades de Mantenimiento</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            font-size: 12px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        @page {
+            size: A4 landscape;
+            margin-bottom: 30mm;
+            margin-left: 5mm;
+            margin-right: 5mm;
+            margin-top: 5mm;
+            @bottom-center {
+                content: "Fecha de ejecución: {{ now.strftime('%d/%m/%Y') if now else '' }}  |  Página: " counter(page);
+                font-size: 8px;
+            }
+        }
+        
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            table-layout: auto;
+        }
+        .header-table td, .header-table th {
+            border: 1px solid #000;
+            padding: 5px;
+        }
+        
+        .logo {
+            width: 70px;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .company-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            border-bottom: 1px solid #000;
+            padding: 5px 0;
+        }
+        .main-title {
+            text-align: center;
+            font-size: 15px;
+            font-weight: bold;
+            padding: 5px 0;
+        }
+        
+        .header-inner-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: auto;
+            height: 10px;
+        }
+        .header-inner-table td {
+            border: 1px solid #000;
+            text-align: center;
+            vertical-align: middle;
+            padding: 0;
+            word-break: break-word;
+        }
+        
+        .right-cells {
+            width: 140px;
+        }
+        .right-cell {
+            border-bottom: 1px solid #000;
+            text-align: center;
+            font-size: 12px;
+            padding: 6px 0;
+        }
+        .right-cell:last-child {
+            border-bottom: none;
+        }
+        table.maint-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            table-layout: fixed;
+            min-width: 100%;
+        }
+        table.maint-table th, table.maint-table td {
+            border: 1px solid #000;
+            padding: 6px 3px;
+            text-align: center;
+            height: 30px;
+            vertical-align: middle;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 10px;
+            white-space: nowrap;
+        }
+        table.maint-table th {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+        /* Anchos fijos en píxeles para las columnas */
+        table.maint-table th:nth-child(1), table.maint-table td:nth-child(1) { width: 30px; }  /* N° */
+        table.maint-table th:nth-child(2), table.maint-table td:nth-child(2) { width: 90px; }  /* H. Inicio */
+        table.maint-table th:nth-child(3), table.maint-table td:nth-child(3) { width: 90px; }  /* H. Fin */
+        table.maint-table th:nth-child(4), table.maint-table td:nth-child(4) { width: 80px; }  /* T. Gastado */
+        table.maint-table th:nth-child(5), table.maint-table td:nth-child(5) { width: 80px; }  /* Código */
+        table.maint-table th:nth-child(6), table.maint-table td:nth-child(6) { width: 200px; } /* Nombre */
+        table.maint-table th:nth-child(7), table.maint-table td:nth-child(7) { width: 120px; } /* Ubicación */
+        table.maint-table th:nth-child(8), table.maint-table td:nth-child(8) { width: 80px; }  /* Tipo */
+        table.maint-table th:nth-child(9), table.maint-table td:nth-child(9) { width: 120px; } /* Técnico */
+        table.maint-table th:nth-child(10), table.maint-table td:nth-child(10) { width: 120px; } /* Actividad */
+        table.maint-table th:nth-child(11), table.maint-table td:nth-child(11) { width: 100px; } /* Observaciones */
+        table.maint-table th:nth-child(12), table.maint-table td:nth-child(12) { width: 100px; } /* Recibido por */
+
+        table.maint-table td:nth-child(6) {  /* Columna Nombre */
+            text-align: left;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+        
+        .footer {
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            text-align: right;
+            font-size: 10px;
+            border-top: 1px solid #000;
+            padding-top: 2px;
+        }
+        .signature {
+            margin-top: 40px;
+            border-top: 1px solid #000;
+            width: 200px;
+            text-align: center;
+            padding-top: 5px;
+        }
+        @media print {
+            .no-print { display: none; }
+            body { 
+                margin: 0; 
+                padding: 5px;
+            }
+            .maint-table { 
+                page-break-inside: auto; 
+                width: 100%;
+            }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+        }
+    </style>
+</head>
+<body>
+    <table class="header-table">
+        <tr>
+            <!-- Logo -->
+            <td style="height:55.5px; text-align:center; vertical-align:middle; padding:0; width:15%;">
+                <img src="{{ url_for('static', filename='logo.png', _external=True) }}" alt="Logo" style="max-width:70px; max-height:70px; display:block; margin:auto;">
+            </td>
+            <!-- Control de Actividades -->
+            <td style="padding:0; border:none; height:70px; vertical-align:middle; width:30%;">
+                <table class="header-inner-table">
+                    <tr>
+                        <td style="font-size:14px; font-weight:bold; height:70px;">
+                            CONTROL DE ACTIVIDADES DE MANTENIMIENTO
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <!-- Centro: Nombre empresa -->
+            <td style="padding:0; border:none; height:55.5px; vertical-align:middle; width:40%;">
+                <table class="header-inner-table">
+                    <tr>
+                        <td style="font-weight:bold; font-size:18px; height:70px;">
+                            INR INVERSIONES 
+                            <br>
+                            REINOSO Y CIA. LTDA.
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <!-- Derecha: 4 cuadros -->
+            <td style="padding:0; border:none; vertical-align:top; width:15%;">
+                <table class="header-inner-table">
+                    <tr>
+                        <td style="font-size:11px; font-weight:bold; height:17px;">Código</td>
+                    </tr>
+                    <tr>
+                        <td style="font-size:11px; height:17px;">71-MT-43</td>
+                    </tr>
+                    <tr>
+                        <td style="font-size:11px; font-weight:bold; height:17px;">Edición</td>
+                    </tr>
+                    <tr>
+                        <td style="font-size:11px; height:16.5px;">6/mar/2024</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <table class="maint-table">
+        <thead>
+            <tr>
+                <th>N°</th>
+                <th>Fecha/Hora Inicio</th>
+                <th>Fecha/Hora Fin</th>
+                <th>T. Gastado</th>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Ubicación</th>
+                <th>Tipo</th>
+                <th>Técnico</th>
+                <th>Actividad</th>
+                <th>Observaciones</th>
+                <th>Recibido por</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mtto in mantenimientos %}
+            <tr>
+                <td>{{ mtto.id or '' }}</td>
+                <td>{{ mtto.hora_inicial or '' }}</td>
+                <td>{{ mtto.hora_final or '' }}</td>
+                <td>{{ '' if mtto.tiempo_gastado in [None, 'No registrado'] else mtto.tiempo_gastado }}</td>
+                <td>{{ mtto.codigo or '' }}</td>
+                <td>{{ mtto.nombre or '' }}</td>
+                <td>{{ mtto.ubicacion or '' }}</td>
+                <td>{{ mtto.tipo_mantenimiento or '' }}</td>
+                <td>{{ mtto.tecnico_asignado_display or '' }}</td>
+                <td>{{ mtto.servicio or '' }}</td>
+                <td>{{ mtto.observaciones or '' }}</td>
+                <td>{{ mtto.recibido_por or '' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+<script>
+// Mostrar número de página en pantalla (no afecta PDF)
+window.onload = function() {
+    var pageSpans = document.getElementsByClassName('pageNumber');
+    for (var i = 0; i < pageSpans.length; i++) {
+        pageSpans[i].textContent = 1;
+    }
+};
+</script>
+</html> 
