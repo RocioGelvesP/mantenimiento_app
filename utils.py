@@ -12,7 +12,7 @@ def get_pdf_config():
 	if sistema == 'Windows':
 		path_wkhtmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
 	elif sistema == 'Linux':
-		path_wkhtmltopdf = '/usr/local/bin/wkhtmltopdf'
+		path_wkhtmltopdf = '/usr/bin/wkhtmltopdf'
 	else:
 		raise OSError(f"Sistema no compatible: {sistema}")
 	if not os.path.exists(path_wkhtmltopdf):
