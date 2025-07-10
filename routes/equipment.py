@@ -330,11 +330,10 @@ def nuevo_equipo():
             
             # Registrar auditoría
             registrar_auditoria(
-                usuario=current_user.username,
+                modulo="Eqipos",
                 accion='CREAR',
                 tabla='equipos',
-                registro_id=equipo.codigo,
-                detalles=f"Creó equipo {equipo.codigo} - {equipo.nombre}"
+                descripcion=f"Creó equipo {equipo.codigo} - {equipo.nombre}"
             )
             
             flash(f'Máquina/Equipo "{form.codigo.data}" y motores guardados correctamente.', 'success')
@@ -638,11 +637,10 @@ def editar_equipo(codigo):
                 
                 # Registrar auditoría
                 registrar_auditoria(
-                    usuario=current_user.username,
+                    modulo="Equipos",
                     accion='ACTUALIZAR',
                     tabla='equipos',
-                    registro_id=equipo.codigo,
-                    detalles=f"Editó equipo {equipo.codigo} - {equipo.nombre}"
+                    descripcion=f"Editó equipo {equipo.codigo} - {equipo.nombre}"
                 )
                 
                 # Verificar que los motores se guardaron correctamente
@@ -687,11 +685,10 @@ def eliminar_equipo(codigo):
         
         # Registrar auditoría
         registrar_auditoria(
-            usuario=current_user.username,
+            modulo="Equipos",
             accion='ELIMINAR',
             tabla='equipos',
-            registro_id=codigo,
-            detalles=f"Eliminó equipo {equipo_info}"
+            descripcion=f"Eliminó equipo {equipo_info}"
         )
         
         flash(f'Equipo "{codigo}" eliminado correctamente', 'success')
@@ -949,6 +946,8 @@ def descargar_hoja_vida(codigo):
     options = get_pdf_options(orientation='Landscape', page_size='A4', include_footer=True)
     
     # Generar y enviar PDF
+    with open('/tmp/hoja_vida_debug.html', 'w', encoding='utf-8') as f:
+    f.write(html)
     pdf = pdfkit.from_string(html, False, options=options, configuration=config)
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'

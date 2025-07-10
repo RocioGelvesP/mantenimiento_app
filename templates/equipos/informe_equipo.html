@@ -352,7 +352,7 @@
                         <!-- Imagen del Equipo -->
                         {% if equipo.imagen %}
                             <div class="text-center mb-3">
-                                <img src="{{ url_for('static', filename=equipo.imagen) }}" 
+                                <img src="file:///app/static/{{ equipo.imagen }}" 
                                      alt="Imagen del equipo {{ equipo.codigo }}" 
                                      class="img-fluid rounded equipment-image" 
                                      style="max-width: 200px; max-height: 200px;">
