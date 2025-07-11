@@ -933,6 +933,10 @@ def descargar_hoja_vida(codigo):
         costo_total = sum((m.costo_rep or 0) + (m.costo_herram or 0) + (m.costo_mdo or 0) for m in mantenimientos)
         total_para_tasa = total_completados + total_programados
         tasa_completacion = (total_completados / total_para_tasa) * 100 if total_para_tasa > 0 else 0
+
+        # Rutas absolutas para imágenes
+        logo_path = os.path.abspath('static/logo.png')
+        imagen_equipo_path = os.path.abspath(f'static/{equipo.imagen}') if equipo.imagen else None
         
         # Renderizar la plantilla HTML PDF
         html = render_template('equipos/hoja_vida_pdf.html',
@@ -944,7 +948,9 @@ def descargar_hoja_vida(codigo):
                                total_programados=total_programados,
                                total_completados=total_completados,
                                base_url=request.host_url,
-                               es_pdf=True)
+                               es_pdf=True,
+                               logo_path=logo_path,
+                               imagen_equipo_path=imagen_equipo_path)
 
         config = get_pdf_config()
         

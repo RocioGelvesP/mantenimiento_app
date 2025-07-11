@@ -41,7 +41,7 @@
         <tr>
             <!-- Logo -->
             <td style="width: 112px; height:55.5px; text-align:center; vertical-align:middle; padding:0;">
-                <img src="{{ 'static/logo.png' }}" alt="Logo" style="max-width:70px; max-height:70px; display:block; margin:auto;">
+                <img src="{{ logo_path }}" alt="Logo" style="max-width:70px; max-height:70px; display:block; margin:auto;">
             </td>
             <!-- Centro: Dos cuadros horizontales -->
             <td style="padding:0; border:none; height:55.5px; vertical-align:middle;">
@@ -90,7 +90,7 @@
         <tr>
             <td rowspan="5" style="width: 130px; text-align: center; vertical-align: top;">
                 {% if equipo.imagen %}
-                <img src="{{ 'static/' + equipo.imagen }}" alt="Imagen del Equipo" class="img-fluid">
+                <img src="{{ imagen_equipo_path }}" alt="Imagen del Equipo" class="img-fluid">
                 {% else %}
                     <div style="background: #f0f0f0; border-radius: 4px; padding: 15px; color: #888; font-size: 9px;">No hay imagen disponible</div>
                 {% endif %}
