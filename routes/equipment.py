@@ -10,6 +10,7 @@ import pandas as pd
 import pdfkit
 import shutil
 import io, os
+import traceback
 from forms import EquipoForm
 from werkzeug.utils import secure_filename
 
@@ -916,45 +917,52 @@ def hoja_vida_equipo(codigo):
 @equipment_bp.route('/descargar_hoja_vida/<codigo>')
 @login_required
 def descargar_hoja_vida(codigo):
-    equipo = get_or_404(Equipo, codigo)
-    # Todos los mantenimientos del equipo
-    todos_mantenimientos = Programado.query.filter_by(codigo=codigo).all()
-    # Solo completados para la tabla de mantenimientos realizados
-    mantenimientos = [m for m in todos_mantenimientos if m.estado_final == 'Completado']
-    
-    # Calcular totales
-    total_mantenimientos = len(todos_mantenimientos)
-    total_programados = sum(1 for m in todos_mantenimientos if m.estado_final != 'Completado')
-    total_completados = sum(1 for m in todos_mantenimientos if m.estado_final == 'Completado')
-    
-    # Calcular costo total y tasa de completaciÃ³n
-    costo_total = sum((m.costo_rep or 0) + (m.costo_herram or 0) + (m.costo_mdo or 0) for m in mantenimientos)
-    total_para_tasa = total_completados + total_programados
-    tasa_completacion = (total_completados / total_para_tasa) * 100 if total_para_tasa > 0 else 0
-    
-    # Renderizar la plantilla HTML PDF
-    html = render_template('equipos/hoja_vida_pdf.html',
-                           equipo=equipo,
-                           mantenimientos=mantenimientos,
-                           costo_total=costo_total,
-                           tasa_completacion=tasa_completacion,
-                           total_mantenimientos=total_mantenimientos,
-                           total_programados=total_programados,
-                           total_completados=total_completados,
-                           base_url=request.host_url)
+    try:
+        equipo = get_or_404(Equipo, codigo)
+        # Todos los mantenimientos del equipo
+        todos_mantenimientos = Programado.query.filter_by(codigo=codigo).all()
+        # Solo completados para la tabla de mantenimientos realizados
+        mantenimientos = [m for m in todos_mantenimientos if m.estado_final == 'Completado']
+        
+        # Calcular totales
+        total_mantenimientos = len(todos_mantenimientos)
+        total_programados = sum(1 for m in todos_mantenimientos if m.estado_final != 'Completado')
+        total_completados = sum(1 for m in todos_mantenimientos if m.estado_final == 'Completado')
+        
+        # Calcular costo total y tasa de completaciÃ³n
+        costo_total = sum((m.costo_rep or 0) + (m.costo_herram or 0) + (m.costo_mdo or 0) for m in mantenimientos)
+        total_para_tasa = total_completados + total_programados
+        tasa_completacion = (total_completados / total_para_tasa) * 100 if total_para_tasa > 0 else 0
+        
+        # Renderizar la plantilla HTML PDF
+        html = render_template('equipos/hoja_vida_pdf.html',
+                               equipo=equipo,
+                               mantenimientos=mantenimientos,
+                               costo_total=costo_total,
+                               tasa_completacion=tasa_completacion,
+                               total_mantenimientos=total_mantenimientos,
+                               total_programados=total_programados,
+                               total_completados=total_completados,
+                               base_url=request.host_url)
 
-    config = get_pdf_config()
-    
-    # Configurar opciones de PDF
-    options = get_pdf_options(orientation='Landscape', page_size='A4', include_footer=True)
-    
-    # Generar y enviar PDF
-    pdf = pdfkit.from_string(html, False, options=options, configuration=config)
-    response = make_response(pdf)
-    response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = f'attachment; filename=hoja_vida_{equipo.codigo}.pdf'
-    
-    return response
+        config = get_pdf_config()
+        
+        # Configurar opciones de PDF
+        options = get_pdf_options(orientation='Landscape', page_size='A4', include_footer=True)
+        
+        # Generar y enviar PDF
+        pdf = pdfkit.from_string(html, False, options=options, configuration=config)
+        response = make_response(pdf)
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = f'attachment; filename=hoja_vida_{equipo.codigo}.pdf'
+        
+        return response
+        
+    except Exception as e:
+        current_app.logger.error(f"Error al generar PDF de hoja de vida para equipo {codigo}: {str(e)}")
+        current_app.logger.error(f"Traceback completo: {traceback.format_exc()}")
+        flash('Error al generar el PDF de la hoja de vida. Por favor, intente nuevamente.', 'error')
+        return redirect(url_for('equipment.hoja_vida_equipo', codigo=codigo))
 
 @equipment_bp.route('/importar', methods=['GET', 'POST'])
 @login_required
