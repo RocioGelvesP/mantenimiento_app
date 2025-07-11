@@ -943,7 +943,8 @@ def descargar_hoja_vida(codigo):
                                total_mantenimientos=total_mantenimientos,
                                total_programados=total_programados,
                                total_completados=total_completados,
-                               base_url=request.host_url)
+                               base_url=request.host_url,
+                               es_pdf=True)
 
         config = get_pdf_config()
         
