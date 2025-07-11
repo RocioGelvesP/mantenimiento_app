@@ -181,22 +181,43 @@
                 </td>
             </tr>
         </table>
-        <table class="maint-table">
-            <thead>
-                <tr>
-                    <th>Columna 1</th>
-                    <th>Columna 2</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for i in range(50) %}
-                <tr>
-                    <td>Dato {{ i }}</td>
-                    <td>Más datos {{ i }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        {% set filas_por_bloque = 20 %}
+        {% set total = mantenimientos|length %}
+        {% for start in range(0, total, filas_por_bloque) %}
+            <table class="maint-table">
+                <thead>
+                    <tr>
+                        <th>N°</th>
+                        <th style="white-space: normal; text-align: center;">Fec./Hor.<br>Inic.</th>
+                        <th style="white-space: normal; text-align: center;">Fec./Hor.<br>Fin</th>
+                        <th>Código</th>
+                        <th>Ubicación</th>
+                        <th>Tipo</th>
+                        <th>Técnico</th>
+                        <th>Actividad</th>
+                        <th>Observaciones</th>
+                        <th>Recibido por</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mtto in mantenimientos[start:start+filas_por_bloque] %}
+                    <tr>
+                        <td>{{ loop.index0 + start + 1 }}</td>
+                        <td>{{ mtto.hora_inicial or '' }}</td>
+                        <td>{{ mtto.hora_final or '' }}</td>
+                        <td>{{ mtto.codigo or '' }}</td>
+                        <td>{{ mtto.ubicacion or '' }}</td>
+                        <td>{{ mtto.tipo_mantenimiento or '' }}</td>
+                        <td>{{ mtto.tecnico_asignado_display or '' }}</td>
+                        <td>{{ mtto.servicio or '' }}</td>
+                        <td>{{ mtto.observaciones or '' }}</td>
+                        <td>{{ mtto.recibido_por or '' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div style="page-break-after: always;"></div>
+        {% endfor %}
     </div>
 </body>
 <script>
