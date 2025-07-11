@@ -249,7 +249,15 @@
                 <div class="subcard-title"><i class="fas fa-info-circle"></i> Información General</div>
                 <div class="row align-items-center mb-4">
                     <div class="col-md-3 text-center mb-3">
-                        
+                    {% if equipo.imagen %}
+                        <img src="{{ 'static/' + equipo.imagen }}" alt="Imagen del Equipo" class="img-fluid rounded" style="max-height: 200px; border: 2px solid #e0e7ff; background: #fff;">
+                    {% else %}
+                        <div class="bg-light rounded p-3">
+                            <i class="fas fa-image fa-3x text-muted"></i>
+                            <p class="mt-2">No hay imagen disponible</p>
+                        </div>
+                    {% endif %}
+
                     </div>
                     <div class="col-md-9">
                         <div class="row">
