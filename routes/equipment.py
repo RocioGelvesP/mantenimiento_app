@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, url_for, flash, redirect, send_file, make_response, jsonify
+﻿from flask import Blueprint, render_template, request, url_for, flash, redirect, send_file, make_response, jsonify
 from flask_login import login_required, current_user
 from flask import current_app
 from datetime import datetime, timezone, timedelta
@@ -24,7 +24,7 @@ def get_local_datetime():
 @equipment_bp.route('/listar', methods=['GET'])
 @login_required
 def listar_equipos():
-    # Obtener parámetros de filtro desde la URL
+    # Obtener parÃ¡metros de filtro desde la URL
     codigo = request.args.get('codigo', '')
     nombre = request.args.get('nombre', '')
     fecha_ingreso = request.args.get('fecha_ingreso', '')
@@ -47,15 +47,15 @@ def listar_equipos():
 
     equipos = query.all()
     
-    # Calcular información de mantenimientos para cada equipo
+    # Calcular informaciÃ³n de mantenimientos para cada equipo
     for equipo in equipos:
-        # Buscar el último mantenimiento realizado para este equipo
+        # Buscar el Ãºltimo mantenimiento realizado para este equipo
         ultimo_mantenimiento = Programado.query.filter(
             Programado.codigo == equipo.codigo,
             Programado.estado_final == 'Completado'
         ).order_by(Programado.fecha_prog.desc()).first()
         
-        # Asignar información del último mantenimiento
+        # Asignar informaciÃ³n del Ãºltimo mantenimiento
         if ultimo_mantenimiento:
             equipo.ultimo_tipo_mant = ultimo_mantenimiento.tipo_mantenimiento
             equipo.ultima_fecha_mant = ultimo_mantenimiento.fecha_prog
@@ -63,14 +63,14 @@ def listar_equipos():
             equipo.ultimo_tipo_mant = None
             equipo.ultima_fecha_mant = None
         
-        # Buscar el próximo mantenimiento programado para este equipo
+        # Buscar el prÃ³ximo mantenimiento programado para este equipo
         proximo_mantenimiento = Programado.query.filter(
             Programado.codigo == equipo.codigo,
             Programado.fecha_prog >= datetime.now().date(),
             Programado.estado_inicial.in_(['Programado', 'Asignado'])
         ).order_by(Programado.fecha_prog.asc()).first()
         
-        # Asignar información del próximo mantenimiento
+        # Asignar informaciÃ³n del prÃ³ximo mantenimiento
         if proximo_mantenimiento:
             equipo.proximo_tipo_mant = proximo_mantenimiento.tipo_mantenimiento
             equipo.fecha_prox_mant = proximo_mantenimiento.fecha_prog
@@ -83,7 +83,7 @@ def listar_equipos():
     equipos_de_baja = [e for e in equipos if e.estado_eq and e.estado_eq.strip().lower() == 'de baja']
     equipos_inactivos = [e for e in equipos if not e.estado_eq or e.estado_eq.strip().lower() not in ['activo', 'de baja']]
 
-    # Para usuarios con roles superiores, también mostrar contadores de todos los equipos del sistema
+    # Para usuarios con roles superiores, tambiÃ©n mostrar contadores de todos los equipos del sistema
     total_activos_sistema = None
     total_de_baja_sistema = None
     total_inactivos_sistema = None
@@ -215,7 +215,7 @@ def nuevo_equipo():
                         file.save(file_path)
                         setattr(equipo, archivo, f'uploads/documentos/{filename}')
 
-            # Historial de creación de campos de equipo
+            # Historial de creaciÃ³n de campos de equipo
             for field in equipo.__table__.columns.keys():
                 if field == 'codigo':
                     continue
@@ -228,7 +228,7 @@ def nuevo_equipo():
                         valor_anterior=None,
                         valor_nuevo=str(valor),
                         usuario=current_user.username if current_user.is_authenticated else None,
-                        observaciones=f'Creación inicial del campo {field}',
+                        observaciones=f'CreaciÃ³n inicial del campo {field}',
                         fecha_cambio=get_local_datetime()
                     ))
 
@@ -292,10 +292,10 @@ def nuevo_equipo():
                                 valor_anterior=None,
                                 valor_nuevo=str(valor),
                                 usuario=current_user.username if current_user.is_authenticated else None,
-                                observaciones=f'Creación inicial del campo {field} del motor',
+                                observaciones=f'CreaciÃ³n inicial del campo {field} del motor',
                                 fecha_cambio=get_local_datetime()
                             ))
-            # Guardar equipos de medición y registrar historial de cada campo
+            # Guardar equipos de mediciÃ³n y registrar historial de cada campo
             codigo_medicion = request.form.getlist('codigo_medicion[]')
             nombre_medicion = request.form.getlist('nombre_medicion[]')
             ubicacion_medicion = request.form.getlist('ubicacion_medicion[]')
@@ -323,21 +323,21 @@ def nuevo_equipo():
                                 valor_anterior=None,
                                 valor_nuevo=str(valor),
                                 usuario=current_user.username if current_user.is_authenticated else None,
-                                observaciones=f'Creación inicial del campo {field} del equipo de medición',
+                                observaciones=f'CreaciÃ³n inicial del campo {field} del equipo de mediciÃ³n',
                                 fecha_cambio=get_local_datetime()
                             ))
             db.session.commit()
             
-            # Registrar auditoría
+            # Registrar auditorÃ­a
             registrar_auditoria(
                 usuario=current_user.username,
                 accion='CREAR',
                 tabla='equipos',
                 registro_id=equipo.codigo,
-                detalles=f"Creó equipo {equipo.codigo} - {equipo.nombre}"
+                detalles=f"CreÃ³ equipo {equipo.codigo} - {equipo.nombre}"
             )
             
-            flash(f'Máquina/Equipo "{form.codigo.data}" y motores guardados correctamente.', 'success')
+            flash(f'MÃ¡quina/Equipo "{form.codigo.data}" y motores guardados correctamente.', 'success')
             return redirect(url_for('equipment.listar_equipos'))
         except Exception as e:
             db.session.rollback()
@@ -380,9 +380,9 @@ def editar_equipo(codigo):
 
         if form.validate():
             try:
-                # Guardar valores anteriores para comparación de equipo
+                # Guardar valores anteriores para comparaciÃ³n de equipo
                 valores_anteriores = {col: getattr(equipo, col) for col in equipo.__table__.columns.keys() if col != 'codigo'}
-                # Actualizar campos básicos
+                # Actualizar campos bÃ¡sicos
                 form.populate_obj(equipo)
                 equipo.set_tipo_energia(form.tipo_energia.data)
                 
@@ -427,7 +427,7 @@ def editar_equipo(codigo):
                             valor_anterior=str(valor_anterior),
                             valor_nuevo=str(valor_nuevo),
                             usuario=current_user.username if current_user.is_authenticated else None,
-                            observaciones=f'Actualización del campo {campo}',
+                            observaciones=f'ActualizaciÃ³n del campo {campo}',
                             fecha_cambio=get_local_datetime()
                         ))
                 # --- Motores ---
@@ -464,7 +464,7 @@ def editar_equipo(codigo):
                 rpm_Motor.extend([''] * (max_len - len(rpm_Motor)))
                 eficiencia.extend([''] * (max_len - len(eficiencia)))
                 rotacion.extend([''] * (max_len - len(rotacion)))
-                # Comparar motores por índice
+                # Comparar motores por Ã­ndice
                 for i in range(max(max_len, len(motores))):
                     anterior = motores[i] if i < len(motores) else None
                     nuevo = {
@@ -490,7 +490,7 @@ def editar_equipo(codigo):
                                     valor_anterior=str(valor_ant),
                                     valor_nuevo=str(valor_nuevo),
                                     usuario=current_user.username if current_user.is_authenticated else None,
-                                    observaciones=f'Actualización del campo {campo} del motor #{i+1}',
+                                    observaciones=f'ActualizaciÃ³n del campo {campo} del motor #{i+1}',
                                     fecha_cambio=get_local_datetime()
                                 ))
                     else:
@@ -504,7 +504,7 @@ def editar_equipo(codigo):
                                     valor_anterior=None,
                                     valor_nuevo=str(valor),
                                     usuario=current_user.username if current_user.is_authenticated else None,
-                                    observaciones=f'Creación del campo {campo} del motor #{i+1}',
+                                    observaciones=f'CreaciÃ³n del campo {campo} del motor #{i+1}',
                                     fecha_cambio=get_local_datetime()
                                 ))
                 # Motores eliminados
@@ -521,7 +521,7 @@ def editar_equipo(codigo):
                                     valor_anterior=str(valor_ant),
                                     valor_nuevo=None,
                                     usuario=current_user.username if current_user.is_authenticated else None,
-                                    observaciones=f'Eliminación del campo {campo} del motor #{i+1}',
+                                    observaciones=f'EliminaciÃ³n del campo {campo} del motor #{i+1}',
                                     fecha_cambio=get_local_datetime()
                                 ))
                 # Eliminar y agregar motores en la base
@@ -557,10 +557,10 @@ def editar_equipo(codigo):
                             rotacion=rotacion[i]
                         )
                         db.session.add(motor)
-                        print(f"DEBUG - Motor {i+1} agregado a la sesión")
+                        print(f"DEBUG - Motor {i+1} agregado a la sesiÃ³n")
                     else:
                         print(f"DEBUG - Motor {i+1} no tiene datos, no se guarda")
-                # --- Equipos de medición ---
+                # --- Equipos de mediciÃ³n ---
                 codigo_medicion = request.form.getlist('codigo_medicion[]')
                 nombre_medicion = request.form.getlist('nombre_medicion[]')
                 ubicacion_medicion = request.form.getlist('ubicacion_medicion[]')
@@ -587,11 +587,11 @@ def editar_equipo(codigo):
                                     valor_anterior=str(valor_ant),
                                     valor_nuevo=str(valor_nuevo),
                                     usuario=current_user.username if current_user.is_authenticated else None,
-                                    observaciones=f'Actualización del campo {campo} del equipo de medición #{i+1}',
+                                    observaciones=f'ActualizaciÃ³n del campo {campo} del equipo de mediciÃ³n #{i+1}',
                                     fecha_cambio=get_local_datetime()
                                 ))
                     else:
-                        # Equipo de medición agregado
+                        # Equipo de mediciÃ³n agregado
                         for campo, valor in nuevo.items():
                             if valor:
                                 db.session.add(HistorialEquipo(
@@ -601,10 +601,10 @@ def editar_equipo(codigo):
                                     valor_anterior=None,
                                     valor_nuevo=str(valor),
                                     usuario=current_user.username if current_user.is_authenticated else None,
-                                    observaciones=f'Creación del campo {campo} del equipo de medición #{i+1}',
+                                    observaciones=f'CreaciÃ³n del campo {campo} del equipo de mediciÃ³n #{i+1}',
                                     fecha_cambio=get_local_datetime()
                                 ))
-                # Equipos de medición eliminados
+                # Equipos de mediciÃ³n eliminados
                 if len(mediciones) > max_len_med:
                     for i in range(max_len_med, len(mediciones)):
                         anterior = mediciones[i]
@@ -618,10 +618,10 @@ def editar_equipo(codigo):
                                     valor_anterior=str(valor_ant),
                                     valor_nuevo=None,
                                     usuario=current_user.username if current_user.is_authenticated else None,
-                                    observaciones=f'Eliminación del campo {campo} del equipo de medición #{i+1}',
+                                    observaciones=f'EliminaciÃ³n del campo {campo} del equipo de mediciÃ³n #{i+1}',
                                     fecha_cambio=get_local_datetime()
                                 ))
-                # Eliminar y agregar equipos de medición en la base
+                # Eliminar y agregar equipos de mediciÃ³n en la base
                 EquipoMedicion.query.filter_by(equipo_codigo=codigo).delete()
                 for i in range(max_len_med):
                     if codigo_medicion[i].strip() or nombre_medicion[i].strip():
@@ -632,22 +632,22 @@ def editar_equipo(codigo):
                             ubicacion=ubicacion_medicion[i]
                         )
                         db.session.add(medicion)
-                print(f"DEBUG - Antes del commit: {len(db.session.new)} objetos nuevos en sesión")
+                print(f"DEBUG - Antes del commit: {len(db.session.new)} objetos nuevos en sesiÃ³n")
                 db.session.commit()
                 print(f"DEBUG - Commit ejecutado exitosamente")
                 
-                # Registrar auditoría
+                # Registrar auditorÃ­a
                 registrar_auditoria(
                     usuario=current_user.username,
                     accion='ACTUALIZAR',
                     tabla='equipos',
                     registro_id=equipo.codigo,
-                    detalles=f"Editó equipo {equipo.codigo} - {equipo.nombre}"
+                    detalles=f"EditÃ³ equipo {equipo.codigo} - {equipo.nombre}"
                 )
                 
                 # Verificar que los motores se guardaron correctamente
                 motores_despues = MotorEquipo.query.filter_by(equipo_codigo=codigo).all()
-                print(f"DEBUG - Después del commit: {len(motores_despues)} motores en BD")
+                print(f"DEBUG - DespuÃ©s del commit: {len(motores_despues)} motores en BD")
                 for i, motor in enumerate(motores_despues):
                     print(f"DEBUG - Motor en BD {i+1}: id={motor.id}, nomb_Motor='{motor.nomb_Motor}'")
                 
@@ -669,10 +669,10 @@ def editar_equipo(codigo):
 def eliminar_equipo(codigo):
     equipo = get_or_404(Equipo, codigo)
     try:
-        # Guardar información antes de eliminar para auditoría
+        # Guardar informaciÃ³n antes de eliminar para auditorÃ­a
         equipo_info = f"{equipo.codigo} - {equipo.nombre}"
         
-        # Registrar eliminación en el historial
+        # Registrar eliminaciÃ³n en el historial
         historial = HistorialEquipo(
             equipo_codigo=codigo,
             tipo_cambio='eliminacion',
@@ -685,13 +685,13 @@ def eliminar_equipo(codigo):
         db.session.delete(equipo)
         db.session.commit()
         
-        # Registrar auditoría
+        # Registrar auditorÃ­a
         registrar_auditoria(
             usuario=current_user.username,
             accion='ELIMINAR',
             tabla='equipos',
             registro_id=codigo,
-            detalles=f"Eliminó equipo {equipo_info}"
+            detalles=f"EliminÃ³ equipo {equipo_info}"
         )
         
         flash(f'Equipo "{codigo}" eliminado correctamente', 'success')
@@ -714,21 +714,21 @@ def exportar_equipos():
 
     # Crear una lista de diccionarios con los datos de los equipos
     data = [{
-        "Código": equipo.codigo,
+        "CÃ³digo": equipo.codigo,
         "Nombre": equipo.nombre,
         "Fecha Ingreso": equipo.fecha_ingreso.strftime('%Y-%m-%d') if equipo.fecha_ingreso else "",
         "Propietario": equipo.propietario,
         "Registro Nuevo": equipo.registro_nuevo,
-        "Actualización": equipo.actualizacion,
-        "N° Fabricación": equipo.num_fabricacion,
+        "ActualizaciÃ³n": equipo.actualizacion,
+        "NÂ° FabricaciÃ³n": equipo.num_fabricacion,
         "Fabricante": equipo.fabricante,
         "Nombre Contacto": equipo.nom_contacto,
-        "Teléfono": equipo.telefono,
+        "TelÃ©fono": equipo.telefono,
         "Propietario": equipo.propietario,
         "Tipo Equipo": equipo.tipo_eq,
         "Modelo": equipo.modelo,
         "Tipo de Control": equipo.tipo_control,
-        "Ubicación": equipo.ubicacion,
+        "UbicaciÃ³n": equipo.ubicacion,
         "Clase": equipo.clase,
         "Marca": equipo.marca,
         "Referencia": equipo.referencia,
@@ -738,7 +738,7 @@ def exportar_equipos():
         "Largo": equipo.largo,
         "Ancho": equipo.ancho,
         "Peso": equipo.peso,
-        "Tipo de Energía": equipo.tipo_energia,
+        "Tipo de EnergÃ­a": equipo.tipo_energia,
         "Corriente": equipo.corriente,
         "Potencia Instalada": equipo.potencia,
         "Voltaje": equipo.voltaje,
@@ -747,16 +747,16 @@ def exportar_equipos():
         "Tipo Lubricante": equipo.tipo_lub ,
         "Repuestos": equipo.repuestos,
         "Estado Equipo": equipo.estado_eq,
-        "N° Motores": equipo.n_motores ,
+        "NÂ° Motores": equipo.n_motores ,
         "Observaciones": equipo.observaciones,
         "Historial de Mantenimientos": equipo.hist_mtto,
-        "Función de la Máquina": equipo.funcion_maq,
-        "Operación": equipo.operacion,
-        "Mecánico": equipo.mecanico,
-        "Eléctrico": equipo.electrico,
+        "FunciÃ³n de la MÃ¡quina": equipo.funcion_maq,
+        "OperaciÃ³n": equipo.operacion,
+        "MecÃ¡nico": equipo.mecanico,
+        "ElÃ©ctrico": equipo.electrico,
         "Partes": equipo.partes,
 
-        # Agrega más campos según lo que necesites
+        # Agrega mÃ¡s campos segÃºn lo que necesites
     } for equipo in equipos]
 
     # Crear un DataFrame de pandas
@@ -794,7 +794,7 @@ def exportar_equipos():
         cell_empresa.font = Font(bold=True, size=14)
         cell_empresa.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
 
-        # Combinar celdas para el título (R1:AE4)
+        # Combinar celdas para el tÃ­tulo (R1:AE4)
         worksheet.merge_cells('R1:AE4')
         cell_titulo = worksheet['R1']
         cell_titulo.value = "HOJA DE VIDA DE EQUIPOS"
@@ -807,7 +807,7 @@ def exportar_equipos():
         worksheet.merge_cells('AK3:AN3')
         worksheet.merge_cells('AK4:AN4')
 
-        worksheet['AK1'].value = "Código"
+        worksheet['AK1'].value = "CÃ³digo"
         worksheet['AK1'].font = Font(bold=True, size=10)
         worksheet['AK1'].alignment = Alignment(horizontal="center", vertical="center")
 
@@ -815,7 +815,7 @@ def exportar_equipos():
         worksheet['AK2'].font = Font(underline="single", color="0000FF")
         worksheet['AK2'].alignment = Alignment(horizontal="center", vertical="center")
 
-        worksheet['AK3'].value = "Edición"
+        worksheet['AK3'].value = "EdiciÃ³n"
         worksheet['AK3'].font = Font(bold=True, size=10)
         worksheet['AK3'].alignment = Alignment(horizontal="center", vertical="center")
 
@@ -853,7 +853,7 @@ def informe_equipo(codigo):
     equipo = get_or_404(Equipo, codigo)
     mantenimientos = Programado.query.filter_by(codigo=codigo).order_by(Programado.fecha_prog.desc()).all()
     historial = HistorialEquipo.query.filter_by(equipo_codigo=codigo).order_by(HistorialEquipo.fecha_cambio.desc()).all()
-    # Calcular estadísticas
+    # Calcular estadÃ­sticas
     costo_total = sum((mtto.costo_rep or 0) + (mtto.costo_herram or 0) + (mtto.costo_mdo or 0) for mtto in mantenimientos)
     mantenimientos_completados = sum(1 for mtto in mantenimientos if mtto.estado_final == 'Completado')
     # Calcular tiempo promedio
@@ -897,7 +897,7 @@ def hoja_vida_equipo(codigo):
     total_programados = sum(1 for m in todos_mantenimientos if m.estado_final != 'Completado')
     total_completados = sum(1 for m in todos_mantenimientos if m.estado_final == 'Completado')
     
-    # Calcular costo total y tasa de completación
+    # Calcular costo total y tasa de completaciÃ³n
     costo_total = sum((m.costo_rep or 0) + (m.costo_herram or 0) + (m.costo_mdo or 0) for m in mantenimientos)
     total_para_tasa = total_completados + total_programados
     tasa_completacion = (total_completados / total_para_tasa) * 100 if total_para_tasa > 0 else 0
@@ -927,7 +927,7 @@ def descargar_hoja_vida(codigo):
     total_programados = sum(1 for m in todos_mantenimientos if m.estado_final != 'Completado')
     total_completados = sum(1 for m in todos_mantenimientos if m.estado_final == 'Completado')
     
-    # Calcular costo total y tasa de completación
+    # Calcular costo total y tasa de completaciÃ³n
     costo_total = sum((m.costo_rep or 0) + (m.costo_herram or 0) + (m.costo_mdo or 0) for m in mantenimientos)
     total_para_tasa = total_completados + total_programados
     tasa_completacion = (total_completados / total_para_tasa) * 100 if total_para_tasa > 0 else 0
@@ -945,10 +945,10 @@ def descargar_hoja_vida(codigo):
 
     config = get_pdf_config()
     
-    # Configurar opciones de PDF
-    options = get_pdf_options(orientation='Landscape', page_size='A4', include_footer=True)
-    
     # Generar y enviar PDF
+    with open('/tmp/hoja_vida_debug.html', 'w', encoding='utf-8') as f:
+        f.write(html)
+    pdf = pdfkit.from_string(html, False, options=options, configuration=config)
     pdf = pdfkit.from_string(html, False, options=options, configuration=config)
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'
@@ -962,12 +962,12 @@ def descargar_hoja_vida(codigo):
 def importar_equipos():
     if request.method == 'POST':
         if 'archivo' not in request.files:
-            flash('No se seleccionó ningún archivo', 'error')
+            flash('No se seleccionÃ³ ningÃºn archivo', 'error')
             return redirect(request.url)
         
         archivo = request.files['archivo']
         if archivo.filename == '':
-            flash('No se seleccionó ningún archivo', 'error')
+            flash('No se seleccionÃ³ ningÃºn archivo', 'error')
             return redirect(request.url)
         
         if not archivo.filename.endswith(('.xls', '.xlsx')):
@@ -987,7 +987,7 @@ def importar_equipos():
             # Procesar cada fila
             equipos_importados = 0
             for _, row in df.iterrows():
-                # Verificar si el equipo ya existe por número de serie
+                # Verificar si el equipo ya existe por nÃºmero de serie
                 if not Equipo.query.filter_by(serie=row['serie']).first():
                     nuevo_equipo = Equipo(
                         nombre=row['nombre'],
@@ -1020,7 +1020,7 @@ def descargar_plantilla():
         'nombre': ['Ejemplo Equipo 1', 'Ejemplo Equipo 2'],
         'modelo': ['Modelo A', 'Modelo B'],
         'serie': ['SERIE001', 'SERIE002'],
-        'ubicacion': ['Ubicación 1', 'Ubicación 2']
+        'ubicacion': ['UbicaciÃ³n 1', 'UbicaciÃ³n 2']
     })
     
     # Crear un buffer en memoria
@@ -1070,7 +1070,7 @@ def descargar_ficha_tecnica(codigo):
                                      motores=motores, 
                                      fecha_generacion=fecha_generacion)
         
-        # Configuración para PDFKit
+        # ConfiguraciÃ³n para PDFKit
         config = get_pdf_config()
         options = get_pdf_options(orientation='Portrait', page_size='A4', include_footer=True)
         
@@ -1094,24 +1094,90 @@ def descargar_ficha_tecnica(codigo):
 @require_any_role('admin', 'supervisor')
 def agregar_motor():
     if not request.form.get('csrf_token'):
-        return jsonify({'error': 'Token CSRF inválido'}), 400
-    # ... resto del código ...
+        return jsonify({'error': 'Token CSRF invÃ¡lido'}), 400
+    
+    try:
+        # Obtener datos del formulario
+        equipo_codigo = request.form.get('equipo_codigo')
+        nombre = request.form.get('nombre')
+        descripcion = request.form.get('descripcion')
+        tipo = request.form.get('tipo')
+        rotacion = request.form.get('rotacion')
+        rpm = request.form.get('rpm')
+        eficiencia = request.form.get('eficiencia')
+        corriente = request.form.get('corriente')
+        potencia = request.form.get('potencia')
+        voltaje = request.form.get('voltaje')
+        
+        # Crear nuevo motor
+        nuevo_motor = MotorEquipo(
+            equipo_codigo=equipo_codigo,
+            nomb_Motor=nombre,
+            descrip_Motor=descripcion,
+            tipo_Motor=tipo,
+            rotacion=rotacion,
+            rpm_Motor=rpm,
+            eficiencia=eficiencia,
+            corriente_Motor=corriente,
+            potencia_Motor=potencia,
+            voltaje_Motor=voltaje
+        )
+        
+        db.session.add(nuevo_motor)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Motor agregado exitosamente'})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Error al agregar motor: {str(e)}'}), 500
 
 @equipment_bp.route('/editar_motor/<int:id>', methods=['POST'])
 @login_required
 @require_any_role('admin', 'supervisor')
 def editar_motor(id):
     if not request.form.get('csrf_token'):
-        return jsonify({'error': 'Token CSRF inválido'}), 400
-    # ... resto del código ...
+        return jsonify({'error': 'Token CSRF invÃ¡lido'}), 400
+    
+    try:
+        motor = MotorEquipo.query.get_or_404(id)
+        
+        # Actualizar datos del motor
+        motor.nomb_Motor = request.form.get('nombre')
+        motor.descrip_Motor = request.form.get('descripcion')
+        motor.tipo_Motor = request.form.get('tipo')
+        motor.rotacion = request.form.get('rotacion')
+        motor.rpm_Motor = request.form.get('rpm')
+        motor.eficiencia = request.form.get('eficiencia')
+        motor.corriente_Motor = request.form.get('corriente')
+        motor.potencia_Motor = request.form.get('potencia')
+        motor.voltaje_Motor = request.form.get('voltaje')
+        
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Motor actualizado exitosamente'})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Error al actualizar motor: {str(e)}'}), 500
 
 @equipment_bp.route('/eliminar_motor/<int:id>', methods=['POST'])
 @login_required
 @require_any_role('admin', 'supervisor')
 def eliminar_motor(id):
     if not request.form.get('csrf_token'):
-        return jsonify({'error': 'Token CSRF inválido'}), 400
-    # ... resto del código ...
+        return jsonify({'error': 'Token CSRF invÃ¡lido'}), 400
+    
+    try:
+        motor = MotorEquipo.query.get_or_404(id)
+        db.session.delete(motor)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Motor eliminado exitosamente'})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Error al eliminar motor: {str(e)}'}), 500
 
 @equipment_bp.route('/listado_maestro', methods=['GET'])
 @login_required
@@ -1120,30 +1186,30 @@ def listado_maestro():
     equipos = Equipo.query.all()
     data = []
     for equipo in equipos:
-        # Procesar tipos de energía
+        # Procesar tipos de energÃ­a
         energias = {'E': 'NO', 'H': 'NO', 'N': 'NO', 'T': 'NO', 'M': 'NO', 'EL': 'NO', 'Q': 'NO'}
         if equipo.tipo_energia:
             for tipo in equipo.tipo_energia.split(','):
                 tipo = tipo.strip()
-                if tipo == 'Eléctrica': energias['E'] = 'SI'
-                if tipo == 'Hidráulica': energias['H'] = 'SI'
-                if tipo == 'Neumática': energias['N'] = 'SI'
-                if tipo == 'Térmica': energias['T'] = 'SI'
-                if tipo == 'Mecánica': energias['M'] = 'SI'
-                if tipo == 'Electrónica': energias['EL'] = 'SI'
-                if tipo == 'Química': energias['Q'] = 'SI'
+                if tipo == 'ElÃ©ctrica': energias['E'] = 'SI'
+                if tipo == 'HidrÃ¡ulica': energias['H'] = 'SI'
+                if tipo == 'NeumÃ¡tica': energias['N'] = 'SI'
+                if tipo == 'TÃ©rmica': energias['T'] = 'SI'
+                if tipo == 'MecÃ¡nica': energias['M'] = 'SI'
+                if tipo == 'ElectrÃ³nica': energias['EL'] = 'SI'
+                if tipo == 'QuÃ­mica': energias['Q'] = 'SI'
         data.append({
             'Codigo': equipo.codigo,
             'Nombre': equipo.nombre,
             'Tipo equipo': equipo.tipo_eq,
             'Modelo': equipo.modelo,
             'Serie': equipo.serie,
-            'Ubicación': equipo.ubicacion,
+            'UbicaciÃ³n': equipo.ubicacion,
             'Proceso': equipo.proceso,
             'Centro de costo': equipo.centro_costos,
             'Estado': equipo.estado_eq,
-            'Años de operación': equipo.anios_operacion,
-            'Fecha de fabricación': equipo.fecha_fabricacion if hasattr(equipo, 'fecha_fabricacion') else '',
+            'AÃ±os de operaciÃ³n': equipo.anios_operacion,
+            'Fecha de fabricaciÃ³n': equipo.fecha_fabricacion if hasattr(equipo, 'fecha_fabricacion') else '',
             'E: Electrica': energias['E'],
             'H: Hidraulica': energias['H'],
             'N: Neumatica': energias['N'],
