@@ -259,11 +259,10 @@ def programar():
         
         # Registrar auditoría
         registrar_auditoria(
-            usuario=current_user.username,
+            modulo="Equipos",
             accion='CREAR',
             tabla='programado',
-            registro_id=nuevo_mtto.id,
-            detalles=f"Creó mantenimiento #{nuevo_mtto.id} para equipo {nuevo_mtto.codigo} - {nuevo_mtto.nombre}"
+            descripcion=f"Creó mantenimiento #{nuevo_mtto.id} para equipo {nuevo_mtto.codigo} - {nuevo_mtto.nombre}"
         )
         
         # Crear mantenimientos futuros basados en la frecuencia (solo para mantenimientos preventivos)
@@ -826,11 +825,11 @@ def editar_mantenimiento(id):
         
         # Registrar auditoría
         registrar_auditoria(
-            usuario=current_user.username,
+            modulo="Equipos",
             accion='ACTUALIZAR',
             tabla='programado',
             registro_id=mantenimiento.id,
-            detalles=f"Editó mantenimiento #{mantenimiento.id} para equipo {mantenimiento.codigo} - {mantenimiento.nombre}"
+            descripcion=f"Editó mantenimiento #{mantenimiento.id} para equipo {mantenimiento.codigo} - {mantenimiento.nombre}"
         )
             
             # Mensaje personalizado para cambio a "Asignado"
@@ -974,11 +973,10 @@ def registrar_tiempo(id):
         
         # Registrar auditoría
         registrar_auditoria(
-            usuario=current_user.username,
+            modulo="Equipos",
             accion='ACTUALIZAR',
             tabla='programado',
-            registro_id=mantenimiento.id,
-            detalles=f"Registró tiempo y completó mantenimiento #{mantenimiento.id} para equipo {mantenimiento.codigo}"
+            descripcion=f"Registró tiempo y completó mantenimiento #{mantenimiento.id} para equipo {mantenimiento.codigo}"
         )
         
         flash('Tiempo registrado exitosamente', 'success')
@@ -1003,11 +1001,10 @@ def eliminar_mantenimiento(id):
         
         # Registrar auditoría
         registrar_auditoria(
-            usuario=current_user.username,
+            modulo="Equipos",
             accion='ELIMINAR',
             tabla='programado',
-            registro_id=id,
-            detalles=f"Eliminó mantenimiento {mantenimiento_info}"
+            descripcion=f"Eliminó mantenimiento {mantenimiento_info}"
         )
         
         return jsonify({'success': True, 'message': 'Mantenimiento eliminado exitosamente'})

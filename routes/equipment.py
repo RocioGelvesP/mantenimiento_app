@@ -945,10 +945,10 @@ def descargar_hoja_vida(codigo):
 
     config = get_pdf_config()
     
+    # Configurar opciones de PDF
+    options = get_pdf_options(orientation='Landscape', page_size='A4', include_footer=True)
+    
     # Generar y enviar PDF
-    with open('/tmp/hoja_vida_debug.html', 'w', encoding='utf-8') as f:
-        f.write(html)
-    pdf = pdfkit.from_string(html, False, options=options, configuration=config)
     pdf = pdfkit.from_string(html, False, options=options, configuration=config)
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'

@@ -86,7 +86,7 @@
             </td>
             <!-- Centro: Dos cuadros horizontales -->
             <td style="padding:0; border:none; height:55.5px; vertical-align:middle;">
-                <table style="width:232px; height:10px; border-collapse:collapse; table-layout:fixed;">
+                <table style="width:370px; height:10px; border-collapse:collapse; table-layout:fixed;">
                     <tr>
                         <td style="border:1px solid #000; text-align:center; font-weight:bold; font-size:18px; height:70px; vertical-align:middle; width:50%; word-break:break-word; padding:0;">
                             INR INVERSIONES
@@ -100,7 +100,7 @@
                 <table style="width:233px; height:10px; border-collapse:collapse; table-layout:fixed;">
                     <tr>
                         <td style="border:1px solid #000; text-align:center; font-size:14px; font-weight:bold; height:70px; vertical-align:middle; width:50%; word-break:break-word; padding:0;">
-                            FICHA TÉCNICA DE EQUIPOS
+                            FICHA TÉCNICA DE EQUIPOS Y MAQUINAS
                         </td>
                     </tr>
                 </table>
@@ -118,7 +118,7 @@
                         <td style="border:1px solid #000; text-align:center; font-size:11px; font-weight:bold; height:17px; vertical-align:middle; padding:0;">Edición</td>
                     </tr>
                     <tr>
-                        <td style="border:1px solid #000; text-align:center; font-size:11px; height:16.5px; vertical-align:middle; padding:0;">5/Jul/2025</td>
+                        <td style="border:1px solid #000; text-align:center; font-size:11px; height:16.5px; vertical-align:middle; padding:0;">5/Jul/2026</td>
                     </tr>
                 </table>
             </td>
@@ -149,7 +149,8 @@
                     <td colspan="2" style="padding: 0; text-align: center; height: 260px;">
                         {% if equipo.imagen %}
                             <div style="width: 100%; height: 250px; display: flex; justify-content: center; align-items: center;">
-                                <img src="{{ request.url_root }}static/{{ equipo.imagen }}" alt="Imagen del Equipo" style="max-width: 100%; max-height: 100%; object-fit: contain; border: 1.5px solid #888; background: #fff; padding: 4px;">
+                                <p>{{ equipo.imagen }}</p>
+                                <img src="file:///app/static/{{ equipo.imagen }}" alt="Imagen del Equipo" style="max-width: 100%; max-height: 100%; object-fit: contain; border: 1.5px solid #888; background: #fff; padding: 4px;">
                             </div>
                         {% else %}
                             <p>No hay imagen disponible</p>
