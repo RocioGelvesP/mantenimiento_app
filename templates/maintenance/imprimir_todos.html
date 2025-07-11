@@ -184,31 +184,15 @@
         <table class="maint-table">
             <thead>
                 <tr>
-                    <th>N°</th>
-                    <th style="white-space: normal; text-align: center;">Fec./Hor.<br>Inic.</th>
-                    <th style="white-space: normal; text-align: center;">Fec./Hor.<br>Fin</th>
-                    <th>Código</th>
-                    <th>Ubicación</th>
-                    <th>Tipo</th>
-                    <th>Técnico</th>
-                    <th>Actividad</th>
-                    <th>Observaciones</th>
-                    <th>Recibido por</th>          
+                    <th>Columna 1</th>
+                    <th>Columna 2</th>
                 </tr>
             </thead>
             <tbody>
-                {% for mtto in mantenimientos %}
+                {% for i in range(50) %}
                 <tr>
-                    <td>{{ mtto.id or '' }}</td>
-                    <td>{{ mtto.hora_inicial or '' }}</td>
-                    <td>{{ mtto.hora_final or '' }}</td>
-                    <td>{{ mtto.codigo or '' }}</td>
-                    <td>{{ mtto.ubicacion or '' }}</td>
-                    <td>{{ mtto.tipo_mantenimiento or '' }}</td>
-                    <td>{{ mtto.tecnico_asignado_display or '' }}</td>
-                    <td>{{ mtto.servicio or '' }}</td>
-                    <td>{{ mtto.observaciones or '' }}</td>
-                    <td>{{ mtto.recibido_por or '' }}</td>
+                    <td>Dato {{ i }}</td>
+                    <td>Más datos {{ i }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
