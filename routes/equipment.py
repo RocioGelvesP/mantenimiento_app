@@ -955,7 +955,12 @@ def descargar_hoja_vida(codigo):
         config = get_pdf_config()
         
         # Configurar opciones de PDF
-        options = get_pdf_options(orientation='Landscape', page_size='A4', include_footer=True)
+        options = get_pdf_options(
+            orientation='Landscape',
+            page_size='A4',
+            include_footer=True,
+            custom_footer='Fecha de impresión: [date]  |  Página [page] de [topage]'
+        )
         
         # Generar y enviar PDF
         pdf = pdfkit.from_string(html, False, options=options, configuration=config)
