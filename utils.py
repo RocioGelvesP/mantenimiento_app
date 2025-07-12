@@ -20,6 +20,8 @@ from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.pdfgen import canvas
 from io import BytesIO
 import os
+import calendar
+import os
 
 def get_pdf_config():
 	sistema = platform.system()
@@ -274,127 +276,150 @@ def registrar_auditoria(modulo, accion, tabla=None, descripcion='', datos_anteri
     db.session.add(auditoria)
     db.session.commit() 
 
-def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Actividades de Mantenimiento", 
-                                           orientation='landscape', include_footer=True):
-    """
-    Crea un PDF de reporte de mantenimientos usando ReportLab.
-    
-    Args:
-        mantenimientos: Lista de objetos Programado
-        title: Título del reporte
-        orientation: 'landscape' o 'portrait'
-        include_footer: Si incluir pie de página con paginación
-    
-    Returns:
-        BytesIO object con el PDF
-    """
-    # Configurar el buffer y el documento
+def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Actividades de Mantenimiento", orientation='landscape', include_footer=True):
     buffer = BytesIO()
-    
-    # Configurar tamaño de página
     if orientation == 'landscape':
         pagesize = landscape(A4)
     else:
         pagesize = A4
-    
-    # Crear el documento
-    doc = SimpleDocTemplate(buffer, pagesize=pagesize, 
-                           rightMargin=10*mm, leftMargin=10*mm,
-                           topMargin=10*mm, bottomMargin=15*mm)
-    
-    # Estilos
+
+    doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=20*mm, bottomMargin=15*mm)
     styles = getSampleStyleSheet()
-    title_style = ParagraphStyle(
-        'CustomTitle',
-        parent=styles['Heading1'],
-        fontSize=16,
-        spaceAfter=20,
-        alignment=TA_CENTER,
-        fontName='Helvetica-Bold'
-    )
-    
-    # Elementos del documento
     elements = []
-    
-    # Título
-    elements.append(Paragraph(title, title_style))
-    elements.append(Spacer(1, 10))
-    
-    # Preparar datos de la tabla
-    headers = ['N°', 'Fec./Hor. Inic.', 'Fec./Hor. Fin', 'Código', 'Ubicación', 
-               'Tipo', 'Técnico', 'Actividad', 'Observaciones', 'Recibido por']
-    
-    data = [headers]  # Primera fila son los encabezados
-    
-    # Agregar datos de mantenimientos
+
+    # --- Encabezado como tabla ---
+    meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+    mes_actual = meses[datetime.now().month - 1]
+
+    # Logo
+    logo_path = os.path.join(os.getcwd(), 'static', 'logo.png')
+    if os.path.exists(logo_path):
+        logo = Image(logo_path, width=55, height=35)
+    else:
+        logo = ''
+
+    # Cuadro derecho (alineado y proporcionado)
+    cuadro_derecho_data = [
+        [Paragraph('<b>Código</b>', ParagraphStyle('codigo', fontSize=8, alignment=TA_CENTER, spaceAfter=0, spaceBefore=0))],
+        [Paragraph('71-MT-43', ParagraphStyle('codigo_valor', fontSize=8, alignment=TA_CENTER, spaceAfter=0, spaceBefore=0))],
+        [Paragraph('<b>Edición</b>', ParagraphStyle('edicion', fontSize=8, alignment=TA_CENTER, spaceAfter=2, spaceBefore=2))],
+        [Paragraph('4/Jul/2025', ParagraphStyle('edicion_valor', fontSize=8, alignment=TA_CENTER, spaceAfter=2, spaceBefore=2))]
+    ]
+    cuadro_derecho = Table(cuadro_derecho_data, colWidths=[70], rowHeights=[12, 12, 12, 12])
+    cuadro_derecho.setStyle(TableStyle([
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
+        ('FONTSIZE', (0,0), (-1,-1), 8),
+        ('TEXTCOLOR', (0,0), (-1,-1), colors.black),
+        ('LINEBELOW', (0,0), (-1,0), 0.7, colors.black),
+        ('LINEBELOW', (0,1), (-1,1), 0.7, colors.black),
+        ('LINEBELOW', (0,2), (-1,2), 0.7, colors.black),
+        ('LEFTPADDING', (0,0), (-1,-1), 4),
+        ('RIGHTPADDING', (0,0), (-1,-1), 4),
+    ]))
+
+    # Celdas del encabezado (empresa con salto de línea)
+    encabezado_data = [
+        [logo,
+         Paragraph('<b>INR INVERSIONES<br/>REINOSO Y CIA. LTDA.</b>', ParagraphStyle('empresa', fontSize=11, alignment=TA_CENTER, spaceAfter=0, spaceBefore=0, leading=13)),
+         Paragraph('<b>CONTROL DE ACTIVIDADES DE MANTENIMIENTO</b>', ParagraphStyle('titulo', fontSize=10, alignment=TA_CENTER, spaceAfter=0, spaceBefore=0)),
+         Paragraph(f'<b>{mes_actual}</b>', ParagraphStyle('mes', fontSize=13, alignment=TA_CENTER, spaceAfter=0, spaceBefore=0)),
+         cuadro_derecho
+        ]
+    ]
+    # Ajustar: cuadro derecho igual a 'Recibido por' (70), logo igual a 'Fec./Hor. Inic.' (75)
+    # col_widths tabla: [22, 75, 75, 45, 90, 55, 80, 120, 120, 70]  # total: 752
+    encabezado_col_widths = [97, 210, 255, 120, 70]  # Suma = 752
+    encabezado = Table(encabezado_data, colWidths=encabezado_col_widths, rowHeights=[48])
+    encabezado.setStyle(TableStyle([
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('ALIGN', (0,0), (0,0), 'CENTER'),  # Logo
+        ('ALIGN', (1,0), (1,0), 'CENTER'),  # Empresa centrada
+        ('ALIGN', (2,0), (2,0), 'CENTER'),  # Título
+        ('ALIGN', (3,0), (3,0), 'CENTER'),  # Mes
+        ('ALIGN', (4,0), (4,0), 'CENTER'),  # Cuadro derecho
+        ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
+        ('FONTSIZE', (0,0), (-1,-1), 9),
+        ('BOX', (0,0), (-1,-1), 1, colors.black),
+        ('INNERGRID', (0,0), (-1,-1), 1, colors.black),
+    ]))
+    elements.append(encabezado)
+    elements.append(Spacer(1, 8))
+
+    # --- Tabla de datos ---
+    headers = ['N°', 'Fec./Hor. Inic.', 'Fec./Hor. Fin', 'Código', 'Ubicación', 'Tipo', 'Técnico', 'Actividad', 'Observaciones', 'Recibido por']
+    data = [headers]
     for i, mtto in enumerate(mantenimientos, 1):
         row = [
             str(i),
-            str(mtto.hora_inicial) if mtto.hora_inicial else '',
-            str(mtto.hora_final) if mtto.hora_final else '',
+            Paragraph(str(mtto.hora_inicial) if mtto.hora_inicial else '', ParagraphStyle('fecha_ini', fontSize=8, alignment=TA_CENTER, leading=10)),
+            Paragraph(str(mtto.hora_final) if mtto.hora_final else '', ParagraphStyle('fecha_fin', fontSize=8, alignment=TA_CENTER, leading=10)),
             str(mtto.codigo) if mtto.codigo else '',
             str(mtto.ubicacion) if mtto.ubicacion else '',
             str(mtto.tipo_mantenimiento) if mtto.tipo_mantenimiento else '',
             str(mtto.tecnico_asignado_display) if hasattr(mtto, 'tecnico_asignado_display') and mtto.tecnico_asignado_display else '',
-            str(mtto.servicio) if mtto.servicio else '',
-            str(mtto.observaciones) if mtto.observaciones else '',
+            Paragraph(str(mtto.servicio) if mtto.servicio else '', ParagraphStyle('actividad', fontSize=8, alignment=TA_LEFT, leading=10)),
+            Paragraph(str(mtto.observaciones) if mtto.observaciones else '', ParagraphStyle('obs', fontSize=8, alignment=TA_LEFT, leading=10)),
             str(mtto.recibido_por) if mtto.recibido_por else ''
         ]
         data.append(row)
-    
-    # Crear tabla
-    if data:
-        table = Table(data, repeatRows=1)  # repeatRows=1 hace que el encabezado se repita en cada página
-        
-        # Estilo de la tabla
-        table_style = TableStyle([
-            # Encabezados
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -1), 8),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.white]),
-            ('LEFTPADDING', (0, 0), (-1, -1), 6),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-            ('TOPPADDING', (0, 0), (-1, -1), 3),
-            ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
-        ])
-        
-        table.setStyle(table_style)
-        elements.append(table)
-    
-    # Construir el documento
-    doc.build(elements, onFirstPage=lambda canvas, doc: add_footer(canvas, doc) if include_footer else None,
-              onLaterPages=lambda canvas, doc: add_footer(canvas, doc) if include_footer else None)
-    
+    col_widths = [22, 75, 75, 45, 90, 55, 80, 120, 120, 70]  # Más ancho para fechas
+    table = Table(data, colWidths=col_widths, repeatRows=1)
+    table_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),  # Encabezados centrados
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+        ('GRID', (0, 0), (-1, -1), 0.7, colors.black),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 8),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.whitesmoke]),
+        ('LEFTPADDING', (0, 0), (-1, -1), 2),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 2),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
+        # Alineación de columnas específicas
+        ('ALIGN', (0, 1), (2, -1), 'CENTER'),  # N°, Fechas
+        ('ALIGN', (3, 1), (6, -1), 'CENTER'),  # Código, Ubicación, Tipo, Técnico
+        ('ALIGN', (7, 1), (7, -1), 'LEFT'),    # Actividad
+        ('ALIGN', (8, 1), (8, -1), 'LEFT'),    # Observaciones
+        ('ALIGN', (9, 1), (9, -1), 'CENTER'),  # Recibido por
+        # Altura mínima de filas
+        ('MINROWHEIGHT', (0, 1), (-1, -1), 22),  # Más alto mínimo de fila
+    ])
+    table.setStyle(table_style)
+    elements.append(table)
+
+    # --- Pie de página con paginación ---
+    from reportlab.pdfgen import canvas as pdfcanvas
+    class NumberedCanvas(pdfcanvas.Canvas):
+        def __init__(self, *args, doc=None, **kwargs):
+            pdfcanvas.Canvas.__init__(self, *args, **kwargs)
+            self._saved_page_states = []
+            self.doc = doc
+        def showPage(self):
+            self._saved_page_states.append(dict(self.__dict__))
+            self._startPage()
+        def save(self):
+            num_pages = len(self._saved_page_states)
+            for state in self._saved_page_states:
+                self.__dict__.update(state)
+                self.draw_page_number(num_pages)
+                pdfcanvas.Canvas.showPage(self)
+            pdfcanvas.Canvas.save(self)
+        def draw_page_number(self, page_count):
+            width, _ = self._pagesize
+            self.setFont('Helvetica', 9)
+            self.drawCentredString(width/2, 12, f"Página {self._pageNumber} de {page_count}")
+
+    doc.build(elements, canvasmaker=lambda *args, **kwargs: NumberedCanvas(*args, doc=doc, **kwargs))
     buffer.seek(0)
     return buffer
-
-def add_footer(canvas, doc):
-    """
-    Agrega pie de página con paginación al PDF.
-    """
-    canvas.saveState()
-    canvas.setFont('Helvetica', 8)
-    canvas.setFillColor(colors.grey)
-    
-    # Obtener número de página
-    page_num = canvas.getPageNumber()
-    
-    # Texto del pie de página
-    footer_text = f"Fecha de impresión: {datetime.now().strftime('%d/%m/%Y')}   |   Página {page_num}"
-    
-    # Centrar el texto en la parte inferior
-    canvas.drawCentredString(doc.pagesize[0]/2, 10*mm, footer_text)
-    canvas.restoreState()
 
 def create_reportlab_pdf_maintenance_detail(mantenimiento, title="Control de Actividades de Mantenimiento"):
     """
