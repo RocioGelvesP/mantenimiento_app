@@ -269,7 +269,7 @@ class Programado(db.Model):
 class HistorialCambio(db.Model):
     __tablename__ = 'historial_cambios'
     id = db.Column(db.Integer, primary_key=True)
-    mantenimiento_id = db.Column(db.Integer, db.ForeignKey('programado.id'), nullable=False)
+    mantenimiento_id = db.Column(db.Integer, db.ForeignKey('programado.id', ondelete='CASCADE'), nullable=False)
     usuario = db.Column(db.String(100), nullable=True)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
     campo = db.Column(db.String(100), nullable=True)
@@ -277,7 +277,7 @@ class HistorialCambio(db.Model):
     valor_nuevo = db.Column(db.Text, nullable=True)
     accion = db.Column(db.String(50), nullable=False)  # 'edición', 'pausa', 'cancelación', etc.
 
-    mantenimiento = db.relationship('Programado', backref='historial_cambios')
+    mantenimiento = db.relationship('Programado', backref=db.backref('historial_cambios', cascade='all, delete-orphan'))
 
 class Company(db.Model):
     __tablename__ = 'empresa'
