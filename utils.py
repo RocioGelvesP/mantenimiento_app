@@ -7,6 +7,20 @@ import pdfkit
 from models import Auditoria, db
 from datetime import datetime
 
+# ============================================================================
+# FUNCIONES PARA GENERACIÓN DE PDFS CON REPORTLAB
+# ============================================================================
+
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch, mm
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+from reportlab.pdfgen import canvas
+from io import BytesIO
+import os
+
 def get_pdf_config():
 	sistema = platform.system()
 	if sistema == 'Windows':
@@ -259,3 +273,789 @@ def registrar_auditoria(modulo, accion, tabla=None, descripcion='', datos_anteri
     )
     db.session.add(auditoria)
     db.session.commit() 
+
+def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Actividades de Mantenimiento", 
+                                           orientation='landscape', include_footer=True):
+    """
+    Crea un PDF de reporte de mantenimientos usando ReportLab.
+    
+    Args:
+        mantenimientos: Lista de objetos Programado
+        title: Título del reporte
+        orientation: 'landscape' o 'portrait'
+        include_footer: Si incluir pie de página con paginación
+    
+    Returns:
+        BytesIO object con el PDF
+    """
+    # Configurar el buffer y el documento
+    buffer = BytesIO()
+    
+    # Configurar tamaño de página
+    if orientation == 'landscape':
+        pagesize = landscape(A4)
+    else:
+        pagesize = A4
+    
+    # Crear el documento
+    doc = SimpleDocTemplate(buffer, pagesize=pagesize, 
+                           rightMargin=10*mm, leftMargin=10*mm,
+                           topMargin=10*mm, bottomMargin=15*mm)
+    
+    # Estilos
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=16,
+        spaceAfter=20,
+        alignment=TA_CENTER,
+        fontName='Helvetica-Bold'
+    )
+    
+    # Elementos del documento
+    elements = []
+    
+    # Título
+    elements.append(Paragraph(title, title_style))
+    elements.append(Spacer(1, 10))
+    
+    # Preparar datos de la tabla
+    headers = ['N°', 'Fec./Hor. Inic.', 'Fec./Hor. Fin', 'Código', 'Ubicación', 
+               'Tipo', 'Técnico', 'Actividad', 'Observaciones', 'Recibido por']
+    
+    data = [headers]  # Primera fila son los encabezados
+    
+    # Agregar datos de mantenimientos
+    for i, mtto in enumerate(mantenimientos, 1):
+        row = [
+            str(i),
+            str(mtto.hora_inicial) if mtto.hora_inicial else '',
+            str(mtto.hora_final) if mtto.hora_final else '',
+            str(mtto.codigo) if mtto.codigo else '',
+            str(mtto.ubicacion) if mtto.ubicacion else '',
+            str(mtto.tipo_mantenimiento) if mtto.tipo_mantenimiento else '',
+            str(mtto.tecnico_asignado_display) if hasattr(mtto, 'tecnico_asignado_display') and mtto.tecnico_asignado_display else '',
+            str(mtto.servicio) if mtto.servicio else '',
+            str(mtto.observaciones) if mtto.observaciones else '',
+            str(mtto.recibido_por) if mtto.recibido_por else ''
+        ]
+        data.append(row)
+    
+    # Crear tabla
+    if data:
+        table = Table(data, repeatRows=1)  # repeatRows=1 hace que el encabezado se repita en cada página
+        
+        # Estilo de la tabla
+        table_style = TableStyle([
+            # Encabezados
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 8),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.white]),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
+        ])
+        
+        table.setStyle(table_style)
+        elements.append(table)
+    
+    # Construir el documento
+    doc.build(elements, onFirstPage=lambda canvas, doc: add_footer(canvas, doc) if include_footer else None,
+              onLaterPages=lambda canvas, doc: add_footer(canvas, doc) if include_footer else None)
+    
+    buffer.seek(0)
+    return buffer
+
+def add_footer(canvas, doc):
+    """
+    Agrega pie de página con paginación al PDF.
+    """
+    canvas.saveState()
+    canvas.setFont('Helvetica', 8)
+    canvas.setFillColor(colors.grey)
+    
+    # Obtener número de página
+    page_num = canvas.getPageNumber()
+    
+    # Texto del pie de página
+    footer_text = f"Fecha de impresión: {datetime.now().strftime('%d/%m/%Y')}   |   Página {page_num}"
+    
+    # Centrar el texto en la parte inferior
+    canvas.drawCentredString(doc.pagesize[0]/2, 10*mm, footer_text)
+    canvas.restoreState()
+
+def create_reportlab_pdf_maintenance_detail(mantenimiento, title="Control de Actividades de Mantenimiento"):
+    """
+    Crea un PDF detallado de un mantenimiento específico usando ReportLab.
+    
+    Args:
+        mantenimiento: Objeto Programado
+        title: Título del reporte
+    
+    Returns:
+        BytesIO object con el PDF
+    """
+    buffer = BytesIO()
+    pagesize = landscape(A4)
+    
+    doc = SimpleDocTemplate(buffer, pagesize=pagesize, 
+                           rightMargin=10*mm, leftMargin=10*mm,
+                           topMargin=10*mm, bottomMargin=15*mm)
+    
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=16,
+        spaceAfter=20,
+        alignment=TA_CENTER,
+        fontName='Helvetica-Bold'
+    )
+    
+    elements = []
+    
+    # Título
+    elements.append(Paragraph(title, title_style))
+    elements.append(Spacer(1, 10))
+    
+    # Información del mantenimiento
+    info_data = [
+        ['Campo', 'Valor'],
+        ['ID', str(mantenimiento.id)],
+        ['Código', str(mantenimiento.codigo) if mantenimiento.codigo else ''],
+        ['Nombre', str(mantenimiento.nombre) if mantenimiento.nombre else ''],
+        ['Fecha Programada', mantenimiento.fecha_prog.strftime('%d/%m/%Y') if mantenimiento.fecha_prog else ''],
+        ['Hora', str(mantenimiento.hora) if mantenimiento.hora else ''],
+        ['Servicio', str(mantenimiento.servicio) if mantenimiento.servicio else ''],
+        ['Tipo Mantenimiento', str(mantenimiento.tipo_mantenimiento) if mantenimiento.tipo_mantenimiento else ''],
+        ['Estado', str(mantenimiento.estado_inicial) if mantenimiento.estado_inicial else ''],
+        ['Técnico Asignado', str(mantenimiento.tecnico_asignado_display) if hasattr(mantenimiento, 'tecnico_asignado_display') and mantenimiento.tecnico_asignado_display else ''],
+        ['Ubicación', str(mantenimiento.ubicacion) if mantenimiento.ubicacion else ''],
+        ['Observaciones', str(mantenimiento.observaciones) if mantenimiento.observaciones else '']
+    ]
+    
+    info_table = Table(info_data, repeatRows=1)
+    info_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.white]),
+        ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 3),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
+    ])
+    
+    info_table.setStyle(info_style)
+    elements.append(info_table)
+    
+    # Construir el documento
+    doc.build(elements, onFirstPage=lambda canvas, doc: add_footer(canvas, doc),
+              onLaterPages=lambda canvas, doc: add_footer(canvas, doc))
+    
+    buffer.seek(0)
+    return buffer 
+
+def create_reportlab_pdf_historial(historial, mantenimiento_id, title="Historial de Cambios del Mantenimiento"):
+    """
+    Crea un PDF del historial de cambios usando ReportLab.
+    
+    Args:
+        historial: Lista de objetos HistorialCambio
+        mantenimiento_id: ID del mantenimiento
+        title: Título del reporte
+    
+    Returns:
+        BytesIO object con el PDF
+    """
+    buffer = BytesIO()
+    pagesize = landscape(A4)
+    
+    doc = SimpleDocTemplate(buffer, pagesize=pagesize, 
+                           rightMargin=10*mm, leftMargin=10*mm,
+                           topMargin=10*mm, bottomMargin=15*mm)
+    
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=16,
+        spaceAfter=20,
+        alignment=TA_CENTER,
+        fontName='Helvetica-Bold'
+    )
+    
+    elements = []
+    
+    # Título
+    elements.append(Paragraph(title, title_style))
+    elements.append(Spacer(1, 10))
+    
+    # Información del mantenimiento si existe
+    if historial and historial[0].mantenimiento:
+        info_text = f"Código: {historial[0].mantenimiento.codigo}<br/>Nombre: {historial[0].mantenimiento.nombre}"
+        info_para = Paragraph(info_text, styles['Normal'])
+        elements.append(info_para)
+        elements.append(Spacer(1, 10))
+    
+    # Preparar datos de la tabla
+    headers = ['Fecha', 'Usuario', 'Campo', 'Valor Anterior', 'Valor Nuevo', 'Acción']
+    data = [headers]
+    
+    # Agregar datos del historial
+    for h in historial:
+        row = [
+            h.fecha.strftime('%d/%m/%Y %H:%M') if h.fecha else '',
+            str(h.usuario) if h.usuario else '',
+            str(h.campo) if h.campo else '',
+            str(h.valor_anterior) if h.valor_anterior else '',
+            str(h.valor_nuevo) if h.valor_nuevo else '',
+            str(h.accion) if h.accion else ''
+        ]
+        data.append(row)
+    
+    # Crear tabla
+    if data:
+        table = Table(data, repeatRows=1)
+        
+        # Estilo de la tabla
+        table_style = TableStyle([
+            # Encabezados
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 8),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.white]),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
+        ])
+        
+        table.setStyle(table_style)
+        elements.append(table)
+    
+    # Construir el documento
+    doc.build(elements, onFirstPage=lambda canvas, doc: add_footer(canvas, doc),
+              onLaterPages=lambda canvas, doc: add_footer(canvas, doc))
+    
+    buffer.seek(0)
+    return buffer 
+
+def create_reportlab_pdf_equipment_life_sheet(equipo, mantenimientos, title="Hoja de Vida de Equipos"):
+    """
+    Crea un PDF de hoja de vida de equipo usando ReportLab.
+    
+    Args:
+        equipo: Objeto Equipo
+        mantenimientos: Lista de objetos Programado (mantenimientos completados)
+        title: Título del reporte
+    
+    Returns:
+        BytesIO object con el PDF
+    """
+    buffer = BytesIO()
+    pagesize = landscape(A4)
+    
+    doc = SimpleDocTemplate(buffer, pagesize=pagesize, 
+                           rightMargin=10*mm, leftMargin=10*mm,
+                           topMargin=10*mm, bottomMargin=15*mm)
+    
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=16,
+        spaceAfter=20,
+        alignment=TA_CENTER,
+        fontName='Helvetica-Bold'
+    )
+    
+    elements = []
+    
+    # Título
+    elements.append(Paragraph(title, title_style))
+    elements.append(Spacer(1, 10))
+    
+    # Información del equipo
+    info_data = [
+        ['Campo', 'Valor', 'Campo', 'Valor'],
+        ['Código', str(equipo.codigo) if equipo.codigo else '', 'Marca', str(equipo.marca) if equipo.marca else ''],
+        ['Nombre', str(equipo.nombre) if equipo.nombre else '', 'Modelo', str(equipo.modelo) if equipo.modelo else ''],
+        ['Ubicación', str(equipo.ubicacion) if equipo.ubicacion else '', 'Serie', str(equipo.serie) if equipo.serie else ''],
+        ['Estado', str(equipo.estado_eq) if equipo.estado_eq else '', 'Fecha Ingreso', equipo.fecha_ingreso.strftime('%d/%m/%Y') if equipo.fecha_ingreso else ''],
+    ]
+    
+    info_table = Table(info_data, repeatRows=1)
+    info_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.white]),
+        ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 3),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
+    ])
+    
+    info_table.setStyle(info_style)
+    elements.append(info_table)
+    elements.append(Spacer(1, 15))
+    
+    # Mantenimientos realizados
+    if mantenimientos:
+        elements.append(Paragraph("Mantenimientos Realizados", title_style))
+        elements.append(Spacer(1, 10))
+        
+        # Preparar datos de la tabla de mantenimientos
+        headers = ['F. Inicio', 'F. Fin', 'Tiempo', 'Tipo', 'Servicio', 'Técnico', 
+                  'Repuestos', 'Herramientas', 'Observaciones', 'C. Rep.', 'C. Herr.', 'C. MDO', 'Costo Total']
+        data = [headers]
+        
+        # Agregar datos de mantenimientos
+        for mtto in mantenimientos:
+            costo_total = (mtto.costo_rep or 0) + (mtto.costo_herram or 0) + (mtto.costo_mdo or 0)
+            row = [
+                mtto.hora_inicial.strftime('%d/%m/%Y %H:%M') if mtto.hora_inicial else '',
+                mtto.hora_final.strftime('%d/%m/%Y %H:%M') if mtto.hora_final else '',
+                str(mtto.tiempo_gastado) if mtto.tiempo_gastado else '',
+                str(mtto.tipo_mantenimiento) if mtto.tipo_mantenimiento else '',
+                str(mtto.servicio) if mtto.servicio else '',
+                str(mtto.tecnico_realizador or mtto.tecnico_asignado) if mtto.tecnico_realizador or mtto.tecnico_asignado else '',
+                str(mtto.repuestos) if mtto.repuestos else '',
+                str(mtto.herramientas) if mtto.herramientas else '',
+                str(mtto.observaciones) if mtto.observaciones else '',
+                f"${mtto.costo_rep:,.2f}" if mtto.costo_rep else '$0.00',
+                f"${mtto.costo_herram:,.2f}" if mtto.costo_herram else '$0.00',
+                f"${mtto.costo_mdo:,.2f}" if mtto.costo_mdo else '$0.00',
+                f"${costo_total:,.2f}"
+            ]
+            data.append(row)
+        
+        # Crear tabla de mantenimientos
+        maint_table = Table(data, repeatRows=1)
+        maint_style = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 7),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.white]),
+            ('LEFTPADDING', (0, 0), (-1, -1), 3),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+            ('TOPPADDING', (0, 0), (-1, -1), 2),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 2),
+        ])
+        
+        maint_table.setStyle(maint_style)
+        elements.append(maint_table)
+    else:
+        elements.append(Paragraph("No hay mantenimientos realizados registrados.", styles['Normal']))
+    
+    # Construir el documento
+    doc.build(elements, onFirstPage=lambda canvas, doc: add_footer(canvas, doc),
+              onLaterPages=lambda canvas, doc: add_footer(canvas, doc))
+    
+    buffer.seek(0)
+    return buffer
+
+def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="Ficha Técnica de Equipos y Máquinas"):
+    """
+    Crea un PDF de ficha técnica de equipo usando ReportLab.
+    
+    Args:
+        equipo: Objeto Equipo
+        motores: Lista de objetos MotorEquipo
+        title: Título del reporte
+    
+    Returns:
+        BytesIO object con el PDF
+    """
+    buffer = BytesIO()
+    pagesize = A4  # Portrait para ficha técnica
+    
+    doc = SimpleDocTemplate(buffer, pagesize=pagesize, 
+                           rightMargin=10*mm, leftMargin=10*mm,
+                           topMargin=10*mm, bottomMargin=15*mm)
+    
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=16,
+        spaceAfter=20,
+        alignment=TA_CENTER,
+        fontName='Helvetica-Bold'
+    )
+    
+    section_style = ParagraphStyle(
+        'SectionTitle',
+        parent=styles['Heading2'],
+        fontSize=12,
+        spaceAfter=10,
+        alignment=TA_LEFT,
+        fontName='Helvetica-Bold',
+        textColor=colors.grey
+    )
+    
+    elements = []
+    
+    # Título
+    elements.append(Paragraph(title, title_style))
+    elements.append(Spacer(1, 10))
+    
+    # Datos Generales
+    elements.append(Paragraph("Datos Generales", section_style))
+    
+    general_data = [
+        ['Campo', 'Valor', 'Campo', 'Valor'],
+        ['Código', str(equipo.codigo) if equipo.codigo else '', 'Nombre', str(equipo.nombre) if equipo.nombre else ''],
+        ['Fecha Ingreso', equipo.fecha_ingreso.strftime('%d/%m/%Y') if equipo.fecha_ingreso else '', 'Tipo Equipo', str(equipo.tipo_eq) if equipo.tipo_eq else ''],
+        ['Ubicación', str(equipo.ubicacion) if equipo.ubicacion else '', 'Marca', str(equipo.marca) if equipo.marca else ''],
+        ['Referencia', str(equipo.referencia) if equipo.referencia else '', 'Serie', str(equipo.serie) if equipo.serie else ''],
+        ['Color', str(equipo.color) if equipo.color else '', 'Estado', str(equipo.estado_eq) if equipo.estado_eq else ''],
+    ]
+    
+    general_table = Table(general_data, repeatRows=1)
+    general_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 8),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.white]),
+        ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 3),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
+    ])
+    
+    general_table.setStyle(general_style)
+    elements.append(general_table)
+    elements.append(Spacer(1, 15))
+    
+    # Dimensiones
+    elements.append(Paragraph("Dimensiones", section_style))
+    
+    dimensiones_data = [
+        ['Altura', 'Largo', 'Ancho', 'Peso'],
+        [str(equipo.altura) if equipo.altura else '', str(equipo.largo) if equipo.largo else '', 
+         str(equipo.ancho) if equipo.ancho else '', str(equipo.peso) if equipo.peso else '']
+    ]
+    
+    dim_table = Table(dimensiones_data, repeatRows=1)
+    dim_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 8),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 3),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
+    ])
+    
+    dim_table.setStyle(dim_style)
+    elements.append(dim_table)
+    elements.append(Spacer(1, 15))
+    
+    # Información Energética
+    elements.append(Paragraph("Información Energética", section_style))
+    
+    energia_data = [
+        ['Tipo de Energía', 'Corriente', 'Potencia Instalada', 'Voltaje'],
+        [str(equipo.tipo_energia) if equipo.tipo_energia else '', str(equipo.corriente) if equipo.corriente else '',
+         str(equipo.potencia_instalada) if equipo.potencia_instalada else '', str(equipo.voltaje) if equipo.voltaje else '']
+    ]
+    
+    energia_table = Table(energia_data, repeatRows=1)
+    energia_table.setStyle(dim_style)  # Reutilizar el mismo estilo
+    elements.append(energia_table)
+    elements.append(Spacer(1, 15))
+    
+    # Información de Motores
+    if motores:
+        elements.append(Paragraph("Información Motores", section_style))
+        
+        motores_headers = ['N°', 'Nombre Motor', 'Descripción', 'Tipo', 'Dirección de Rotación', 
+                          'RPM', 'Eficiencia', 'Corriente', 'Potencia Instalada', 'Voltaje']
+        motores_data = [motores_headers]
+        
+        for i, motor in enumerate(motores, 1):
+            row = [
+                str(i),
+                str(motor.nomb_Motor) if motor.nomb_Motor else '',
+                str(motor.descrip_Motor) if motor.descrip_Motor else '',
+                str(motor.tipo_Motor) if motor.tipo_Motor else '',
+                str(motor.rotacion) if motor.rotacion else '',
+                str(motor.rpm_Motor) if motor.rpm_Motor else '',
+                str(motor.eficiencia) if motor.eficiencia else '',
+                str(motor.corriente_Motor) if motor.corriente_Motor else '',
+                str(motor.potencia_Motor) if motor.potencia_Motor else '',
+                str(motor.voltaje_Motor) if motor.voltaje_Motor else ''
+            ]
+            motores_data.append(row)
+        
+        motores_table = Table(motores_data, repeatRows=1)
+        motores_style = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 7),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 6),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.white]),
+            ('LEFTPADDING', (0, 0), (-1, -1), 3),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+            ('TOPPADDING', (0, 0), (-1, -1), 2),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 2),
+        ])
+        
+        motores_table.setStyle(motores_style)
+        elements.append(motores_table)
+        elements.append(Spacer(1, 15))
+    
+    # Información de Consumo
+    elements.append(Paragraph("Información de Consumo", section_style))
+    
+    consumo_data = [
+        ['Tipo Refrigerante', 'Tipo Lubricante', 'Tipo Combustible'],
+        [str(equipo.tipo_refrigerante) if equipo.tipo_refrigerante else '',
+         str(equipo.tipo_lubricante) if equipo.tipo_lubricante else '',
+         str(equipo.tipo_combustible) if equipo.tipo_combustible else '']
+    ]
+    
+    consumo_table = Table(consumo_data, repeatRows=1)
+    consumo_table.setStyle(dim_style)  # Reutilizar el mismo estilo
+    elements.append(consumo_table)
+    elements.append(Spacer(1, 10))
+    
+    # Repuestos
+    if equipo.repuestos:
+        repuestos_text = f"Repuestos: {equipo.repuestos}"
+        elements.append(Paragraph(repuestos_text, styles['Normal']))
+        elements.append(Spacer(1, 15))
+    
+    # Documentación
+    elements.append(Paragraph("Documentación", section_style))
+    
+    doc_data = [
+        ['Ficha Técnica', 'Hoja de Vida', 'Preoperacional', 'Plan de Mantenimiento'],
+        ['Sí' if equipo.ficha_tecnica else 'No', 'Sí' if equipo.hoja_vida else 'No',
+         'Sí' if equipo.preoperacional else 'No', 'Sí' if equipo.plan_mantenimiento else 'No']
+    ]
+    
+    doc_table = Table(doc_data, repeatRows=1)
+    doc_table.setStyle(dim_style)  # Reutilizar el mismo estilo
+    elements.append(doc_table)
+    elements.append(Spacer(1, 15))
+    
+    # Observaciones
+    if equipo.observaciones:
+        elements.append(Paragraph("Observaciones", section_style))
+        elements.append(Paragraph(str(equipo.observaciones), styles['Normal']))
+    
+    # Construir el documento
+    doc.build(elements, onFirstPage=lambda canvas, doc: add_footer(canvas, doc),
+              onLaterPages=lambda canvas, doc: add_footer(canvas, doc))
+    
+    buffer.seek(0)
+    return buffer 
+
+def create_reportlab_pdf_lubrication_sheet(equipo, lubricaciones, title="Carta de Lubricación"):
+    """
+    Crea un PDF de carta de lubricación usando ReportLab.
+    
+    Args:
+        equipo: Objeto Equipo
+        lubricaciones: Lista de objetos Lubricacion
+        title: Título del reporte
+    
+    Returns:
+        BytesIO object con el PDF
+    """
+    buffer = BytesIO()
+    pagesize = A4  # Portrait para carta de lubricación
+    
+    doc = SimpleDocTemplate(buffer, pagesize=pagesize, 
+                           rightMargin=10*mm, leftMargin=10*mm,
+                           topMargin=10*mm, bottomMargin=15*mm)
+    
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=16,
+        spaceAfter=20,
+        alignment=TA_CENTER,
+        fontName='Helvetica-Bold'
+    )
+    
+    section_style = ParagraphStyle(
+        'SectionTitle',
+        parent=styles['Heading2'],
+        fontSize=12,
+        spaceAfter=10,
+        alignment=TA_LEFT,
+        fontName='Helvetica-Bold',
+        textColor=colors.grey
+    )
+    
+    elements = []
+    
+    # Título
+    elements.append(Paragraph(title, title_style))
+    elements.append(Spacer(1, 10))
+    
+    # Información del equipo
+    elements.append(Paragraph("Información del Equipo", section_style))
+    
+    equipo_data = [
+        ['Campo', 'Valor'],
+        ['Código', str(equipo.codigo) if equipo.codigo else ''],
+        ['Nombre', str(equipo.nombre) if equipo.nombre else ''],
+        ['Ubicación', str(equipo.ubicacion) if equipo.ubicacion else ''],
+        ['Marca', str(equipo.marca) if equipo.marca else ''],
+        ['Modelo', str(equipo.modelo) if equipo.modelo else ''],
+        ['Serie', str(equipo.serie) if equipo.serie else '']
+    ]
+    
+    equipo_table = Table(equipo_data, repeatRows=1)
+    equipo_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.white]),
+        ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 3),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
+    ])
+    
+    equipo_table.setStyle(equipo_style)
+    elements.append(equipo_table)
+    elements.append(Spacer(1, 15))
+    
+    # Cartas de lubricación
+    if lubricaciones:
+        elements.append(Paragraph("Cartas de Lubricación", section_style))
+        
+        # Preparar datos de la tabla
+        headers = ['N°', 'Mecanismo', 'Cant.', 'Tipo Lubricación', 'Producto', 
+                  'Método Lubricación', 'Frecuencia Inspección', 'Observaciones']
+        data = [headers]
+        
+        # Agregar datos de lubricaciones
+        for lub in lubricaciones:
+            row = [
+                str(lub.numero) if lub.numero else '',
+                str(lub.mecanismo) if lub.mecanismo else '',
+                str(lub.cantidad) if lub.cantidad else '',
+                str(lub.tipo_lubricante) if lub.tipo_lubricante else '',
+                str(lub.producto) if lub.producto else '',
+                str(lub.metodo_lubricacion) if lub.metodo_lubricacion else '',
+                str(lub.frecuencia_inspeccion) if lub.frecuencia_inspeccion else '',
+                str(lub.observaciones) if lub.observaciones else ''
+            ]
+            data.append(row)
+        
+        # Crear tabla de lubricaciones
+        lub_table = Table(data, repeatRows=1)
+        lub_style = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 7),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.white]),
+            ('LEFTPADDING', (0, 0), (-1, -1), 3),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+            ('TOPPADDING', (0, 0), (-1, -1), 2),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 2),
+        ])
+        
+        lub_table.setStyle(lub_style)
+        elements.append(lub_table)
+    else:
+        elements.append(Paragraph("No hay cartas de lubricación registradas para este equipo.", styles['Normal']))
+    
+    # Construir el documento
+    doc.build(elements, onFirstPage=lambda canvas, doc: add_footer(canvas, doc),
+              onLaterPages=lambda canvas, doc: add_footer(canvas, doc))
+    
+    buffer.seek(0)
+    return buffer 

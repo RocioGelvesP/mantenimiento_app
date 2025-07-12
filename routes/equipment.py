@@ -924,47 +924,12 @@ def descargar_hoja_vida(codigo):
         # Solo completados para la tabla de mantenimientos realizados
         mantenimientos = [m for m in todos_mantenimientos if m.estado_final == 'Completado']
         
-        # Calcular totales
-        total_mantenimientos = len(todos_mantenimientos)
-        total_programados = sum(1 for m in todos_mantenimientos if m.estado_final != 'Completado')
-        total_completados = sum(1 for m in todos_mantenimientos if m.estado_final == 'Completado')
+        # Generar PDF con ReportLab
+        from utils import create_reportlab_pdf_equipment_life_sheet
+        pdf_buffer = create_reportlab_pdf_equipment_life_sheet(equipo, mantenimientos)
         
-        # Calcular costo total y tasa de completaciÃ³n
-        costo_total = sum((m.costo_rep or 0) + (m.costo_herram or 0) + (m.costo_mdo or 0) for m in mantenimientos)
-        total_para_tasa = total_completados + total_programados
-        tasa_completacion = (total_completados / total_para_tasa) * 100 if total_para_tasa > 0 else 0
-
-        # Rutas absolutas para imágenes
-        logo_path = os.path.abspath('static/logo.png')
-        imagen_equipo_path = os.path.abspath(f'static/{equipo.imagen}') if equipo.imagen else None
-        
-        # Renderizar la plantilla HTML PDF
-        html = render_template('equipos/hoja_vida_pdf.html',
-                               equipo=equipo,
-                               mantenimientos=mantenimientos,
-                               costo_total=costo_total,
-                               tasa_completacion=tasa_completacion,
-                               total_mantenimientos=total_mantenimientos,
-                               total_programados=total_programados,
-                               total_completados=total_completados,
-                               base_url=request.host_url,
-                               es_pdf=True,
-                               logo_path=logo_path,
-                               imagen_equipo_path=imagen_equipo_path)
-
-        config = get_pdf_config()
-        
-        # Configurar opciones de PDF
-        options = get_pdf_options(
-            orientation='Landscape',
-            page_size='A4',
-            include_footer=True,
-            custom_footer='Fecha de impresión: [date]  |  Página [page] de [topage]'
-        )
-        
-        # Generar y enviar PDF
-        pdf = pdfkit.from_string(html, False, options=options, configuration=config)
-        response = make_response(pdf)
+        # Enviar el archivo
+        response = make_response(pdf_buffer.getvalue())
         response.headers['Content-Type'] = 'application/pdf'
         response.headers['Content-Disposition'] = f'attachment; filename=hoja_vida_{equipo.codigo}.pdf'
         
@@ -1082,23 +1047,13 @@ def descargar_ficha_tecnica(codigo):
     try:
         equipo = get_or_404(Equipo, codigo)
         motores = MotorEquipo.query.filter_by(equipo_codigo=codigo).all()
-        fecha_generacion = datetime.now().strftime('%Y-%m-%d')
         
-        # Renderizar la plantilla
-        rendered_html = render_template('equipos/ficha_tecnica.html', 
-                                     equipo=equipo, 
-                                     motores=motores, 
-                                     fecha_generacion=fecha_generacion)
-        
-        # ConfiguraciÃ³n para PDFKit
-        config = get_pdf_config()
-        options = get_pdf_options(orientation='Portrait', page_size='A4', include_footer=True)
-        
-        # Convertir HTML a PDF
-        pdf = pdfkit.from_string(rendered_html, False, options=options, configuration=config)
+        # Generar PDF con ReportLab
+        from utils import create_reportlab_pdf_equipment_technical_sheet
+        pdf_buffer = create_reportlab_pdf_equipment_technical_sheet(equipo, motores)
         
         # Crear respuesta
-        response = make_response(pdf)
+        response = make_response(pdf_buffer.getvalue())
         response.headers['Content-Type'] = 'application/pdf'
         response.headers['Content-Disposition'] = f'attachment; filename=ficha_tecnica_{equipo.codigo}.pdf'
         

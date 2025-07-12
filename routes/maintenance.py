@@ -1051,25 +1051,22 @@ def descargar_mantenimiento(id):
             flash('No tienes permisos para descargar este mantenimiento.', 'error')
             return redirect(url_for('maintenance.lista'))
         
-        # Renderizar la plantilla HTML
-        html = render_template('maintenance/imprimir.html', mantenimientos=[mantenimiento], now=datetime.now())
+        # Convertir username a nombre para mostrar
+        mantenimiento.tecnico_asignado_display = get_user_display_name(mantenimiento.tecnico_asignado)
+        mantenimiento.tecnico_realizador_display = get_user_display_name(mantenimiento.tecnico_realizador)
+        mantenimiento.autorizado_por_display = get_user_display_name(mantenimiento.autorizado_por)
         
-        # Configurar opciones de PDF
-        custom_footer = f'Fecha de impresión: {datetime.now().strftime("%d/%m/%Y")}   |   Página [page] de [topage]'
-        options = get_pdf_options(orientation='Landscape', page_size='A4', include_footer=True, custom_footer=custom_footer)
+        # Generar PDF con ReportLab
+        from utils import create_reportlab_pdf_maintenance_detail
+        pdf_buffer = create_reportlab_pdf_maintenance_detail(mantenimiento)
         
-        # Crear un archivo temporal para el PDF
-        with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp:
-            # Generar el PDF
-            pdfkit.from_string(html, tmp.name, options=options, configuration=config)
-            
-            # Enviar el archivo
-            return send_file(
-                tmp.name,
-                as_attachment=True,
-                download_name=f'mantenimiento_{mantenimiento.codigo}_{mantenimiento.fecha_prog.strftime("%Y%m%d")}.pdf',
-                mimetype='application/pdf'
-            )
+        # Enviar el archivo
+        return send_file(
+            pdf_buffer,
+            as_attachment=True,
+            download_name=f'mantenimiento_{mantenimiento.codigo}_{mantenimiento.fecha_prog.strftime("%Y%m%d")}.pdf',
+            mimetype='application/pdf'
+        )
             
     except Exception as e:
         current_app.logger.error(f"Error al generar PDF: {str(e)}")
@@ -1112,11 +1109,11 @@ def imprimir_todos():
         mtto.tecnico_realizador_display = get_user_display_name(mtto.tecnico_realizador)
         mtto.autorizado_por_display = get_user_display_name(mtto.autorizado_por)
     
-    rendered = render_template('maintenance/imprimir_todos.html', mantenimientos=mantenimientos, now=datetime.now())
-    options = get_pdf_options(orientation='Landscape', page_size='A4', include_footer=True)
-    with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp:
-        pdfkit.from_string(rendered, tmp.name, options=options, configuration=config)
-        return send_file(tmp.name, as_attachment=True, download_name='mantenimientos_programados.pdf', mimetype='application/pdf')
+    # Generar PDF con ReportLab
+    from utils import create_reportlab_pdf_maintenance_report
+    pdf_buffer = create_reportlab_pdf_maintenance_report(mantenimientos, orientation='landscape')
+    
+    return send_file(pdf_buffer, as_attachment=True, download_name='mantenimientos_programados.pdf', mimetype='application/pdf')
 
 @maintenance.route('/descargar-todos')
 @login_required
@@ -1153,12 +1150,12 @@ def descargar_todos():
         mtto.tecnico_asignado_display = get_user_display_name(mtto.tecnico_asignado)
         mtto.tecnico_realizador_display = get_user_display_name(mtto.tecnico_realizador)
         mtto.autorizado_por_display = get_user_display_name(mtto.autorizado_por)
+
+    # Generar PDF con ReportLab
+    from utils import create_reportlab_pdf_maintenance_report
+    pdf_buffer = create_reportlab_pdf_maintenance_report(mantenimientos, orientation='landscape')
     
-    rendered = render_template('maintenance/imprimir_todos.html', mantenimientos=mantenimientos, now=datetime.now())
-    options = get_pdf_options(orientation='Landscape', page_size='A4', include_footer=True)
-    with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp:
-        pdfkit.from_string(rendered, tmp.name, options=options, configuration=config)
-        return send_file(tmp.name, as_attachment=True, download_name='mantenimientos_programados.pdf', mimetype='application/pdf')
+    return send_file(pdf_buffer, as_attachment=True, download_name='mantenimientos_programados.pdf', mimetype='application/pdf')
 
 @maintenance.route('/historial/<int:id>/<formato>')
 @login_required
@@ -1211,12 +1208,10 @@ def descargar_historial(id, formato):
         response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         return response
     elif formato == 'pdf':
-        html = render_template('maintenance/historial_pdf.html', historial=historial, now=datetime.now())
-        custom_footer = f'Fecha de impresión: {datetime.now().strftime("%d/%m/%Y")}   |   Página [page] de [topage]'
-        options = get_pdf_options(orientation='Landscape', page_size='A4', include_footer=True, custom_footer=custom_footer)
-        with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp:
-            pdfkit.from_string(html, tmp.name, options=options, configuration=config)
-            response = send_file(tmp.name, as_attachment=True, download_name=f'historial_mantenimiento_{id}.pdf', mimetype='application/pdf')
+        # Generar PDF con ReportLab
+        from utils import create_reportlab_pdf_historial
+        pdf_buffer = create_reportlab_pdf_historial(historial, id)
+        response = send_file(pdf_buffer, as_attachment=True, download_name=f'historial_mantenimiento_{id}.pdf', mimetype='application/pdf')
         return response
     else:
         flash('Formato no válido', 'error')

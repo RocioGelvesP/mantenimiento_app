@@ -302,20 +302,18 @@ def subir_imagen(codigo_equipo):
 @login_required
 @require_any_role('super_admin', 'admin', 'supervisor', 'tecnico')
 def descargar_pdf_lubricacion(codigo_equipo):
-    if HTML is None:
-        flash('La funcionalidad de PDF requiere instalar weasyprint. Ejecute: pip install weasyprint', 'error')
-        return redirect(url_for('lubrication.cartas_equipo', codigo_equipo=codigo_equipo))
-    
     equipo = Equipo.query.filter_by(codigo=codigo_equipo).first()
     if not equipo:
         flash('Equipo no encontrado', 'error')
         return redirect(url_for('equipment.listar_equipos'))
     
     lubricaciones = Lubricacion.query.filter_by(equipo_codigo=codigo_equipo).order_by(Lubricacion.numero).all()
-    fecha_actual = datetime.now().strftime('%d/%m/%Y')
-    html = render_template('lubrication/cartas_equipo_pdf.html', equipo=equipo, lubricaciones=lubricaciones, fecha_actual=fecha_actual)
-    pdf = HTML(string=html, base_url=request.url_root).write_pdf()
-    response = make_response(pdf)
+    
+    # Generar PDF con ReportLab
+    from utils import create_reportlab_pdf_lubrication_sheet
+    pdf_buffer = create_reportlab_pdf_lubrication_sheet(equipo, lubricaciones)
+    
+    response = make_response(pdf_buffer.getvalue())
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = f'attachment; filename=Carta_Lubricacion_{equipo.codigo}.pdf'
     return response 
