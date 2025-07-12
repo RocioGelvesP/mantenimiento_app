@@ -220,6 +220,7 @@ class Programado(db.Model):
     observaciones = db.Column(db.String(200))
     tecnico_asignado = db.Column(db.String(100))
     tecnico_realizador = db.Column(db.String(100))
+    recibido_por = db.Column(db.String(100), nullable=True)
     hora_inicial = db.Column(db.DateTime)
     hora_final = db.Column(db.DateTime)
     tiempo_gastado = db.Column(db.String(50))

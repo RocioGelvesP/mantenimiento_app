@@ -246,6 +246,7 @@ def programar():
             observaciones=form.observaciones.data,
             tecnico_asignado=tecnico_asignado,
             tecnico_realizador=nuevo_tecnico_realizador,
+            recibido_por=form.recibido_por.data,
             hora_inicial=form.hora_inicial.data,
             hora_final=form.hora_final.data,
             tiempo_gastado=tiempo_gastado,
@@ -688,7 +689,7 @@ def editar_mantenimiento(id):
                 'ubicacion': 'ubicacion', 'estado_inicial': 'estado_inicial', 'motivo': 'motivo',
                 'costo_rep': 'costo_rep', 'costo_herram': 'costo_herram', 'costo_mdo': 'costo_mdo',
                 'frecuencia': 'frecuencia', 'prox_mtto': 'prox_mtto', 'observaciones': 'observaciones',
-                'tecnico_realizador': 'tecnico_realizador', 'hora_inicial': 'hora_inicial',
+                'tecnico_realizador': 'tecnico_realizador', 'recibido_por': 'recibido_por', 'hora_inicial': 'hora_inicial',
                 'hora_final': 'hora_final', 'company_id': 'company_id'
             }
 
@@ -939,6 +940,7 @@ def editar_mantenimiento(id):
         form.prox_mtto.data = mantenimiento.prox_mtto
         form.observaciones.data = mantenimiento.observaciones
         form.tecnico_realizador.data = tecnico_realizador_seleccionado
+        form.recibido_por.data = mantenimiento.recibido_por
         form.hora_inicial.data = mantenimiento.hora_inicial
         form.hora_final.data = mantenimiento.hora_final
         
