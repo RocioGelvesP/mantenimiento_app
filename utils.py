@@ -387,7 +387,7 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
     from reportlab.platypus import PageTemplate, Frame
     frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height-8, id='normal')
     doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=draw_encabezado)])
-    doc.build(elements, canvasmaker=lambda *args, **kwargs: NumberedCanvas(*args, doc=doc, **kwargs))
+    doc.build(elements)
     buffer.seek(0)
     return buffer
 
