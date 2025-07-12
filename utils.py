@@ -23,6 +23,36 @@ import os
 import calendar
 import os
 
+class NumberedCanvas(canvas.Canvas):
+    """
+    Canvas personalizado para numerar páginas y permitir encabezado en todas las páginas.
+    """
+    def __init__(self, *args, **kwargs):
+        self.doc = kwargs.pop('doc', None)
+        super().__init__(*args, **kwargs)
+        self._saved_page_states = []
+
+    def showPage(self):
+        self._saved_page_states.append(dict(self.__dict__))
+        super().showPage()
+
+    def save(self):
+        num_pages = len(self._saved_page_states)
+        for state in self._saved_page_states:
+            self.__dict__.update(state)
+            self.draw_page_number(num_pages)
+            super().showPage()
+        super().save()
+
+    def draw_page_number(self, page_count):
+        # Puedes personalizar la posición y formato del número de página aquí
+        self.setFont('Helvetica', 8)
+        self.drawRightString(
+            self._pagesize[0] - 15 * mm,
+            10 * mm,
+            f"Página {self._pageNumber} de {page_count}"
+        )
+
 def get_pdf_config():
 	sistema = platform.system()
 	if sistema == 'Windows':
