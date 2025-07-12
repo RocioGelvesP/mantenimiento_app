@@ -285,68 +285,56 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
 
     doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=20*mm, bottomMargin=15*mm)
     styles = getSampleStyleSheet()
-    elements = []
+    elements = [Spacer(1, 56)]  # Dejar espacio para el encabezado
 
-    # --- Encabezado como tabla ---
-    meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-    mes_actual = meses[datetime.now().month - 1]
+    # --- Función para dibujar el encabezado en cada página ---
+    def draw_encabezado(canvas, doc):
+        canvas.saveState()
+        # Coordenadas y medidas
+        x = doc.leftMargin
+        y = doc.pagesize[1] - doc.topMargin
+        # Anchos de columnas
+        col_widths = [97, 210, 255, 120, 70]
+        height = 48
+        # Logo
+        logo_path = os.path.join(os.getcwd(), 'static', 'logo.png')
+        if os.path.exists(logo_path):
+            canvas.drawImage(logo_path, x+5, y-height+5, width=55, height=35, preserveAspectRatio=True, mask='auto')
+        # Cuadro derecho
+        cuadro_x = x + sum(col_widths[:-1])
+        cuadro_y = y
+        cuadro_w = col_widths[-1]
+        row_h = height / 4
+        # Borde exterior
+        canvas.rect(x, y-height, sum(col_widths), height)
+        # Líneas verticales
+        for i in range(1, 5):
+            canvas.line(x+sum(col_widths[:i]), y-height, x+sum(col_widths[:i]), y)
+        # Líneas horizontales internas cuadro derecho
+        for i in range(1, 4):
+            canvas.line(cuadro_x, cuadro_y - i*row_h, cuadro_x + cuadro_w, cuadro_y - i*row_h)
+        # Textos
+        canvas.setFont('Helvetica-Bold', 11)
+        canvas.drawCentredString(x+col_widths[0]+col_widths[1]/2, y-height/2+7, "INR INVERSIONES\nREINOSO Y CIA. LTDA.")
+        canvas.setFont('Helvetica-Bold', 10)
+        canvas.drawCentredString(x+col_widths[0]+col_widths[1]+col_widths[2]/2, y-height/2+7, "CONTROL DE ACTIVIDADES DE MANTENIMIENTO")
+        canvas.setFont('Helvetica-Bold', 13)
+        meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+        mes_actual = meses[datetime.now().month - 1]
+        canvas.drawCentredString(x+col_widths[0]+col_widths[1]+col_widths[2]+col_widths[3]/2, y-height/2+7, mes_actual)
+        # Cuadro derecho textos
+        canvas.setFont('Helvetica-Bold', 8)
+        canvas.drawCentredString(cuadro_x+cuadro_w/2, cuadro_y-row_h/2, "Código")
+        canvas.setFont('Helvetica', 8)
+        canvas.drawCentredString(cuadro_x+cuadro_w/2, cuadro_y-row_h*1.5, "71-MT-43")
+        canvas.setFont('Helvetica-Bold', 8)
+        canvas.drawCentredString(cuadro_x+cuadro_w/2, cuadro_y-row_h*2.5, "Edición")
+        canvas.setFont('Helvetica', 8)
+        canvas.drawCentredString(cuadro_x+cuadro_w/2, cuadro_y-row_h*3.5, "4/Jul/2025")
+        canvas.restoreState()
 
-    # Logo
-    logo_path = os.path.join(os.getcwd(), 'static', 'logo.png')
-    if os.path.exists(logo_path):
-        logo = Image(logo_path, width=55, height=35)
-    else:
-        logo = ''
-
-    # Cuadro derecho (alineado y proporcionado)
-    cuadro_derecho_data = [
-        [Paragraph('<b>Código</b>', ParagraphStyle('codigo', fontSize=8, alignment=TA_CENTER, spaceAfter=0, spaceBefore=0))],
-        [Paragraph('71-MT-43', ParagraphStyle('codigo_valor', fontSize=8, alignment=TA_CENTER, spaceAfter=0, spaceBefore=0))],
-        [Paragraph('<b>Edición</b>', ParagraphStyle('edicion', fontSize=8, alignment=TA_CENTER, spaceAfter=2, spaceBefore=2))],
-        [Paragraph('4/Jul/2025', ParagraphStyle('edicion_valor', fontSize=8, alignment=TA_CENTER, spaceAfter=2, spaceBefore=2))]
-    ]
-    cuadro_derecho = Table(cuadro_derecho_data, colWidths=[70], rowHeights=[12, 12, 12, 12])
-    cuadro_derecho.setStyle(TableStyle([
-        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
-        ('FONTSIZE', (0,0), (-1,-1), 8),
-        ('TEXTCOLOR', (0,0), (-1,-1), colors.black),
-        ('LINEBELOW', (0,0), (-1,0), 0.7, colors.black),
-        ('LINEBELOW', (0,1), (-1,1), 0.7, colors.black),
-        ('LINEBELOW', (0,2), (-1,2), 0.7, colors.black),
-        ('LEFTPADDING', (0,0), (-1,-1), 4),
-        ('RIGHTPADDING', (0,0), (-1,-1), 4),
-    ]))
-
-    # Celdas del encabezado (empresa con salto de línea)
-    encabezado_data = [
-        [logo,
-         Paragraph('<b>INR INVERSIONES<br/>REINOSO Y CIA. LTDA.</b>', ParagraphStyle('empresa', fontSize=11, alignment=TA_CENTER, spaceAfter=0, spaceBefore=0, leading=13)),
-         Paragraph('<b>CONTROL DE ACTIVIDADES DE MANTENIMIENTO</b>', ParagraphStyle('titulo', fontSize=10, alignment=TA_CENTER, spaceAfter=0, spaceBefore=0)),
-         Paragraph(f'<b>{mes_actual}</b>', ParagraphStyle('mes', fontSize=13, alignment=TA_CENTER, spaceAfter=0, spaceBefore=0)),
-         cuadro_derecho
-        ]
-    ]
-    # Ajustar: cuadro derecho igual a 'Recibido por' (70), logo igual a 'Fec./Hor. Inic.' (75)
-    # col_widths tabla: [22, 75, 75, 45, 90, 55, 80, 120, 120, 70]  # total: 752
-    encabezado_col_widths = [97, 210, 255, 120, 70]  # Suma = 752
-    encabezado = Table(encabezado_data, colWidths=encabezado_col_widths, rowHeights=[48])
-    encabezado.setStyle(TableStyle([
-        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('ALIGN', (0,0), (0,0), 'CENTER'),  # Logo
-        ('ALIGN', (1,0), (1,0), 'CENTER'),  # Empresa centrada
-        ('ALIGN', (2,0), (2,0), 'CENTER'),  # Título
-        ('ALIGN', (3,0), (3,0), 'CENTER'),  # Mes
-        ('ALIGN', (4,0), (4,0), 'CENTER'),  # Cuadro derecho
-        ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
-        ('FONTSIZE', (0,0), (-1,-1), 9),
-        ('BOX', (0,0), (-1,-1), 1, colors.black),
-        ('INNERGRID', (0,0), (-1,-1), 1, colors.black),
-    ]))
-    elements.append(encabezado)
-    elements.append(Spacer(1, 8))
-
+    # --- Eliminar encabezado de elements y usar PageTemplate ---
+    # elements = [Spacer(1, 56)]  # Dejar espacio para el encabezado
     # --- Tabla de datos ---
     headers = ['N°', 'Fec./Hor. Inic.', 'Fec./Hor. Fin', 'Código', 'Ubicación', 'Tipo', 'Técnico', 'Actividad', 'Observaciones', 'Recibido por']
     data = [headers]
@@ -396,27 +384,9 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
     elements.append(table)
 
     # --- Pie de página con paginación ---
-    from reportlab.pdfgen import canvas as pdfcanvas
-    class NumberedCanvas(pdfcanvas.Canvas):
-        def __init__(self, *args, doc=None, **kwargs):
-            pdfcanvas.Canvas.__init__(self, *args, **kwargs)
-            self._saved_page_states = []
-            self.doc = doc
-        def showPage(self):
-            self._saved_page_states.append(dict(self.__dict__))
-            self._startPage()
-        def save(self):
-            num_pages = len(self._saved_page_states)
-            for state in self._saved_page_states:
-                self.__dict__.update(state)
-                self.draw_page_number(num_pages)
-                pdfcanvas.Canvas.showPage(self)
-            pdfcanvas.Canvas.save(self)
-        def draw_page_number(self, page_count):
-            width, _ = self._pagesize
-            self.setFont('Helvetica', 9)
-            self.drawCentredString(width/2, 12, f"Página {self._pageNumber} de {page_count}")
-
+    from reportlab.platypus import PageTemplate, Frame
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height-8, id='normal')
+    doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=draw_encabezado)])
     doc.build(elements, canvasmaker=lambda *args, **kwargs: NumberedCanvas(*args, doc=doc, **kwargs))
     buffer.seek(0)
     return buffer
