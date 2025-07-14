@@ -396,7 +396,7 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
 
     doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=20*mm, bottomMargin=15*mm)
     styles = getSampleStyleSheet()
-    elements = [Spacer(1, 42)]  # Dejar espacio para el encabezado
+    elements = []  # Quitar Spacer(1, 42)
 
     # --- Tabla de datos perfectamente alineada ---
     headers = ['N°', 'Fec./Hor. Inic.', 'Fec./Hor. Fin', 'Código', 'Ubicación', 'Tipo', 'Técnico', 'Actividad', 'Observaciones', 'Recibido por']
@@ -448,7 +448,8 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
 
     # --- Pie de página con paginación ---
     from reportlab.platypus import PageTemplate, Frame
-    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height-8, id='normal')
+    encabezado_height = 48  # Alto del encabezado
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height, id='normal')
     doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=draw_encabezado)])
     doc.build(elements, canvasmaker=lambda *args, **kwargs: NumberedCanvas(*args, doc=doc, **kwargs))
     buffer.seek(0)
