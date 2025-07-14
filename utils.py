@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import abort, flash, redirect, url_for, request
+from flask import abort, flash, redirect, url_for, request, send_file, after_this_request
 from flask_login import current_user
 import   os
 import platform
@@ -23,12 +23,11 @@ import os
 import calendar
 import os
 
+# 1. Clase NumberedCanvas para paginación 'Página X de Y'
+from reportlab.pdfgen import canvas
+
 class NumberedCanvas(canvas.Canvas):
-    """
-    Canvas personalizado para numerar páginas y permitir encabezado en todas las páginas.
-    """
     def __init__(self, *args, **kwargs):
-        self.doc = kwargs.pop('doc', None)
         super().__init__(*args, **kwargs)
         self._saved_page_states = []
 
@@ -45,11 +44,10 @@ class NumberedCanvas(canvas.Canvas):
         super().save()
 
     def draw_page_number(self, page_count):
-        # Puedes personalizar la posición y formato del número de página aquí
-        self.setFont('Helvetica', 8)
+        self.setFont("Helvetica", 8)
         self.drawRightString(
-            self._pagesize[0] - 15 * mm,
-            10 * mm,
+            self._pagesize[0] - 40,  # Ajusta el margen derecho si lo necesitas
+            20,                      # Ajusta la altura si lo necesitas
             f"Página {self._pageNumber} de {page_count}"
         )
 
@@ -384,7 +382,45 @@ def draw_encabezado(canvas, doc):
     for i in range(1, 4):
         canvas.line(cuadro_x, y - i * row_h, cuadro_x + cuadro_w, y - i * row_h)
 
+    # NO dibujar paginación aquí
     canvas.restoreState()
+
+# Utilidad para reemplazar el marcador por el total real de páginas
+from PyPDF2 import PdfReader, PdfWriter
+from reportlab.pdfgen import canvas as rl_canvas
+from io import BytesIO
+
+def agregar_total_paginas(input_pdf_path, output_pdf_path, pagesize):
+    from PyPDF2 import PdfReader, PdfWriter
+    from reportlab.pdfgen import canvas as rl_canvas
+    from io import BytesIO
+
+    reader = PdfReader(input_pdf_path)
+    writer = PdfWriter()
+    total = len(reader.pages)
+    for i, page in enumerate(reader.pages, 1):
+        packet = BytesIO()
+        can = rl_canvas.Canvas(packet, pagesize=pagesize)
+        can.setFont("Helvetica-Bold", 14)
+        # Posición robusta para la paginación
+        can.drawRightString(
+            pagesize[0] - 80,  # margen derecho más amplio
+            70,                # altura más alta desde abajo
+            f"Página {i} de {total}"
+        )
+        can.save()
+        packet.seek(0)
+        from PyPDF2 import PdfReader as RLReader
+        overlay = RLReader(packet)
+        page.merge_page(overlay.pages[0])
+        writer.add_page(page)
+    with open(output_pdf_path, "wb") as f:
+        writer.write(f)
+
+# USO:
+# 1. Genera el PDF con el marcador (por ejemplo, usando BytesIO y guardando en un archivo temporal)
+# 2. Llama a agregar_total_paginas('temp.pdf', 'final.pdf', pagesize=landscape(A4) o A4)
+# 3. El archivo 'final.pdf' tendrá la paginación correcta 'Página X de Y'
 
 
 def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Actividades de Mantenimiento", orientation='landscape', include_footer=True):
@@ -447,10 +483,10 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
 
     # --- Pie de página con paginación y encabezado ---
     from reportlab.platypus import PageTemplate, Frame
-    encabezado_height = 55  # Igual que height en draw_encabezado
+    encabezado_height = 55 # Reservar más espacio para evitar duplicidad
     frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height, id='normal')
     doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=draw_encabezado)])
-    doc.build(elements, canvasmaker=lambda *args, **kwargs: NumberedCanvas(*args, doc=doc, **kwargs))
+    doc.build(elements)
     buffer.seek(0)
     return buffer
 
@@ -1117,3 +1153,84 @@ def create_reportlab_pdf_lubrication_sheet(equipo, lubricaciones, title="Carta d
     
     buffer.seek(0)
     return buffer 
+
+# Ejemplo completo de uso para paginación 'Página X de Y' en tu reporte
+# 1. Genera el PDF con el marcador '__TOTAL__' en el pie de página
+# 2. Guarda el PDF en un archivo temporal
+# 3. Llama a agregar_total_paginas para crear el PDF final con la paginación correcta
+
+import tempfile
+
+def generar_pdf_con_paginacion(mantenimientos, orientation='landscape', output_pdf_path='reporte_final.pdf'):
+    """
+    Genera un PDF con paginación 'Página X de Y' usando marcador y PyPDF2.
+    - mantenimientos: lista de objetos de mantenimiento
+    - orientation: 'landscape' o 'portrait'
+    - output_pdf_path: ruta del PDF final
+    """
+    from reportlab.lib.pagesizes import A4, landscape
+    from reportlab.platypus import SimpleDocTemplate
+    from io import BytesIO
+    import tempfile
+
+    # 1. Genera el PDF con el marcador
+    buffer = BytesIO()
+    pagesize = landscape(A4) if orientation == 'landscape' else A4
+    doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=20*mm, bottomMargin=15*mm)
+    elements = []
+    # Aquí deberías agregar tu tabla y demás elementos a 'elements'
+    # Por ejemplo:
+    # elements.append(mi_tabla)
+    doc.build(elements)
+
+    # 2. Guarda el PDF en un archivo temporal
+    temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+    temp_pdf.write(buffer.getvalue())
+    temp_pdf.close()
+    temp_pdf_path = temp_pdf.name
+
+    # 3. Llama a agregar_total_paginas para crear el PDF final
+    agregar_total_paginas(temp_pdf_path, output_pdf_path, pagesize=pagesize)
+    # Ahora 'output_pdf_path' tiene la paginación correcta
+    return output_pdf_path
+
+# USO:
+# output_pdf = generar_pdf_con_paginacion(mantenimientos)
+# print(f"PDF generado: {output_pdf}")
+
+import os
+from flask import send_file, after_this_request
+from reportlab.lib.pagesizes import landscape, A4
+
+def generar_y_enviar_pdf_mantenimiento(mantenimientos):
+    """
+    Genera el PDF de mantenimientos con paginación 'Página X de Y' y lo envía al usuario.
+    Limpia los archivos temporales automáticamente.
+    """
+    # 1. Genera el PDF base SIN paginación
+    buffer = create_reportlab_pdf_maintenance_report(mantenimientos)
+    temp_path = "temp.pdf"
+    final_path = "reporte_final.pdf"
+    with open(temp_path, "wb") as f:
+        f.write(buffer.getvalue())
+
+    # 2. Agrega la paginación correcta
+    agregar_total_paginas(temp_path, final_path, pagesize=landscape(A4))
+
+    # 3. Limpia los archivos temporales después de enviar
+    @after_this_request
+    def cleanup(response):
+        try:
+            os.remove(temp_path)
+            os.remove(final_path)
+        except Exception as e:
+            print(f"Error eliminando archivos temporales: {e}")
+        return response
+
+    # 4. Envía el PDF final al usuario
+    return send_file(final_path, as_attachment=True)
+
+# USO EN FLASK:
+# @app.route('/descargar_reporte')
+# def descargar_reporte():
+#     return generar_y_enviar_pdf_mantenimiento(mantenimientos)
