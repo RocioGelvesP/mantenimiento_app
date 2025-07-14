@@ -325,8 +325,8 @@ def draw_encabezado(canvas, doc):
     y = doc.pagesize[1] - doc.topMargin
     height = 48
 
-    # Anchos personalizados para el encabezado (suma = 771)
-    col_widths_header = [110, 180, 300, 120, 61]
+    # Anchos personalizados para el encabezado (suma = 779)
+    col_widths_header = [105, 222, 251, 120, 79]
 
     # Dibuja el borde exterior
     canvas.rect(x, y - height, sum(col_widths_header), height)
