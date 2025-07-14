@@ -12,7 +12,7 @@ from datetime import datetime
 # ============================================================================
 
 from reportlab.lib.pagesizes import A4, landscape
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+from reportlab.platypus import Table, TableStyle, Paragraph, Image, SimpleDocTemplate, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, mm
 from reportlab.lib import colors
@@ -315,57 +315,92 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
 
     doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=20*mm, bottomMargin=15*mm)
     styles = getSampleStyleSheet()
-    elements = [Spacer(1, 56)]  # Dejar espacio para el encabezado
+    elements = [Spacer(1, 42)]  # Dejar espacio para el encabezado
 
-    # --- Función para dibujar el encabezado en cada página ---
+    # --- Encabezado dibujado con canvas perfectamente alineado ---
     def draw_encabezado(canvas, doc):
         canvas.saveState()
-        # Coordenadas y medidas
         x = doc.leftMargin
         y = doc.pagesize[1] - doc.topMargin
-        # Anchos de columnas
-        col_widths = [97, 210, 255, 120, 70]
+        col_widths = [106, 210, 255, 120, 82]
         height = 48
-        # Logo
+        # Logo centrado
         logo_path = os.path.join(os.getcwd(), 'static', 'logo.png')
+        logo_w, logo_h = 55, 35
+        logo_cx = x + col_widths[0] / 2
+        logo_cy = y - height / 2
         if os.path.exists(logo_path):
-            canvas.drawImage(logo_path, x+5, y-height+5, width=55, height=35, preserveAspectRatio=True, mask='auto')
+            canvas.drawImage(
+                logo_path,
+                logo_cx - logo_w / 2,
+                logo_cy - logo_h / 2,
+                width=logo_w,
+                height=logo_h,
+                preserveAspectRatio=True,
+                mask='auto'
+            )
         # Cuadro derecho
         cuadro_x = x + sum(col_widths[:-1])
         cuadro_y = y
         cuadro_w = col_widths[-1]
         row_h = height / 4
         # Borde exterior
-        canvas.rect(x, y-height, sum(col_widths), height)
+        canvas.rect(x, y - height, sum(col_widths), height)
         # Líneas verticales
         for i in range(1, 5):
-            canvas.line(x+sum(col_widths[:i]), y-height, x+sum(col_widths[:i]), y)
+            canvas.line(x + sum(col_widths[:i]), y - height, x + sum(col_widths[:i]), y)
         # Líneas horizontales internas cuadro derecho
         for i in range(1, 4):
-            canvas.line(cuadro_x, cuadro_y - i*row_h, cuadro_x + cuadro_w, cuadro_y - i*row_h)
-        # Textos
+            canvas.line(cuadro_x, cuadro_y - i * row_h, cuadro_x + cuadro_w, cuadro_y - i * row_h)
+        # INR INVERSIONES / REINOSO Y CIA. LTDA. centrado
         canvas.setFont('Helvetica-Bold', 11)
-        canvas.drawCentredString(x+col_widths[0]+col_widths[1]/2, y-height/2+7, "INR INVERSIONES\nREINOSO Y CIA. LTDA.")
+        cell_x = x + col_widths[0]
+        cell_w = col_widths[1]
+        cell_y = y
+        cell_h = height
+        text1 = "INR INVERSIONES"
+        text2 = "REINOSO Y CIA. LTDA."
+        center_x = cell_x + cell_w / 2
+        center_y = cell_y - cell_h / 2
+        canvas.drawCentredString(center_x, center_y + 6, text1)
+        canvas.drawCentredString(center_x, center_y - 8, text2)
+        # CONTROL DE ACTIVIDADES DE MANTENIMIENTO centrado
         canvas.setFont('Helvetica-Bold', 10)
-        canvas.drawCentredString(x+col_widths[0]+col_widths[1]+col_widths[2]/2, y-height/2+7, "CONTROL DE ACTIVIDADES DE MANTENIMIENTO")
+        cell_x2 = x + col_widths[0] + col_widths[1]
+        cell_w2 = col_widths[2]
+        center_x2 = cell_x2 + cell_w2 / 2
+        center_y2 = y - height / 2
+        canvas.drawCentredString(center_x2, center_y2, "CONTROL DE ACTIVIDADES DE MANTENIMIENTO")
+        # Julio centrado
         canvas.setFont('Helvetica-Bold', 13)
         meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
         mes_actual = meses[datetime.now().month - 1]
-        canvas.drawCentredString(x+col_widths[0]+col_widths[1]+col_widths[2]+col_widths[3]/2, y-height/2+7, mes_actual)
-        # Cuadro derecho textos
-        canvas.setFont('Helvetica-Bold', 8)
-        canvas.drawCentredString(cuadro_x+cuadro_w/2, cuadro_y-row_h/2, "Código")
-        canvas.setFont('Helvetica', 8)
-        canvas.drawCentredString(cuadro_x+cuadro_w/2, cuadro_y-row_h*1.5, "71-MT-43")
-        canvas.setFont('Helvetica-Bold', 8)
-        canvas.drawCentredString(cuadro_x+cuadro_w/2, cuadro_y-row_h*2.5, "Edición")
-        canvas.setFont('Helvetica', 8)
-        canvas.drawCentredString(cuadro_x+cuadro_w/2, cuadro_y-row_h*3.5, "4/Jul/2025")
+        cell_x3 = x + col_widths[0] + col_widths[1] + col_widths[2]
+        cell_w3 = col_widths[3]
+        center_x3 = cell_x3 + cell_w3 / 2
+        center_y3 = y - height / 2
+        canvas.drawCentredString(center_x3, center_y3, mes_actual)
+        # Código/Edición centrado en cada celda
+        cell_x4 = cuadro_x
+        cell_w4 = cuadro_w
+        for i, (txt, font) in enumerate([
+            ("Código", 'Helvetica-Bold'),
+            ("71-MT-43", 'Helvetica'),
+            ("Edición", 'Helvetica-Bold'),
+            ("4/Jul/2025", 'Helvetica')
+        ]):
+            canvas.setFont(font, 8)
+            center_x4 = cell_x4 + cell_w4 / 2
+            subcell_top = cuadro_y - row_h * i
+            subcell_bottom = cuadro_y - row_h * (i + 1)
+            center_y4 = (subcell_top + subcell_bottom) / 2 - 2
+            canvas.drawCentredString(center_x4, center_y4, txt)
         canvas.restoreState()
 
-    # --- Eliminar encabezado de elements y usar PageTemplate ---
-    # elements = [Spacer(1, 56)]  # Dejar espacio para el encabezado
-    # --- Tabla de datos ---
+    # --- Espacio para el encabezado ---
+    elements = [Spacer(1, 42)]
+
+    # --- Tabla de datos perfectamente alineada ---
     headers = ['N°', 'Fec./Hor. Inic.', 'Fec./Hor. Fin', 'Código', 'Ubicación', 'Tipo', 'Técnico', 'Actividad', 'Observaciones', 'Recibido por']
     data = [headers]
     for i, mtto in enumerate(mantenimientos, 1):
@@ -382,8 +417,8 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
             str(mtto.recibido_por) if mtto.recibido_por else ''
         ]
         data.append(row)
-    col_widths = [22, 75, 75, 45, 90, 55, 80, 120, 120, 70]  # Más ancho para fechas
-    table = Table(data, colWidths=col_widths, repeatRows=1)
+    col_widths = [23, 77, 75, 55, 95, 55, 70, 130, 120, 77]
+    table = Table(data, colWidths=col_widths, repeatRows=1, hAlign='LEFT')
     table_style = TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
