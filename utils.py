@@ -450,7 +450,7 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
     encabezado_height = 55  # Alto del encabezado reservado
     frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height, id='normal')
     doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=draw_encabezado)])
-    doc.build(elements, canvasmaker=lambda *args, **kwargs: NumberedCanvas(*args, doc=doc, **kwargs))
+    doc.build(elements)  # Usar canvas por defecto
     buffer.seek(0)
     return buffer
 
