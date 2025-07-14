@@ -440,14 +440,15 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
         ('ALIGN', (7, 1), (7, -1), 'LEFT'),    # Actividad
         ('ALIGN', (8, 1), (8, -1), 'LEFT'),    # Observaciones
         ('ALIGN', (9, 1), (9, -1), 'CENTER'),  # Recibido por
-        # ('MINROWHEIGHT', (0, 1), (-1, -1), 22),  # Eliminar altura mínima de fila
+        # ('MINROWHEIGHT', (0, 1), (-1, -1), 22),
     ])
     table.setStyle(table_style)
     elements.append(table)
 
     # --- Pie de página con paginación ---
     from reportlab.platypus import PageTemplate, Frame
-    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id='normal')
+    encabezado_height = 50  # Alto del encabezado reservado
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height, id='normal')
     doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=draw_encabezado)])
     doc.build(elements, canvasmaker=lambda *args, **kwargs: NumberedCanvas(*args, doc=doc, **kwargs))
     buffer.seek(0)
