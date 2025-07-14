@@ -306,6 +306,87 @@ def registrar_auditoria(modulo, accion, tabla=None, descripcion='', datos_anteri
     db.session.add(auditoria)
     db.session.commit() 
 
+def add_footer(canvas, doc):
+    """
+    Función para agregar pie de página con paginación.
+    """
+    canvas.saveState()
+    canvas.setFont('Helvetica', 8)
+    canvas.drawRightString(
+        doc.pagesize[0] - doc.rightMargin,
+        doc.bottomMargin / 2,
+        f"Página {canvas._pageNumber}"
+    )
+    canvas.restoreState()
+
+def draw_encabezado(canvas, doc):
+    canvas.saveState()
+    x = doc.leftMargin
+    y = doc.pagesize[1] - doc.topMargin
+    height = 48
+
+    # Anchos personalizados para el encabezado (suma = 771)
+    col_widths_header = [110, 180, 300, 120, 61]
+
+    # Dibuja el borde exterior
+    canvas.rect(x, y - height, sum(col_widths_header), height)
+
+    # Líneas verticales
+    for i in range(1, 5):
+        canvas.line(x + sum(col_widths_header[:i]), y - height, x + sum(col_widths_header[:i]), y)
+
+    # --- Contenido de cada bloque ---
+    # 1. Logo (columna 1)
+    logo_path = os.path.join(os.getcwd(), 'static', 'logo.png')
+    if os.path.exists(logo_path):
+        logo_w, logo_h = 55, 35
+        logo_x = x + (col_widths_header[0] / 2) - (logo_w / 2)
+        logo_y = y - (height / 2) - (logo_h / 2)
+        canvas.drawImage(logo_path, logo_x, logo_y, width=logo_w, height=logo_h, preserveAspectRatio=True, mask='auto')
+
+    # 2. Empresa (columna 2)
+    canvas.setFont('Helvetica-Bold', 11)
+    center_x = x + sum(col_widths_header[:1]) + col_widths_header[1] / 2
+    center_y = y - height / 2
+    canvas.drawCentredString(center_x, center_y + 6, "INR INVERSIONES")
+    canvas.drawCentredString(center_x, center_y - 8, "REINOSO Y CIA. LTDA.")
+
+    # 3. Título (columna 3)
+    canvas.setFont('Helvetica-Bold', 10)
+    center_x2 = x + sum(col_widths_header[:2]) + col_widths_header[2] / 2
+    canvas.drawCentredString(center_x2, center_y, "CONTROL DE ACTIVIDADES DE MANTENIMIENTO")
+
+    # 4. Mes (columna 4)
+    canvas.setFont('Helvetica-Bold', 13)
+    meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+    mes_actual = meses[datetime.now().month - 1]
+    center_x3 = x + sum(col_widths_header[:3]) + col_widths_header[3] / 2
+    canvas.drawCentredString(center_x3, center_y, mes_actual)
+
+    # 5. Código/Edición (columna 5)
+    cuadro_x = x + sum(col_widths_header[:4])
+    cuadro_w = col_widths_header[4]
+    row_h = height / 4
+    for i, (txt, font) in enumerate([
+        ("Código", 'Helvetica-Bold'),
+        ("71-MT-43", 'Helvetica'),
+        ("Edición", 'Helvetica-Bold'),
+        ("4/Jul/2025", 'Helvetica')
+    ]):
+        canvas.setFont(font, 8)
+        center_x4 = cuadro_x + cuadro_w / 2
+        sub_top = y - i * row_h
+        sub_bot = y - (i + 1) * row_h
+        center_y4 = (sub_top + sub_bot) / 2 - 2
+        canvas.drawCentredString(center_x4, center_y4, txt)
+
+    # Líneas horizontales internas del bloque derecho
+    for i in range(1, 4):
+        canvas.line(cuadro_x, y - i * row_h, cuadro_x + cuadro_w, y - i * row_h)
+
+    canvas.restoreState()
+
+
 def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Actividades de Mantenimiento", orientation='landscape', include_footer=True):
     buffer = BytesIO()
     if orientation == 'landscape':
@@ -318,85 +399,6 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
     elements = [Spacer(1, 42)]  # Dejar espacio para el encabezado
 
     # --- Encabezado dibujado con canvas perfectamente alineado ---
-    def draw_encabezado(canvas, doc):
-        canvas.saveState()
-        x = doc.leftMargin
-        y = doc.pagesize[1] - doc.topMargin
-        col_widths = [106, 210, 255, 120, 82]
-        height = 48
-        # Logo centrado
-        logo_path = os.path.join(os.getcwd(), 'static', 'logo.png')
-        logo_w, logo_h = 55, 35
-        logo_cx = x + col_widths[0] / 2
-        logo_cy = y - height / 2
-        if os.path.exists(logo_path):
-            canvas.drawImage(
-                logo_path,
-                logo_cx - logo_w / 2,
-                logo_cy - logo_h / 2,
-                width=logo_w,
-                height=logo_h,
-                preserveAspectRatio=True,
-                mask='auto'
-            )
-        # Cuadro derecho
-        cuadro_x = x + sum(col_widths[:-1])
-        cuadro_y = y
-        cuadro_w = col_widths[-1]
-        row_h = height / 4
-        # Borde exterior
-        canvas.rect(x, y - height, sum(col_widths), height)
-        # Líneas verticales
-        for i in range(1, 5):
-            canvas.line(x + sum(col_widths[:i]), y - height, x + sum(col_widths[:i]), y)
-        # Líneas horizontales internas cuadro derecho
-        for i in range(1, 4):
-            canvas.line(cuadro_x, cuadro_y - i * row_h, cuadro_x + cuadro_w, cuadro_y - i * row_h)
-        # INR INVERSIONES / REINOSO Y CIA. LTDA. centrado
-        canvas.setFont('Helvetica-Bold', 11)
-        cell_x = x + col_widths[0]
-        cell_w = col_widths[1]
-        cell_y = y
-        cell_h = height
-        text1 = "INR INVERSIONES"
-        text2 = "REINOSO Y CIA. LTDA."
-        center_x = cell_x + cell_w / 2
-        center_y = cell_y - cell_h / 2
-        canvas.drawCentredString(center_x, center_y + 6, text1)
-        canvas.drawCentredString(center_x, center_y - 8, text2)
-        # CONTROL DE ACTIVIDADES DE MANTENIMIENTO centrado
-        canvas.setFont('Helvetica-Bold', 10)
-        cell_x2 = x + col_widths[0] + col_widths[1]
-        cell_w2 = col_widths[2]
-        center_x2 = cell_x2 + cell_w2 / 2
-        center_y2 = y - height / 2
-        canvas.drawCentredString(center_x2, center_y2, "CONTROL DE ACTIVIDADES DE MANTENIMIENTO")
-        # Julio centrado
-        canvas.setFont('Helvetica-Bold', 13)
-        meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-        mes_actual = meses[datetime.now().month - 1]
-        cell_x3 = x + col_widths[0] + col_widths[1] + col_widths[2]
-        cell_w3 = col_widths[3]
-        center_x3 = cell_x3 + cell_w3 / 2
-        center_y3 = y - height / 2
-        canvas.drawCentredString(center_x3, center_y3, mes_actual)
-        # Código/Edición centrado en cada celda
-        cell_x4 = cuadro_x
-        cell_w4 = cuadro_w
-        for i, (txt, font) in enumerate([
-            ("Código", 'Helvetica-Bold'),
-            ("71-MT-43", 'Helvetica'),
-            ("Edición", 'Helvetica-Bold'),
-            ("4/Jul/2025", 'Helvetica')
-        ]):
-            canvas.setFont(font, 8)
-            center_x4 = cell_x4 + cell_w4 / 2
-            subcell_top = cuadro_y - row_h * i
-            subcell_bottom = cuadro_y - row_h * (i + 1)
-            center_y4 = (subcell_top + subcell_bottom) / 2 - 2
-            canvas.drawCentredString(center_x4, center_y4, txt)
-        canvas.restoreState()
-
     # --- Espacio para el encabezado ---
     elements = [Spacer(1, 42)]
 
@@ -417,7 +419,7 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
             str(mtto.recibido_por) if mtto.recibido_por else ''
         ]
         data.append(row)
-    col_widths = [23, 77, 75, 55, 95, 55, 70, 130, 120, 77]
+    col_widths = [30, 70, 70, 50, 102, 52, 68, 130, 120, 79]
     table = Table(data, colWidths=col_widths, repeatRows=1, hAlign='LEFT')
     table_style = TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),

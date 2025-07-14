@@ -340,6 +340,7 @@ def lista():
     fecha_inicio = request.args.get('fecha_inicio')
     fecha_fin = request.args.get('fecha_fin')
     equipo = request.args.get('equipo')
+    codigo_equipo = request.args.get('codigo_equipo')
     estado_inicial = request.args.get('estado_inicial')
     estado_inicial_multiple = request.args.get('estado_inicial_multiple')
     ubicacion = request.args.get('ubicacion')
@@ -368,6 +369,21 @@ def lista():
     # Filtro por equipo
     if equipo:
         query = query.filter(Programado.codigo == equipo)
+    
+    # Filtro por código de equipo (búsqueda parcial)
+    if codigo_equipo:
+        query = query.filter(Programado.codigo.ilike(f'%{codigo_equipo}%'))
+    
+    # Filtro por ubicación
+    if ubicacion:
+        # Buscar mantenimientos de equipos en la ubicación especificada
+        equipos_en_ubicacion = Equipo.query.filter(Equipo.ubicacion == ubicacion).with_entities(Equipo.codigo).all()
+        codigos_equipos = [e.codigo for e in equipos_en_ubicacion]
+        if codigos_equipos:
+            query = query.filter(Programado.codigo.in_(codigos_equipos))
+        else:
+            # Si no hay equipos en esa ubicación, no mostrar ningún mantenimiento
+            query = query.filter(Programado.codigo == '')
     # Filtro por estado múltiple
     if estado_inicial_multiple:
         estados_a_filtrar = [e.strip().lower() for e in estado_inicial_multiple.split(',')]
@@ -591,6 +607,7 @@ def lista():
         pagination=None,  # Si usas paginación, pásala aquí
         form_eliminar=form_eliminar,
         filtro_equipo=equipo, 
+        filtro_codigo_equipo=codigo_equipo,
         filtro_estado=estado_inicial, 
         filtro_ubicacion=ubicacion,
         filtro_fecha_inicio=fecha_inicio, 
@@ -608,7 +625,11 @@ def lista():
         estadisticas_estados=estadisticas_estados,
         mantenimientos_esta_semana=mantenimientos_esta_semana,
         mantenimientos_este_mes=mantenimientos_este_mes,
-        ids_proximos=ids_proximos
+        ids_proximos=ids_proximos,
+        equipos=equipos,
+        ubicaciones=ubicaciones,
+        tecnicos=tecnicos,
+        tipos_mantenimiento=tipos_mantenimiento
     )
 
 def registrar_cambio(mantenimiento, usuario, campo, valor_anterior, valor_nuevo, accion):
@@ -1085,6 +1106,8 @@ def imprimir_todos():
     fecha_inicio = request.args.get('fecha_inicio')
     fecha_fin = request.args.get('fecha_fin')
     equipo = request.args.get('equipo')
+    codigo_equipo = request.args.get('codigo_equipo')
+    ubicacion = request.args.get('ubicacion')
     estado = request.args.get('estado')
     tipo_mantenimiento = request.args.get('tipo_mantenimiento')
     
@@ -1099,6 +1122,15 @@ def imprimir_todos():
         query = query.filter(Programado.fecha_prog <= datetime.strptime(fecha_fin, '%Y-%m-%d'))
     if equipo:
         query = query.filter(Programado.codigo == equipo)
+    if codigo_equipo:
+        query = query.filter(Programado.codigo.ilike(f'%{codigo_equipo}%'))
+    if ubicacion:
+        equipos_en_ubicacion = Equipo.query.filter(Equipo.ubicacion == ubicacion).with_entities(Equipo.codigo).all()
+        codigos_equipos = [e.codigo for e in equipos_en_ubicacion]
+        if codigos_equipos:
+            query = query.filter(Programado.codigo.in_(codigos_equipos))
+        else:
+            query = query.filter(Programado.codigo == '')
     if estado:
         query = query.filter(func.lower(func.trim(Programado.estado_inicial)) == estado.lower())
     if tipo_mantenimiento:
@@ -1127,6 +1159,8 @@ def descargar_todos():
     fecha_inicio = request.args.get('fecha_inicio')
     fecha_fin = request.args.get('fecha_fin')
     equipo = request.args.get('equipo')
+    codigo_equipo = request.args.get('codigo_equipo')
+    ubicacion = request.args.get('ubicacion')
     estado = request.args.get('estado')
     tipo_mantenimiento = request.args.get('tipo_mantenimiento')
     
@@ -1141,6 +1175,15 @@ def descargar_todos():
         query = query.filter(Programado.fecha_prog <= datetime.strptime(fecha_fin, '%Y-%m-%d'))
     if equipo:
         query = query.filter(Programado.codigo == equipo)
+    if codigo_equipo:
+        query = query.filter(Programado.codigo.ilike(f'%{codigo_equipo}%'))
+    if ubicacion:
+        equipos_en_ubicacion = Equipo.query.filter(Equipo.ubicacion == ubicacion).with_entities(Equipo.codigo).all()
+        codigos_equipos = [e.codigo for e in equipos_en_ubicacion]
+        if codigos_equipos:
+            query = query.filter(Programado.codigo.in_(codigos_equipos))
+        else:
+            query = query.filter(Programado.codigo == '')
     if estado:
         query = query.filter(func.lower(func.trim(Programado.estado_inicial)) == estado.lower())
     if tipo_mantenimiento:
@@ -1468,6 +1511,8 @@ def descargar_informe_excel():
     fecha_inicio = request.args.get('fecha_inicio')
     fecha_fin = request.args.get('fecha_fin')
     equipo = request.args.get('equipo')
+    codigo_equipo = request.args.get('codigo_equipo')
+    ubicacion = request.args.get('ubicacion')
     estado = request.args.get('estado')
     tipo_mantenimiento = request.args.get('tipo_mantenimiento')
     
@@ -1482,6 +1527,15 @@ def descargar_informe_excel():
         query = query.filter(Programado.fecha_prog <= datetime.strptime(fecha_fin, '%Y-%m-%d'))
     if equipo:
         query = query.filter(Programado.codigo == equipo)
+    if codigo_equipo:
+        query = query.filter(Programado.codigo.ilike(f'%{codigo_equipo}%'))
+    if ubicacion:
+        equipos_en_ubicacion = Equipo.query.filter(Equipo.ubicacion == ubicacion).with_entities(Equipo.codigo).all()
+        codigos_equipos = [e.codigo for e in equipos_en_ubicacion]
+        if codigos_equipos:
+            query = query.filter(Programado.codigo.in_(codigos_equipos))
+        else:
+            query = query.filter(Programado.codigo == '')
     if estado:
         query = query.filter(func.lower(func.trim(Programado.estado_inicial)) == estado.lower())
     if tipo_mantenimiento:
