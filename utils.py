@@ -323,10 +323,10 @@ def draw_encabezado(canvas, doc):
     canvas.saveState()
     x = doc.leftMargin
     y = doc.pagesize[1] - doc.topMargin
-    height = 48
+    height = 55  # Igual que encabezado_height
 
-    # Anchos personalizados para el encabezado (suma = 779)
-    col_widths_header = [105, 222, 251, 120, 79]
+    # Anchos personalizados para el encabezado (suma = 764)
+    col_widths_header = [98, 222, 244, 120, 80]  # Ajusta para que sumen 764
 
     # Dibuja el borde exterior
     canvas.rect(x, y - height, sum(col_widths_header), height)
@@ -396,7 +396,7 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
 
     doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=20*mm, bottomMargin=15*mm)
     styles = getSampleStyleSheet()
-    elements = []
+    elements = []  # No agregar Spacer ni encabezado aquí
 
     # --- Tabla de datos perfectamente alineada ---
     headers = ['N°', 'Fec./Hor. Inic.', 'Fec./Hor. Fin', 'Código', 'Ubicación', 'Tipo', 'Técnico', 'Actividad', 'Observaciones', 'Recibido por']
@@ -415,7 +415,7 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
             str(mtto.recibido_por) if mtto.recibido_por else ''
         ]
         data.append(row)
-    col_widths = [30, 70, 70, 50, 102, 52, 68, 130, 120, 79]
+    col_widths = [24, 68, 68, 50, 104, 52, 67, 125, 120, 80]
     table = Table(data, colWidths=col_widths, repeatRows=1, hAlign='LEFT')
     table_style = TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
@@ -445,12 +445,12 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
     table.setStyle(table_style)
     elements.append(table)
 
-    # --- Pie de página con paginación ---
+    # --- Pie de página con paginación y encabezado ---
     from reportlab.platypus import PageTemplate, Frame
-    encabezado_height = 55  # Alto del encabezado reservado
+    encabezado_height = 55  # Igual que height en draw_encabezado
     frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height, id='normal')
     doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=draw_encabezado)])
-    doc.build(elements)  # Usar canvas por defecto
+    doc.build(elements, canvasmaker=lambda *args, **kwargs: NumberedCanvas(*args, doc=doc, **kwargs))
     buffer.seek(0)
     return buffer
 
