@@ -398,10 +398,6 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
     styles = getSampleStyleSheet()
     elements = [Spacer(1, 42)]  # Dejar espacio para el encabezado
 
-    # --- Encabezado dibujado con canvas perfectamente alineado ---
-    # --- Espacio para el encabezado ---
-    elements = [Spacer(1, 42)]
-
     # --- Tabla de datos perfectamente alineada ---
     headers = ['N°', 'Fec./Hor. Inic.', 'Fec./Hor. Fin', 'Código', 'Ubicación', 'Tipo', 'Técnico', 'Actividad', 'Observaciones', 'Recibido por']
     data = [headers]
