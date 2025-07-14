@@ -1147,7 +1147,7 @@ def imprimir_todos():
         query = query.filter(Programado.fecha_prog >= datetime(year, month, 1))
         query = query.filter(Programado.fecha_prog <= datetime(year, month + 1, 1) - timedelta(days=1))
     
-    mantenimientos = query.all()
+    mantenimientos = query.distinct().all()
     
     # Convertir usernames a nombres para mostrar en la plantilla
     for mtto in mantenimientos:
@@ -1212,7 +1212,7 @@ def descargar_todos():
         query = query.filter(Programado.fecha_prog >= datetime(year, month, 1))
         query = query.filter(Programado.fecha_prog <= datetime(year, month + 1, 1) - timedelta(days=1))
     
-    mantenimientos = query.all()
+    mantenimientos = query.distinct().all()
     
     # Convertir usernames a nombres para mostrar en la plantilla
     for mtto in mantenimientos:
@@ -1576,7 +1576,7 @@ def descargar_informe_excel():
         query = query.filter(Programado.fecha_prog >= datetime(year, month, 1))
         query = query.filter(Programado.fecha_prog <= datetime(year, month + 1, 1) - timedelta(days=1))
     
-    mantenimientos = query.all()
+    mantenimientos = query.distinct().all()
     
     # Convertir usernames a nombres para mostrar en la plantilla
     for mtto in mantenimientos:
