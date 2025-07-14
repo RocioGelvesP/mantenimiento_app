@@ -1075,6 +1075,18 @@
                             </div>
                         </div>
                         <div class="col-md-2">
+                            <label for="ubicacion_filtro" class="form-label" style="font-size: 0.7rem;">Ubicación</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                <select class="form-select" id="ubicacion_filtro" name="ubicacion">
+                                    <option value="">Todas las ubicaciones</option>
+                                    {% for ubicacion in ubicaciones %}
+                                    <option value="{{ ubicacion }}" {% if ubicacion == filtro_ubicacion %}selected{% endif %}>{{ ubicacion }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
                             <label for="equipo_filtro" class="form-label" style="font-size: 0.7rem;">Equipo</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-cogs"></i></span>
@@ -1086,7 +1098,7 @@
                             </select>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                         <label for="tecnico_filtro" class="form-label" style="font-size: 0.7rem;">Técnico</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-user"></i></span>
@@ -1099,7 +1111,7 @@
                             </div>
                         </div>
                         
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label for="tipo_mantenimiento_filtro" class="form-label" style="font-size: 0.7rem;">Tipo de Mantenimiento</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-tools"></i></span>
@@ -1165,7 +1177,7 @@
                                                 <strong>{{ mantenimiento.nombre }}</strong>
                                                 {% if mantenimiento.ubicacion %}
                                                     <br><small class="text-muted">{{ mantenimiento.ubicacion }}</small>
-                            {% endif %}
+                                                {% endif %}
                                             </div>
                                         </td>
                                         <td>
