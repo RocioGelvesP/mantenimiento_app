@@ -447,7 +447,7 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
 
     # --- Pie de página con paginación ---
     from reportlab.platypus import PageTemplate, Frame
-    encabezado_height = 50  # Alto del encabezado reservado
+    encabezado_height = 55  # Alto del encabezado reservado
     frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height, id='normal')
     doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=draw_encabezado)])
     doc.build(elements, canvasmaker=lambda *args, **kwargs: NumberedCanvas(*args, doc=doc, **kwargs))
