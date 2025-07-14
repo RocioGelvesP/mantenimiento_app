@@ -1108,7 +1108,7 @@ def imprimir_todos():
     equipo = request.args.get('equipo')
     codigo_equipo = request.args.get('codigo_equipo')
     ubicacion = request.args.get('ubicacion')
-    estado = request.args.get('estado')
+    estado = request.args.get('estado_inicial')
     tipo_mantenimiento = request.args.get('tipo_mantenimiento')
     
     # Obtener consulta base filtrada por rol
@@ -1135,6 +1135,18 @@ def imprimir_todos():
         query = query.filter(func.lower(func.trim(Programado.estado_inicial)) == estado.lower())
     if tipo_mantenimiento:
         query = query.filter(Programado.tipo_mantenimiento == tipo_mantenimiento)
+    
+    # Filtro por técnico
+    tecnico = request.args.get('tecnico')
+    if tecnico:
+        query = query.filter(Programado.tecnico_asignado == tecnico)
+    
+    # Filtro por mes
+    month = request.args.get('month', type=int)
+    if month:
+        query = query.filter(Programado.fecha_prog >= datetime(year, month, 1))
+        query = query.filter(Programado.fecha_prog <= datetime(year, month + 1, 1) - timedelta(days=1))
+    
     mantenimientos = query.all()
     
     # Convertir usernames a nombres para mostrar en la plantilla
@@ -1161,7 +1173,7 @@ def descargar_todos():
     equipo = request.args.get('equipo')
     codigo_equipo = request.args.get('codigo_equipo')
     ubicacion = request.args.get('ubicacion')
-    estado = request.args.get('estado')
+    estado = request.args.get('estado_inicial')
     tipo_mantenimiento = request.args.get('tipo_mantenimiento')
     
     # Obtener consulta base filtrada por rol
@@ -1188,6 +1200,18 @@ def descargar_todos():
         query = query.filter(func.lower(func.trim(Programado.estado_inicial)) == estado.lower())
     if tipo_mantenimiento:
         query = query.filter(Programado.tipo_mantenimiento == tipo_mantenimiento)
+    
+    # Filtro por técnico
+    tecnico = request.args.get('tecnico')
+    if tecnico:
+        query = query.filter(Programado.tecnico_asignado == tecnico)
+    
+    # Filtro por mes
+    month = request.args.get('month', type=int)
+    if month:
+        query = query.filter(Programado.fecha_prog >= datetime(year, month, 1))
+        query = query.filter(Programado.fecha_prog <= datetime(year, month + 1, 1) - timedelta(days=1))
+    
     mantenimientos = query.all()
     
     # Convertir usernames a nombres para mostrar en la plantilla
@@ -1513,7 +1537,7 @@ def descargar_informe_excel():
     equipo = request.args.get('equipo')
     codigo_equipo = request.args.get('codigo_equipo')
     ubicacion = request.args.get('ubicacion')
-    estado = request.args.get('estado')
+    estado = request.args.get('estado_inicial')
     tipo_mantenimiento = request.args.get('tipo_mantenimiento')
     
     # Obtener consulta base filtrada por rol
@@ -1540,6 +1564,17 @@ def descargar_informe_excel():
         query = query.filter(func.lower(func.trim(Programado.estado_inicial)) == estado.lower())
     if tipo_mantenimiento:
         query = query.filter(Programado.tipo_mantenimiento == tipo_mantenimiento)
+    
+    # Filtro por técnico
+    tecnico = request.args.get('tecnico')
+    if tecnico:
+        query = query.filter(Programado.tecnico_asignado == tecnico)
+    
+    # Filtro por mes
+    month = request.args.get('month', type=int)
+    if month:
+        query = query.filter(Programado.fecha_prog >= datetime(year, month, 1))
+        query = query.filter(Programado.fecha_prog <= datetime(year, month + 1, 1) - timedelta(days=1))
     
     mantenimientos = query.all()
     
