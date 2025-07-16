@@ -425,8 +425,7 @@ def agregar_total_paginas(input_pdf_path, output_pdf_path, pagesize):
 
 # USO:
 # 1. Genera el PDF con el marcador (por ejemplo, usando BytesIO y guardando en un archivo temporal)
-# 2. Llama a agregar_total_paginas('temp.pdf', 'final.pdf', pagesize=landscape(A4) o A4)
-# 3. El archivo 'final.pdf' tendrá la paginación correcta 'Página X de Y'
+# 2. Llama a agregar_total_paginas para crear el PDF final con la paginación correcta
 
 
 def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Actividades de Mantenimiento", orientation='landscape', include_footer=True):
@@ -495,6 +494,11 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
     doc.build(elements)
     buffer.seek(0)
     return buffer
+
+# --- NUEVA FUNCIÓN PARA ENCABEZADO Y PIE DE PÁGINA ---
+def encabezado_y_footer(canvas, doc):
+    draw_encabezado(canvas, doc)
+    add_footer(canvas, doc)
 
 def create_reportlab_pdf_maintenance_detail(mantenimiento, title="Control de Actividades de Mantenimiento"):
     """
@@ -570,8 +574,7 @@ def create_reportlab_pdf_maintenance_detail(mantenimiento, title="Control de Act
     elements.append(info_table)
     
     # Construir el documento
-    doc.build(elements, onFirstPage=lambda canvas, doc: add_footer(canvas, doc),
-              onLaterPages=lambda canvas, doc: add_footer(canvas, doc))
+    doc.build(elements, onFirstPage=encabezado_y_footer, onLaterPages=encabezado_y_footer)
     
     buffer.seek(0)
     return buffer 
@@ -664,8 +667,7 @@ def create_reportlab_pdf_historial(historial, mantenimiento_id, title="Historial
         elements.append(table)
     
     # Construir el documento
-    doc.build(elements, onFirstPage=lambda canvas, doc: add_footer(canvas, doc),
-              onLaterPages=lambda canvas, doc: add_footer(canvas, doc))
+    doc.build(elements, onFirstPage=encabezado_y_footer, onLaterPages=encabezado_y_footer)
     
     buffer.seek(0)
     return buffer 
@@ -795,8 +797,7 @@ def create_reportlab_pdf_equipment_life_sheet(equipo, mantenimientos, title="Hoj
         elements.append(Paragraph("No hay mantenimientos realizados registrados.", styles['Normal']))
     
     # Construir el documento
-    doc.build(elements, onFirstPage=lambda canvas, doc: add_footer(canvas, doc),
-              onLaterPages=lambda canvas, doc: add_footer(canvas, doc))
+    doc.build(elements, onFirstPage=encabezado_y_footer, onLaterPages=encabezado_y_footer)
     
     buffer.seek(0)
     return buffer
@@ -1016,8 +1017,7 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="Ficha
         elements.append(Paragraph(str(equipo.observaciones), styles['Normal']))
     
     # Construir el documento
-    doc.build(elements, onFirstPage=lambda canvas, doc: add_footer(canvas, doc),
-              onLaterPages=lambda canvas, doc: add_footer(canvas, doc))
+    doc.build(elements, onFirstPage=encabezado_y_footer, onLaterPages=encabezado_y_footer)
     
     buffer.seek(0)
     return buffer 
@@ -1154,8 +1154,7 @@ def create_reportlab_pdf_lubrication_sheet(equipo, lubricaciones, title="Carta d
         elements.append(Paragraph("No hay cartas de lubricación registradas para este equipo.", styles['Normal']))
     
     # Construir el documento
-    doc.build(elements, onFirstPage=lambda canvas, doc: add_footer(canvas, doc),
-              onLaterPages=lambda canvas, doc: add_footer(canvas, doc))
+    doc.build(elements, onFirstPage=encabezado_y_footer, onLaterPages=encabezado_y_footer)
     
     buffer.seek(0)
     return buffer 
