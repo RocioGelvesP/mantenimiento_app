@@ -411,7 +411,7 @@ def draw_encabezado_ficha_tecnica(canvas, doc):
     if os.path.exists(logo_path):
         logo_x = x + (col_widths[0] / 2) - 25
         logo_y = y - height/2 - 20
-        canvas.drawImage(logo_path, logo_x, logo_y, width=50, height=40, preserveAspectRatio=True, mask='auto')
+        canvas.drawImage(logo_path, logo_x, logo_y, width=50, height=40, mask='auto')
 
     # Columna 2: Texto de empresa
     canvas.setFont('Helvetica-Bold', 10)
@@ -863,17 +863,41 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     # Imagen del equipo - Usar el campo imagen del equipo
     if equipo.imagen:
         try:
-            imagen_path = os.path.join(os.getcwd(), 'static', equipo.imagen)
+            # Construir la ruta correcta para la imagen
+            if equipo.imagen.startswith('uploads/'):
+                imagen_path = os.path.join(os.getcwd(), 'static', equipo.imagen)
+            else:
+                imagen_path = os.path.join(os.getcwd(), 'static', 'uploads', equipo.imagen)
+            print(f"Buscando imagen en: {imagen_path}")
             if os.path.exists(imagen_path):
-                print(f"Imagen encontrada: {imagen_path}")
-                img = Image(imagen_path, width=200, height=150, preserveAspectRatio=True)
+                print(f"✅ Imagen encontrada: {imagen_path}")
+                # Crear la imagen con ancho máximo igual al de la tabla (doc.width)
+                max_width = doc.width
+                max_height = 180  # Altura máxima sugerida
+                img = Image(imagen_path)
+                img._restrictSize(max_width, max_height)
                 img.hAlign = 'CENTER'
-                elements.append(img)
+                # Crear tabla de una celda para centrar la imagen y que ocupe todo el ancho
+                img_table = Table([[img]], colWidths=[max_width])
+                img_table.setStyle(TableStyle([
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                    ('BOX', (0, 0), (-1, -1), 1, colors.black),
+                    ('TOPPADDING', (0, 0), (-1, -1), 8),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+                ]))
+                elements.append(img_table)
                 elements.append(Spacer(1, 10))
             else:
-                print(f"No se encontró la imagen en: {imagen_path}")
+                print(f"❌ No se encontró la imagen en: {imagen_path}")
+                static_uploads = os.path.join(os.getcwd(), 'static', 'uploads')
+                if os.path.exists(static_uploads):
+                    archivos = os.listdir(static_uploads)
+                    archivos_similares = [f for f in archivos if equipo.codigo in f]
+                    if archivos_similares:
+                        print(f"🔍 Archivos similares encontrados en uploads/: {archivos_similares}")
         except Exception as e:
-            print(f"Error al cargar imagen: {e}")
+            print(f"❌ Error al cargar imagen: {e}")
     else:
         print("El equipo no tiene imagen asignada")
     
