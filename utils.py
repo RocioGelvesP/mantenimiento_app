@@ -918,14 +918,14 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     general_table = Table(general_data, colWidths=[doc.width/4, doc.width/4, doc.width/4, doc.width/4])
     general_style = TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),           # Todo centrado
-        ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),  # Primera fila (etiquetas) en negrita
-        ('FONTSIZE', (0, 0), (0, 0), 9),
-        ('FONTNAME', (1, 0), (1, 0), 'Helvetica-Bold'),       # Segunda fila (valores) en texto normal
-        ('FONTSIZE', (1, 0), (1, 0), 9),
-        ('FONTNAME', (2, 0), (2, 0), 'Helvetica-Bold'),  # Tercera fila (etiquetas) en negrita
-        ('FONTSIZE', (2, 0), (2, 0), 9),
-        ('FONTNAME', (3, 0), (3, 0), 'Helvetica-Bold'),       # Cuarta fila (valores) en texto normal
-        ('FONTSIZE', (3, 0), (3, 0), 9),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Primera fila (etiquetas) en negrita
+        ('FONTSIZE', (0, 0), (-1, 0), 8),
+        ('FONTNAME', (0, 1), (-1, 1), 'Helvetica'),       # Segunda fila (valores) en texto normal
+        ('FONTSIZE', (0, 1), (-1, 1), 8),
+        ('FONTNAME', (0, 2), (-1, 2), 'Helvetica-Bold'),  # Tercera fila (etiquetas) en negrita
+        ('FONTSIZE', (0, 2), (-1, 2), 8),
+        ('FONTNAME', (0, 3), (-1, 3), 'Helvetica'),       # Cuarta fila (valores) en texto normal
+        ('FONTSIZE', (0, 3), (-1, 3), 8),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
@@ -950,10 +950,10 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     dim_table = Table(dimensiones_data, colWidths=[doc.width/4, doc.width/4, doc.width/4, doc.width/4])
     dim_style = TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),           # Todo centrado
-        ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),  # Primera fila (etiquetas) en negrita
-        ('FONTSIZE', (0, 0), (0, 0), 9),
-        ('FONTNAME', (1, 0), (1, 0), 'Helvetica'),       # Segunda fila (valores) en texto normal
-        ('FONTSIZE', (1, 0), (1, 0), 9),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'), # Primera fila (títulos) en negrita
+        ('FONTSIZE', (0, 0), (-1, 0), 8),
+        ('FONTNAME', (0, 1), (-1, 1), 'Helvetica'),      # Segunda fila (valores) en texto normal
+        ('FONTSIZE', (0, 1), (-1, 1), 8),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
@@ -978,10 +978,10 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     energia_table = Table(energia_data, colWidths=[doc.width/4, doc.width/4, doc.width/4, doc.width/4])
     energia_style = TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),           # Todo centrado
-        ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),  # Primera fila (etiquetas) en negrita
-        ('FONTSIZE', (0, 0), (0, 0), 9),
-        ('FONTNAME', (1, 0), (1, 0), 'Helvetica'),       # Segunda fila (valores) en texto normal
-        ('FONTSIZE', (1, 0), (1, 0), 9),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'), # Primera fila (títulos) en negrita
+        ('FONTSIZE', (0, 0), (-1, 0), 8),
+        ('FONTNAME', (0, 1), (-1, 1), 'Helvetica'),      # Segunda fila (valores) en texto normal
+        ('FONTSIZE', (0, 1), (-1, 1), 8),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
@@ -1020,8 +1020,9 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         motores_table = Table(motores_data, repeatRows=1)
         motores_style = TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'), # Primera fila (títulos) en negrita
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),     # Resto de filas en texto normal
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('LEFTPADDING', (0, 0), (-1, -1), 4),
@@ -1046,10 +1047,10 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     consumo_table = Table(consumo_data, colWidths=[doc.width/3, doc.width/3, doc.width/3])
     consumo_style = TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),           # Todo centrado
-        ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),  # Primera fila (etiquetas) en negrita
-        ('FONTSIZE', (0, 0), (0, 0), 9),
-        ('FONTNAME', (1, 0), (1, 0), 'Helvetica'),       # Segunda fila (valores) en texto normal
-        ('FONTSIZE', (1, 0), (1, 0), 9),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'), # Primera fila (títulos) en negrita
+        ('FONTSIZE', (0, 0), (-1, 0), 8),
+        ('FONTNAME', (0, 1), (-1, 1), 'Helvetica'),      # Segunda fila (valores) en texto normal
+        ('FONTSIZE', (0, 1), (-1, 1), 8),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
@@ -1066,8 +1067,9 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     repuestos_table = Table(repuestos_data, colWidths=[100, 300])
     repuestos_style = TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),  # Primera columna (título) en negrita
+        ('FONTNAME', (1, 0), (1, 0), 'Helvetica'),       # Segunda columna (valor) en texto normal
+        ('FONTSIZE', (0, 0), (-1, -1), 8),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
@@ -1121,11 +1123,11 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     checklist_table = Table(checklist_data, colWidths=[doc.width/5, doc.width/5, doc.width/5, doc.width/5, doc.width/5])
     checklist_style = TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),           # Todo centrado
-        ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),  # Primera fila (etiquetas) en negrita
-        ('FONTNAME', (1, 0), (1, 0), 'Helvetica'),       # Segunda fila (valores) en texto normal
-        ('FONTNAME', (2, 0), (2, 0), 'Helvetica-Bold'),  # Tercera fila (etiquetas) en negrita
-        ('FONTNAME', (3, 0), (3, 0), 'Helvetica'),       # Cuarta fila (valores) en texto normal
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'), # Primera fila (títulos) en negrita
+        ('FONTNAME', (0, 1), (-1, 1), 'Helvetica'),      # Segunda fila (valores) en texto normal
+        ('FONTNAME', (0, 2), (-1, 2), 'Helvetica-Bold'), # Tercera fila (títulos) en negrita
+        ('FONTNAME', (0, 3), (-1, 3), 'Helvetica'),      # Cuarta fila (valores) en texto normal
+        ('FONTSIZE', (0, 0), (-1, -1), 8),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
@@ -1152,9 +1154,9 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     manuales_table = Table(manuales_data, colWidths=[doc.width/4, doc.width/4, doc.width/4, doc.width/4])
     manuales_style = TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),           # Todo centrado
-        ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),  # Primera fila (etiquetas) en negrita
-        ('FONTNAME', (1, 0), (1, 0), 'Helvetica'),       # Segunda fila (valores) en texto normal
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'), # Primera fila (títulos) en negrita
+        ('FONTNAME', (0, 1), (-1, 1), 'Helvetica'),      # Segunda fila (valores) en texto normal
+        ('FONTSIZE', (0, 0), (-1, -1), 8),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
