@@ -447,7 +447,11 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
 
     doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=20*mm, bottomMargin=30*mm)
     styles = getSampleStyleSheet()
-    elements = []  # No agregar Spacer ni encabezado aquí
+    elements = []
+
+    # --- Reservar espacio para el encabezado en todas las páginas usando Spacer ---
+    encabezado_height = 120  # Altura del encabezado
+    elements.append(Spacer(1, encabezado_height))
 
     # --- Tabla de datos perfectamente alineada ---
     headers = ['N°', 'Fec./Hor. Inic.', 'Fec./Hor. Fin', 'Código', 'Ubicación', 'Tipo', 'Técnico', 'Actividad', 'Observaciones', 'Recibido por']
@@ -496,17 +500,6 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
     table.setStyle(table_style)
     elements.append(table)
 
-    # --- Reservar espacio para el encabezado en todas las páginas ---
-    encabezado_height = 120  # Más espacio para asegurar que la tabla nunca invada el encabezado
-    from reportlab.platypus import PageTemplate, Frame
-    frame = Frame(
-        doc.leftMargin,
-        doc.bottomMargin,
-        doc.width,
-        doc.height - encabezado_height,
-        id='normal'
-    )
-    doc.addPageTemplates([PageTemplate(id='all', frames=frame)])
     doc.build(elements)
     buffer.seek(0)
     return buffer
