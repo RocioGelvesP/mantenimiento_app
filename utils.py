@@ -822,9 +822,9 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="Ficha
     elements.append(Paragraph("Información Energética", section_style))
     
     energia_data = [
-        ['Tipo de Energía', 'Corriente', 'Potencia Instalada', 'Voltaje'],
+        ['Tipo de Energía', 'Corriente', 'Potencia', 'Voltaje'],
         [str(equipo.tipo_energia) if equipo.tipo_energia else '', str(equipo.corriente) if equipo.corriente else '',
-         str(equipo.potencia_instalada) if equipo.potencia_instalada else '', str(equipo.voltaje) if equipo.voltaje else '']
+         str(equipo.potencia) if equipo.potencia else '', str(equipo.voltaje) if equipo.voltaje else '']
     ]
     
     energia_table = Table(energia_data, repeatRows=1)
@@ -884,9 +884,9 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="Ficha
     
     consumo_data = [
         ['Tipo Refrigerante', 'Tipo Lubricante', 'Tipo Combustible'],
-        [str(equipo.tipo_refrigerante) if equipo.tipo_refrigerante else '',
-         str(equipo.tipo_lubricante) if equipo.tipo_lubricante else '',
-         str(equipo.tipo_combustible) if equipo.tipo_combustible else '']
+        [str(equipo.tipo_refrig) if equipo.tipo_refrig else '',
+         str(equipo.tipo_lub) if equipo.tipo_lub else '',
+         str(equipo.tipo_comb) if equipo.tipo_comb else '']
     ]
     
     consumo_table = Table(consumo_data, repeatRows=1)
