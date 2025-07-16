@@ -496,7 +496,17 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
     table.setStyle(table_style)
     elements.append(table)
 
-    # --- Ya NO se agrega PageTemplate ni frame especial ---
+    # --- Reservar espacio para el encabezado en todas las páginas ---
+    encabezado_height = 80  # Ajusta según el alto real de tu encabezado
+    from reportlab.platypus import PageTemplate, Frame
+    frame = Frame(
+        doc.leftMargin,
+        doc.bottomMargin,
+        doc.width,
+        doc.height - encabezado_height,
+        id='normal'
+    )
+    doc.addPageTemplates([PageTemplate(id='all', frames=frame)])
     doc.build(elements)
     buffer.seek(0)
     return buffer
