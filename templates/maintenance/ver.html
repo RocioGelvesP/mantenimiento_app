@@ -434,6 +434,12 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
+                                    <label class="form-label"><i class="fas fa-user me-1"></i> Recibido Por</label>
+                                    <input type="text" class="form-control readonly-field" value="{{ mantenimiento.tecnico_realizador or 'No asignado' }}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
                                     <label class="form-label"><i class="fas fa-hourglass-start me-1"></i> Hora Inicial</label>
                                     <input type="text" class="form-control readonly-field" value="{{ mantenimiento.hora_inicial.strftime('%H:%M') if mantenimiento.hora_inicial else 'No registrada' }}" readonly>
                                 </div>
