@@ -306,13 +306,15 @@ def registrar_auditoria(modulo, accion, tabla=None, descripcion='', datos_anteri
 
 def add_footer(canvas, doc):
     """
-    Función para agregar pie de página con paginación.
+    Función para agregar pie de página con paginación "Página X de Y".
     """
     canvas.saveState()
     canvas.setFont('Helvetica', 8)
-    canvas.drawRightString(
-        doc.pagesize[0] - doc.rightMargin,
-        doc.bottomMargin / 2,
+    
+    # Dibujar la paginación centrada
+    canvas.drawCentredString(
+        doc.pagesize[0] / 2,  # Centro de la página
+        doc.bottomMargin / 2,  # Cerca del borde inferior
         f"Página {canvas._pageNumber}"
     )
     canvas.restoreState()
@@ -438,18 +440,16 @@ def agregar_total_paginas(input_pdf_path, output_pdf_path, pagesize):
 # 2. Llama a agregar_total_paginas para crear el PDF final con la paginación correcta
 
 
+# --- LISTA DE MANTENIMIENTOS ---
 def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Actividades de Mantenimiento", orientation='landscape', include_footer=True):
     buffer = BytesIO()
     if orientation == 'landscape':
         pagesize = landscape(A4)
     else:
         pagesize = A4
-
     doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=20*mm, bottomMargin=30*mm)
     styles = getSampleStyleSheet()
     elements = []
-
-    # --- Tabla de datos perfectamente alineada ---
     headers = ['N°', 'Fec./Hor. Inic.', 'Fec./Hor. Fin', 'Código', 'Ubicación', 'Tipo', 'Técnico', 'Actividad', 'Observaciones', 'Recibido por']
     data = [headers]
     for i, mtto in enumerate(mantenimientos, 1):
@@ -471,7 +471,7 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
     table_style = TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),  # Encabezados centrados
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, 0), 9),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
@@ -485,66 +485,32 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
         ('RIGHTPADDING', (0, 0), (-1, -1), 2),
         ('TOPPADDING', (0, 0), (-1, -1), 4),
         ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
-        # Alineación de columnas específicas
-        ('ALIGN', (0, 1), (2, -1), 'CENTER'),  # N°, Fechas
-        ('ALIGN', (3, 1), (6, -1), 'CENTER'),  # Código, Ubicación, Tipo, Técnico
-        ('ALIGN', (7, 1), (7, -1), 'LEFT'),    # Actividad
-        ('ALIGN', (8, 1), (8, -1), 'LEFT'),    # Observaciones
-        ('ALIGN', (9, 1), (9, -1), 'CENTER'),  # Recibido por
-        # ('MINROWHEIGHT', (0, 1), (-1, -1), 22),
+        ('ALIGN', (0, 1), (2, -1), 'CENTER'),
+        ('ALIGN', (3, 1), (6, -1), 'CENTER'),
+        ('ALIGN', (7, 1), (7, -1), 'LEFT'),
+        ('ALIGN', (8, 1), (8, -1), 'LEFT'),
+        ('ALIGN', (9, 1), (9, -1), 'CENTER'),
     ])
     table.setStyle(table_style)
     elements.append(table)
-
-    # --- Usar PageTemplate con onPage=draw_encabezado y canvas=NumberedCanvas ---
     from reportlab.platypus import PageTemplate, Frame
-    encabezado_height = 55  # Debe coincidir con el alto real del encabezado
+    encabezado_height = 55
     frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height, id='normal')
-    doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=draw_encabezado)])
-    doc.build(elements, canvasmaker=NumberedCanvas)
+    doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=encabezado_y_footer)])
+    doc.build(elements)
     buffer.seek(0)
     return buffer
 
-# --- NUEVA FUNCIÓN PARA ENCABEZADO Y PIE DE PÁGINA ---
-def encabezado_y_footer(canvas, doc):
-    draw_encabezado(canvas, doc)
-    add_footer(canvas, doc)
-
+# --- DETALLE DE MANTENIMIENTO ---
 def create_reportlab_pdf_maintenance_detail(mantenimiento, title="Control de Actividades de Mantenimiento"):
-    """
-    Crea un PDF detallado de un mantenimiento específico usando ReportLab.
-    
-    Args:
-        mantenimiento: Objeto Programado
-        title: Título del reporte
-    
-    Returns:
-        BytesIO object con el PDF
-    """
     buffer = BytesIO()
     pagesize = landscape(A4)
-    
-    doc = SimpleDocTemplate(buffer, pagesize=pagesize, 
-                           rightMargin=10*mm, leftMargin=10*mm,
-                           topMargin=10*mm, bottomMargin=30*mm)
-    
+    doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=20*mm, bottomMargin=30*mm)
     styles = getSampleStyleSheet()
-    title_style = ParagraphStyle(
-        'CustomTitle',
-        parent=styles['Heading1'],
-        fontSize=16,
-        spaceAfter=20,
-        alignment=TA_CENTER,
-        fontName='Helvetica-Bold'
-    )
-    
+    title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=16, spaceAfter=20, alignment=TA_CENTER, fontName='Helvetica-Bold')
     elements = []
-    
-    # Título
     elements.append(Paragraph(title, title_style))
     elements.append(Spacer(1, 10))
-    
-    # Información del mantenimiento
     info_data = [
         ['Campo', 'Valor'],
         ['ID', str(mantenimiento.id)],
@@ -559,7 +525,6 @@ def create_reportlab_pdf_maintenance_detail(mantenimiento, title="Control de Act
         ['Ubicación', str(mantenimiento.ubicacion) if mantenimiento.ubicacion else ''],
         ['Observaciones', str(mantenimiento.observaciones) if mantenimiento.observaciones else '']
     ]
-    
     info_table = Table(info_data, repeatRows=1)
     info_style = TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
@@ -579,63 +544,33 @@ def create_reportlab_pdf_maintenance_detail(mantenimiento, title="Control de Act
         ('TOPPADDING', (0, 0), (-1, -1), 3),
         ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
     ])
-    
     info_table.setStyle(info_style)
     elements.append(info_table)
-    
-    # Construir el documento
-    doc.build(elements, onFirstPage=encabezado_y_footer, onLaterPages=encabezado_y_footer)
-    
+    from reportlab.platypus import PageTemplate, Frame
+    encabezado_height = 55
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height, id='normal')
+    doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=encabezado_y_footer)])
+    doc.build(elements)
     buffer.seek(0)
-    return buffer 
+    return buffer
 
+# --- HISTORIAL DE CAMBIOS ---
 def create_reportlab_pdf_historial(historial, mantenimiento_id, title="Historial de Cambios del Mantenimiento"):
-    """
-    Crea un PDF del historial de cambios usando ReportLab.
-    
-    Args:
-        historial: Lista de objetos HistorialCambio
-        mantenimiento_id: ID del mantenimiento
-        title: Título del reporte
-    
-    Returns:
-        BytesIO object con el PDF
-    """
     buffer = BytesIO()
     pagesize = landscape(A4)
-    
-    doc = SimpleDocTemplate(buffer, pagesize=pagesize, 
-                           rightMargin=10*mm, leftMargin=10*mm,
-                           topMargin=10*mm, bottomMargin=30*mm)
-    
+    doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=20*mm, bottomMargin=30*mm)
     styles = getSampleStyleSheet()
-    title_style = ParagraphStyle(
-        'CustomTitle',
-        parent=styles['Heading1'],
-        fontSize=16,
-        spaceAfter=20,
-        alignment=TA_CENTER,
-        fontName='Helvetica-Bold'
-    )
-    
+    title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=16, spaceAfter=20, alignment=TA_CENTER, fontName='Helvetica-Bold')
     elements = []
-    
-    # Título
     elements.append(Paragraph(title, title_style))
     elements.append(Spacer(1, 10))
-    
-    # Información del mantenimiento si existe
     if historial and historial[0].mantenimiento:
         info_text = f"Código: {historial[0].mantenimiento.codigo}<br/>Nombre: {historial[0].mantenimiento.nombre}"
         info_para = Paragraph(info_text, styles['Normal'])
         elements.append(info_para)
         elements.append(Spacer(1, 10))
-    
-    # Preparar datos de la tabla
     headers = ['Fecha', 'Usuario', 'Campo', 'Valor Anterior', 'Valor Nuevo', 'Acción']
     data = [headers]
-    
-    # Agregar datos del historial
     for h in historial:
         row = [
             h.fecha.strftime('%d/%m/%Y %H:%M') if h.fecha else '',
@@ -646,14 +581,9 @@ def create_reportlab_pdf_historial(historial, mantenimiento_id, title="Historial
             str(h.accion) if h.accion else ''
         ]
         data.append(row)
-    
-    # Crear tabla
     if data:
         table = Table(data, repeatRows=1)
-        
-        # Estilo de la tabla
         table_style = TableStyle([
-            # Encabezados
             ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
@@ -672,52 +602,26 @@ def create_reportlab_pdf_historial(historial, mantenimiento_id, title="Historial
             ('TOPPADDING', (0, 0), (-1, -1), 3),
             ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
         ])
-        
         table.setStyle(table_style)
         elements.append(table)
-    
-    # Construir el documento
-    doc.build(elements, onFirstPage=encabezado_y_footer, onLaterPages=encabezado_y_footer)
-    
+    from reportlab.platypus import PageTemplate, Frame
+    encabezado_height = 55
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height, id='normal')
+    doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=encabezado_y_footer)])
+    doc.build(elements)
     buffer.seek(0)
-    return buffer 
+    return buffer
 
+# --- HOJA DE VIDA DE EQUIPO ---
 def create_reportlab_pdf_equipment_life_sheet(equipo, mantenimientos, title="Hoja de Vida de Equipos"):
-    """
-    Crea un PDF de hoja de vida de equipo usando ReportLab.
-    
-    Args:
-        equipo: Objeto Equipo
-        mantenimientos: Lista de objetos Programado (mantenimientos completados)
-        title: Título del reporte
-    
-    Returns:
-        BytesIO object con el PDF
-    """
     buffer = BytesIO()
     pagesize = landscape(A4)
-    
-    doc = SimpleDocTemplate(buffer, pagesize=pagesize, 
-                           rightMargin=10*mm, leftMargin=10*mm,
-                           topMargin=10*mm, bottomMargin=30*mm)
-    
+    doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=20*mm, bottomMargin=30*mm)
     styles = getSampleStyleSheet()
-    title_style = ParagraphStyle(
-        'CustomTitle',
-        parent=styles['Heading1'],
-        fontSize=16,
-        spaceAfter=20,
-        alignment=TA_CENTER,
-        fontName='Helvetica-Bold'
-    )
-    
+    title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=16, spaceAfter=20, alignment=TA_CENTER, fontName='Helvetica-Bold')
     elements = []
-    
-    # Título
     elements.append(Paragraph(title, title_style))
     elements.append(Spacer(1, 10))
-    
-    # Información del equipo
     info_data = [
         ['Campo', 'Valor', 'Campo', 'Valor'],
         ['Código', str(equipo.codigo) if equipo.codigo else '', 'Marca', str(equipo.marca) if equipo.marca else ''],
@@ -725,7 +629,6 @@ def create_reportlab_pdf_equipment_life_sheet(equipo, mantenimientos, title="Hoj
         ['Ubicación', str(equipo.ubicacion) if equipo.ubicacion else '', 'Serie', str(equipo.serie) if equipo.serie else ''],
         ['Estado', str(equipo.estado_eq) if equipo.estado_eq else '', 'Fecha Ingreso', equipo.fecha_ingreso.strftime('%d/%m/%Y') if equipo.fecha_ingreso else ''],
     ]
-    
     info_table = Table(info_data, repeatRows=1)
     info_style = TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
@@ -745,22 +648,14 @@ def create_reportlab_pdf_equipment_life_sheet(equipo, mantenimientos, title="Hoj
         ('TOPPADDING', (0, 0), (-1, -1), 3),
         ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
     ])
-    
     info_table.setStyle(info_style)
     elements.append(info_table)
     elements.append(Spacer(1, 15))
-    
-    # Mantenimientos realizados
     if mantenimientos:
         elements.append(Paragraph("Mantenimientos Realizados", title_style))
         elements.append(Spacer(1, 10))
-        
-        # Preparar datos de la tabla de mantenimientos
-        headers = ['F. Inicio', 'F. Fin', 'Tiempo', 'Tipo', 'Servicio', 'Técnico', 
-                  'Repuestos', 'Herramientas', 'Observaciones', 'C. Rep.', 'C. Herr.', 'C. MDO', 'Costo Total']
+        headers = ['F. Inicio', 'F. Fin', 'Tiempo', 'Tipo', 'Servicio', 'Técnico', 'Repuestos', 'Herramientas', 'Observaciones', 'C. Rep.', 'C. Herr.', 'C. MDO', 'Costo Total']
         data = [headers]
-        
-        # Agregar datos de mantenimientos
         for mtto in mantenimientos:
             costo_total = (mtto.costo_rep or 0) + (mtto.costo_herram or 0) + (mtto.costo_mdo or 0)
             row = [
@@ -779,8 +674,6 @@ def create_reportlab_pdf_equipment_life_sheet(equipo, mantenimientos, title="Hoj
                 f"${costo_total:,.2f}"
             ]
             data.append(row)
-        
-        # Crear tabla de mantenimientos
         maint_table = Table(data, repeatRows=1)
         maint_style = TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
@@ -800,15 +693,15 @@ def create_reportlab_pdf_equipment_life_sheet(equipo, mantenimientos, title="Hoj
             ('TOPPADDING', (0, 0), (-1, -1), 2),
             ('BOTTOMPADDING', (0, 1), (-1, -1), 2),
         ])
-        
         maint_table.setStyle(maint_style)
         elements.append(maint_table)
     else:
         elements.append(Paragraph("No hay mantenimientos realizados registrados.", styles['Normal']))
-    
-    # Construir el documento
-    doc.build(elements, onFirstPage=encabezado_y_footer, onLaterPages=encabezado_y_footer)
-    
+    from reportlab.platypus import PageTemplate, Frame
+    encabezado_height = 55
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height, id='normal')
+    doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=encabezado_y_footer)])
+    doc.build(elements)
     buffer.seek(0)
     return buffer
 
@@ -1027,7 +920,7 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="Ficha
         elements.append(Paragraph(str(equipo.observaciones), styles['Normal']))
     
     # Construir el documento
-    doc.build(elements, onFirstPage=encabezado_y_footer, onLaterPages=encabezado_y_footer)
+    doc.build(elements, onFirstPage=draw_encabezado, onLaterPages=draw_encabezado)
     
     buffer.seek(0)
     return buffer 
@@ -1164,7 +1057,7 @@ def create_reportlab_pdf_lubrication_sheet(equipo, lubricaciones, title="Carta d
         elements.append(Paragraph("No hay cartas de lubricación registradas para este equipo.", styles['Normal']))
     
     # Construir el documento
-    doc.build(elements, onFirstPage=encabezado_y_footer, onLaterPages=encabezado_y_footer)
+    doc.build(elements, onFirstPage=draw_encabezado, onLaterPages=draw_encabezado)
     
     buffer.seek(0)
     return buffer 
@@ -1219,33 +1112,106 @@ from reportlab.lib.pagesizes import landscape, A4
 
 def generar_y_enviar_pdf_mantenimiento(mantenimientos):
     """
-    Genera el PDF de mantenimientos con paginación 'Página X de Y' y lo envía al usuario.
-    Limpia los archivos temporales automáticamente.
+    Genera el PDF de mantenimientos con encabezado y paginación "Página X de Y" en todas las páginas.
     """
-    # 1. Genera el PDF base SIN paginación
-    buffer = create_reportlab_pdf_maintenance_report(mantenimientos)
-    temp_path = "temp.pdf"
-    final_path = "reporte_final.pdf"
-    with open(temp_path, "wb") as f:
-        f.write(buffer.getvalue())
-
-    # 2. Agrega la paginación correcta
-    agregar_total_paginas(temp_path, final_path, pagesize=landscape(A4))
-
-    # 3. Limpia los archivos temporales después de enviar
-    @after_this_request
-    def cleanup(response):
-        try:
-            os.remove(temp_path)
-            os.remove(final_path)
-        except Exception as e:
-            print(f"Error eliminando archivos temporales: {e}")
-        return response
-
-    # 4. Envía el PDF final al usuario
-    return send_file(final_path, as_attachment=True)
+    # Generar PDF base con encabezado y paginación básica
+    buffer = create_reportlab_pdf_maintenance_report(mantenimientos, orientation='landscape')
+    
+    # Usar la función que agrega paginación total y envía el archivo
+    nombre_archivo = f'mantenimientos_programados_{datetime.now().strftime("%Y%m%d_%H%M")}.pdf'
+    return generar_y_enviar_pdf_con_paginacion(buffer, nombre_archivo)
 
 # USO EN FLASK:
 # @app.route('/descargar_reporte')
 # def descargar_reporte():
 #     return generar_y_enviar_pdf_mantenimiento(mantenimientos)
+
+# --- FUNCIÓN SIMPLIFICADA PARA PAGINACIÓN ---
+def add_pagination_footer(canvas, doc):
+    """
+    Función para agregar paginación "Página X de Y" en el pie de página.
+    """
+    canvas.saveState()
+    canvas.setFont('Helvetica', 8)
+    
+    # Dibujar la paginación centrada (solo número de página actual)
+    # El total se agregará después con PyPDF2
+    canvas.drawCentredString(
+        doc.pagesize[0] / 2,  # Centro de la página
+        20,  # Cerca del borde inferior
+        f"Página {canvas._pageNumber}"
+    )
+    canvas.restoreState()
+
+# --- FUNCIÓN PARA ENCABEZADO Y PIE DE PÁGINA EN TODOS LOS PDF ---
+def encabezado_y_footer(canvas, doc):
+    draw_encabezado(canvas, doc)
+    add_pagination_footer(canvas, doc)
+
+from PyPDF2 import PdfReader, PdfWriter
+from reportlab.pdfgen import canvas as rl_canvas
+from io import BytesIO
+
+def agregar_paginacion_final(input_pdf_path, output_pdf_path):
+    """
+    Agrega la paginación 'Página X de Y' en el pie de página de cada página del PDF.
+    input_pdf_path: ruta del PDF base (sin paginación final)
+    output_pdf_path: ruta del PDF final con paginación
+    """
+    reader = PdfReader(input_pdf_path)
+    writer = PdfWriter()
+    total = len(reader.pages)
+    for i, page in enumerate(reader.pages, 1):
+        packet = BytesIO()
+        can = rl_canvas.Canvas(packet, pagesize=page.mediabox[2:])
+        can.setFont("Helvetica", 8)
+        can.drawCentredString(
+            float(page.mediabox[2]) / 2,
+            20,
+            f"Página {i} de {total}"
+        )
+        can.save()
+        packet.seek(0)
+        overlay = PdfReader(packet)
+        page.merge_page(overlay.pages[0])
+        writer.add_page(page)
+    with open(output_pdf_path, "wb") as f:
+        writer.write(f)
+
+# Ejemplo de uso:
+# 1. Genera el PDF base (sin paginación final) y guárdalo en 'temp.pdf'
+# 2. Llama a agregar_paginacion_final('temp.pdf', 'reporte_final.pdf')
+# 3. Envía 'reporte_final.pdf' al usuario
+
+import tempfile
+import os
+from flask import send_file, after_this_request
+
+def generar_y_enviar_pdf_con_paginacion(buffer, nombre_archivo="reporte.pdf"):
+    """
+    Genera un PDF base (en buffer), agrega paginación 'Página X de Y' y lo envía al usuario.
+    Limpia los archivos temporales automáticamente.
+    """
+    # 1. Guarda el PDF base en un archivo temporal
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_base:
+        temp_base.write(buffer.getvalue())
+        temp_base_path = temp_base.name
+    # 2. Crea el PDF final con paginación
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_final:
+        temp_final_path = temp_final.name
+    agregar_paginacion_final(temp_base_path, temp_final_path)
+    # 3. Limpia los archivos temporales después de enviar
+    @after_this_request
+    def cleanup(response):
+        try:
+            os.remove(temp_base_path)
+            os.remove(temp_final_path)
+        except Exception as e:
+            print(f"Error eliminando archivos temporales: {e}")
+        return response
+    # 4. Envía el PDF final al usuario
+    return send_file(temp_final_path, as_attachment=True, download_name=nombre_archivo, mimetype='application/pdf')
+
+# Ejemplo de uso en una ruta Flask:
+# buffer = create_reportlab_pdf_maintenance_report(mantenimientos)
+# return generar_y_enviar_pdf_con_paginacion(buffer, nombre_archivo="mantenimientos_programados.pdf")
