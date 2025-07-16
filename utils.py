@@ -800,7 +800,7 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         parent=styles['Heading2'],
         fontSize=11,
         spaceAfter=8,
-        alignment=TA_LEFT,
+        alignment=TA_CENTER,
         fontName='Helvetica-Bold',
         textColor=colors.white,
         backColor=colors.grey,
@@ -907,17 +907,25 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     elements.append(Paragraph("Datos Generales", section_style))
     
     general_data = [
-        ['Fecha Ingreso', str(equipo.fecha_ingreso) if equipo.fecha_ingreso else '', 'Tipo Equipo', str(equipo.tipo_eq) if equipo.tipo_eq else ''],
-        ['Referencia', str(equipo.referencia) if equipo.referencia else '', 'Serie', str(equipo.serie) if equipo.serie else ''],
-        ['Ubicación', str(equipo.ubicacion) if equipo.ubicacion else '', 'Color', str(equipo.color) if equipo.color else ''],
-        ['Marca', str(equipo.marca) if equipo.marca else '', 'Estado', str(equipo.estado_eq) if equipo.estado_eq else '']
+        ['Fecha Ingreso', 'Tipo Equipo', 'Ubicación', 'Marca'],
+        [str(equipo.fecha_ingreso) if equipo.fecha_ingreso else '', str(equipo.tipo_eq) if equipo.tipo_eq else '', 
+         str(equipo.ubicacion) if equipo.ubicacion else '', str(equipo.marca) if equipo.marca else ''],
+        ['Referencia', 'Serie', 'Color', 'Estado'],
+        [str(equipo.referencia) if equipo.referencia else '', str(equipo.serie) if equipo.serie else '', 
+         str(equipo.color) if equipo.color else '', str(equipo.estado_eq) if equipo.estado_eq else '']
     ]
     
-    general_table = Table(general_data, colWidths=[80, 120, 80, 120])
+    general_table = Table(general_data, colWidths=[doc.width/4, doc.width/4, doc.width/4, doc.width/4])
     general_style = TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),           # Todo centrado
+        ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),  # Primera fila (etiquetas) en negrita
+        ('FONTSIZE', (0, 0), (0, 0), 9),
+        ('FONTNAME', (1, 0), (1, 0), 'Helvetica-Bold'),       # Segunda fila (valores) en texto normal
+        ('FONTSIZE', (1, 0), (1, 0), 9),
+        ('FONTNAME', (2, 0), (2, 0), 'Helvetica-Bold'),  # Tercera fila (etiquetas) en negrita
+        ('FONTSIZE', (2, 0), (2, 0), 9),
+        ('FONTNAME', (3, 0), (3, 0), 'Helvetica-Bold'),       # Cuarta fila (valores) en texto normal
+        ('FONTSIZE', (3, 0), (3, 0), 9),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
@@ -939,11 +947,13 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
          str(equipo.ancho) if equipo.ancho else 'N.A', str(equipo.peso) if equipo.peso else 'N.A']
     ]
     
-    dim_table = Table(dimensiones_data, repeatRows=1)
+    dim_table = Table(dimensiones_data, colWidths=[doc.width/4, doc.width/4, doc.width/4, doc.width/4])
     dim_style = TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),           # Todo centrado
+        ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),  # Primera fila (etiquetas) en negrita
+        ('FONTSIZE', (0, 0), (0, 0), 9),
+        ('FONTNAME', (1, 0), (1, 0), 'Helvetica'),       # Segunda fila (valores) en texto normal
+        ('FONTSIZE', (1, 0), (1, 0), 9),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
@@ -965,11 +975,13 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
          str(equipo.potencia) if equipo.potencia else '', str(equipo.voltaje) if equipo.voltaje else '']
     ]
     
-    energia_table = Table(energia_data, repeatRows=1)
+    energia_table = Table(energia_data, colWidths=[doc.width/4, doc.width/4, doc.width/4, doc.width/4])
     energia_style = TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),           # Todo centrado
+        ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),  # Primera fila (etiquetas) en negrita
+        ('FONTSIZE', (0, 0), (0, 0), 9),
+        ('FONTNAME', (1, 0), (1, 0), 'Helvetica'),       # Segunda fila (valores) en texto normal
+        ('FONTSIZE', (1, 0), (1, 0), 9),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
@@ -1031,11 +1043,13 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
          str(equipo.tipo_comb) if equipo.tipo_comb else '']
     ]
     
-    consumo_table = Table(consumo_data, repeatRows=1)
+    consumo_table = Table(consumo_data, colWidths=[doc.width/3, doc.width/3, doc.width/3])
     consumo_style = TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),           # Todo centrado
+        ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),  # Primera fila (etiquetas) en negrita
+        ('FONTSIZE', (0, 0), (0, 0), 9),
+        ('FONTNAME', (1, 0), (1, 0), 'Helvetica'),       # Segunda fila (valores) en texto normal
+        ('FONTSIZE', (1, 0), (1, 0), 9),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
@@ -1104,10 +1118,13 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
          'Sí' if equipo.certificaciones else 'No', 'Sí' if equipo.registro_mantenimientos else 'No', '']
     ]
     
-    checklist_table = Table(checklist_data, repeatRows=1)
+    checklist_table = Table(checklist_data, colWidths=[doc.width/5, doc.width/5, doc.width/5, doc.width/5, doc.width/5])
     checklist_style = TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),           # Todo centrado
+        ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),  # Primera fila (etiquetas) en negrita
+        ('FONTNAME', (1, 0), (1, 0), 'Helvetica'),       # Segunda fila (valores) en texto normal
+        ('FONTNAME', (2, 0), (2, 0), 'Helvetica-Bold'),  # Tercera fila (etiquetas) en negrita
+        ('FONTNAME', (3, 0), (3, 0), 'Helvetica'),       # Cuarta fila (valores) en texto normal
         ('FONTSIZE', (0, 0), (-1, -1), 9),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
@@ -1132,10 +1149,11 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
          str(equipo.manual_partes) if hasattr(equipo, 'manual_partes') and equipo.manual_partes else 'None']
     ]
     
-    manuales_table = Table(manuales_data, repeatRows=1)
+    manuales_table = Table(manuales_data, colWidths=[doc.width/4, doc.width/4, doc.width/4, doc.width/4])
     manuales_style = TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),           # Todo centrado
+        ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),  # Primera fila (etiquetas) en negrita
+        ('FONTNAME', (1, 0), (1, 0), 'Helvetica'),       # Segunda fila (valores) en texto normal
         ('FONTSIZE', (0, 0), (-1, -1), 9),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
