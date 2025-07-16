@@ -498,7 +498,7 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
 
     # --- Pie de página con paginación y encabezado ---
     from reportlab.platypus import PageTemplate, Frame
-    encabezado_height = 55 # Reservar más espacio para evitar duplicidad
+    encabezado_height = 80 # Reservar más espacio para evitar que la tabla se sobreponga al encabezado
     frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height, id='normal')
     doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=draw_encabezado)])
     doc.build(elements)
