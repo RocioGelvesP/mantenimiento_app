@@ -401,9 +401,22 @@ def agregar_total_paginas(input_pdf_path, output_pdf_path, pagesize):
     for i, page in enumerate(reader.pages, 1):
         packet = BytesIO()
         can = rl_canvas.Canvas(packet, pagesize=pagesize)
-        # Usa una fuente estándar de Linux, si no está disponible usa Helvetica-Bold
+        # --- DIBUJAR ENCABEZADO ---
+        # Simular un objeto doc para pasar a draw_encabezado
+        class DummyDoc:
+            def __init__(self, pagesize):
+                self.pagesize = pagesize
+                self.leftMargin = 10 * mm
+                self.rightMargin = 10 * mm
+                self.topMargin = 20 * mm
+                self.bottomMargin = 30 * mm
+                self.width = pagesize[0] - self.leftMargin - self.rightMargin
+                self.height = pagesize[1] - self.topMargin - self.bottomMargin
+        dummy_doc = DummyDoc(pagesize)
+        draw_encabezado(can, dummy_doc)
+        # --- DIBUJAR PAGINACIÓN ---
         try:
-            can.setFont("DejaVuSans-Bold", 10)  # Tamaño de fuente más pequeño
+            can.setFont("DejaVuSans-Bold", 10)
         except:
             can.setFont("Helvetica-Bold", 10)
         can.drawCentredString(
@@ -413,9 +426,6 @@ def agregar_total_paginas(input_pdf_path, output_pdf_path, pagesize):
         )
         can.save()
         packet.seek(0)
-        # Guarda el overlay para depuración
-        with open(f"overlay_{i}.pdf", "wb") as f:
-            f.write(packet.getvalue())
         from PyPDF2 import PdfReader as RLReader
         overlay = RLReader(packet)
         page.merge_page(overlay.pages[0])
