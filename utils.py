@@ -1132,15 +1132,8 @@ def add_pagination_footer(canvas, doc):
     Función para agregar paginación "Página X de Y" en el pie de página.
     """
     canvas.saveState()
-    canvas.setFont('Helvetica', 8)
-    
-    # Dibujar la paginación centrada (solo número de página actual)
-    # El total se agregará después con PyPDF2
-    canvas.drawCentredString(
-        doc.pagesize[0] / 2,  # Centro de la página
-        20,  # Cerca del borde inferior
-        f"Página {canvas._pageNumber}"
-    )
+    # No dibujar nada aquí, solo reservar el espacio
+    # La paginación final se agregará con PyPDF2
     canvas.restoreState()
 
 # --- FUNCIÓN PARA ENCABEZADO Y PIE DE PÁGINA EN TODOS LOS PDF ---
