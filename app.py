@@ -26,7 +26,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 # Solo configurar la URI si no está ya configurada (por ejemplo, por los tests)
 if not app.config.get('SQLALCHEMY_DATABASE_URI'):
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mantenimiento.db' # O la URL de tu base de datos
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/administrador/mantenimiento_app/data/mantenimiento.db' # Base de datos real en produccióne datos
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production-2024'
 
