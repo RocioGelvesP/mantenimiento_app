@@ -19,6 +19,7 @@ from io import BytesIO
 from functools import wraps
 import calendar
 from utils import get_pdf_config, get_pdf_options
+from utils import generar_y_enviar_pdf_mantenimiento
 
 
 config = get_pdf_config()
@@ -1148,18 +1149,11 @@ def imprimir_todos():
         query = query.filter(Programado.fecha_prog <= datetime(year, month + 1, 1) - timedelta(days=1))
     
     mantenimientos = query.distinct().all()
-    
-    # Convertir usernames a nombres para mostrar en la plantilla
     for mtto in mantenimientos:
         mtto.tecnico_asignado_display = get_user_display_name(mtto.tecnico_asignado)
         mtto.tecnico_realizador_display = get_user_display_name(mtto.tecnico_realizador)
         mtto.autorizado_por_display = get_user_display_name(mtto.autorizado_por)
-    
-    # Generar PDF con ReportLab
-    from utils import create_reportlab_pdf_maintenance_report
-    pdf_buffer = create_reportlab_pdf_maintenance_report(mantenimientos, orientation='landscape')
-    
-    return send_file(pdf_buffer, as_attachment=True, download_name='mantenimientos_programados.pdf', mimetype='application/pdf')
+    return generar_y_enviar_pdf_mantenimiento(mantenimientos)
 
 @maintenance.route('/descargar-todos')
 @login_required
@@ -1213,18 +1207,11 @@ def descargar_todos():
         query = query.filter(Programado.fecha_prog <= datetime(year, month + 1, 1) - timedelta(days=1))
     
     mantenimientos = query.distinct().all()
-    
-    # Convertir usernames a nombres para mostrar en la plantilla
     for mtto in mantenimientos:
         mtto.tecnico_asignado_display = get_user_display_name(mtto.tecnico_asignado)
         mtto.tecnico_realizador_display = get_user_display_name(mtto.tecnico_realizador)
         mtto.autorizado_por_display = get_user_display_name(mtto.autorizado_por)
-
-    # Generar PDF con ReportLab
-    from utils import create_reportlab_pdf_maintenance_report
-    pdf_buffer = create_reportlab_pdf_maintenance_report(mantenimientos, orientation='landscape')
-    
-    return send_file(pdf_buffer, as_attachment=True, download_name='mantenimientos_programados.pdf', mimetype='application/pdf')
+    return generar_y_enviar_pdf_mantenimiento(mantenimientos)
 
 @maintenance.route('/historial/<int:id>/<formato>')
 @login_required

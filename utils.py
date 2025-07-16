@@ -403,12 +403,12 @@ def agregar_total_paginas(input_pdf_path, output_pdf_path, pagesize):
         can = rl_canvas.Canvas(packet, pagesize=pagesize)
         # Usa una fuente estándar de Linux, si no está disponible usa Helvetica-Bold
         try:
-            can.setFont("DejaVuSans-Bold", 14)
+            can.setFont("DejaVuSans-Bold", 10)  # Tamaño de fuente más pequeño
         except:
-            can.setFont("Helvetica-Bold", 14)
-        can.drawRightString(
-            pagesize[0] - 80,
-            70,
+            can.setFont("Helvetica-Bold", 10)
+        can.drawCentredString(
+            pagesize[0] / 2,  # Centro de la página
+            30,               # Más cerca del borde inferior
             f"Página {i} de {total}"
         )
         can.save()
@@ -436,7 +436,7 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
     else:
         pagesize = A4
 
-    doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=20*mm, bottomMargin=15*mm)
+    doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=20*mm, bottomMargin=30*mm)
     styles = getSampleStyleSheet()
     elements = []  # No agregar Spacer ni encabezado aquí
 
@@ -512,7 +512,7 @@ def create_reportlab_pdf_maintenance_detail(mantenimiento, title="Control de Act
     
     doc = SimpleDocTemplate(buffer, pagesize=pagesize, 
                            rightMargin=10*mm, leftMargin=10*mm,
-                           topMargin=10*mm, bottomMargin=15*mm)
+                           topMargin=10*mm, bottomMargin=30*mm)
     
     styles = getSampleStyleSheet()
     title_style = ParagraphStyle(
@@ -593,7 +593,7 @@ def create_reportlab_pdf_historial(historial, mantenimiento_id, title="Historial
     
     doc = SimpleDocTemplate(buffer, pagesize=pagesize, 
                            rightMargin=10*mm, leftMargin=10*mm,
-                           topMargin=10*mm, bottomMargin=15*mm)
+                           topMargin=10*mm, bottomMargin=30*mm)
     
     styles = getSampleStyleSheet()
     title_style = ParagraphStyle(
@@ -687,7 +687,7 @@ def create_reportlab_pdf_equipment_life_sheet(equipo, mantenimientos, title="Hoj
     
     doc = SimpleDocTemplate(buffer, pagesize=pagesize, 
                            rightMargin=10*mm, leftMargin=10*mm,
-                           topMargin=10*mm, bottomMargin=15*mm)
+                           topMargin=10*mm, bottomMargin=30*mm)
     
     styles = getSampleStyleSheet()
     title_style = ParagraphStyle(
@@ -818,7 +818,7 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="Ficha
     
     doc = SimpleDocTemplate(buffer, pagesize=pagesize, 
                            rightMargin=10*mm, leftMargin=10*mm,
-                           topMargin=10*mm, bottomMargin=15*mm)
+                           topMargin=10*mm, bottomMargin=30*mm)
     
     styles = getSampleStyleSheet()
     title_style = ParagraphStyle(
@@ -1039,7 +1039,7 @@ def create_reportlab_pdf_lubrication_sheet(equipo, lubricaciones, title="Carta d
     
     doc = SimpleDocTemplate(buffer, pagesize=pagesize, 
                            rightMargin=10*mm, leftMargin=10*mm,
-                           topMargin=10*mm, bottomMargin=15*mm)
+                           topMargin=10*mm, bottomMargin=30*mm)
     
     styles = getSampleStyleSheet()
     title_style = ParagraphStyle(
