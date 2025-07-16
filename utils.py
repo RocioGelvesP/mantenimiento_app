@@ -401,15 +401,21 @@ def agregar_total_paginas(input_pdf_path, output_pdf_path, pagesize):
     for i, page in enumerate(reader.pages, 1):
         packet = BytesIO()
         can = rl_canvas.Canvas(packet, pagesize=pagesize)
-        can.setFont("Helvetica-Bold", 14)
-        # Posición robusta para la paginación
+        # Usa una fuente estándar de Linux, si no está disponible usa Helvetica-Bold
+        try:
+            can.setFont("DejaVuSans-Bold", 14)
+        except:
+            can.setFont("Helvetica-Bold", 14)
         can.drawRightString(
-            pagesize[0] - 80,  # margen derecho más amplio
-            70,                # altura más alta desde abajo
+            pagesize[0] - 80,
+            70,
             f"Página {i} de {total}"
         )
         can.save()
         packet.seek(0)
+        # Guarda el overlay para depuración
+        with open(f"overlay_{i}.pdf", "wb") as f:
+            f.write(packet.getvalue())
         from PyPDF2 import PdfReader as RLReader
         overlay = RLReader(packet)
         page.merge_page(overlay.pages[0])
