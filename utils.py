@@ -319,12 +319,12 @@ def add_footer(canvas, doc):
     )
     canvas.restoreState()
 
-def draw_encabezado(canvas, doc):
-    canvas.saveState()
-    x = doc.leftMargin
-    y = doc.pagesize[1] - doc.topMargin
+    def draw_encabezado(canvas, doc):
+        canvas.saveState()
+        x = doc.leftMargin
+        y = doc.pagesize[1] - doc.topMargin
     height = 55  # Igual que encabezado_height
-
+        
     # Anchos personalizados para el encabezado (suma = 764)
     col_widths_header = [98, 222, 244, 120, 80]  # Ajusta para que sumen 764
 
@@ -337,47 +337,47 @@ def draw_encabezado(canvas, doc):
 
     # --- Contenido de cada bloque ---
     # 1. Logo (columna 1)
-    logo_path = os.path.join(os.getcwd(), 'static', 'logo.png')
-    if os.path.exists(logo_path):
-        logo_w, logo_h = 55, 35
+        logo_path = os.path.join(os.getcwd(), 'static', 'logo.png')
+        if os.path.exists(logo_path):
+            logo_w, logo_h = 55, 35
         logo_x = x + (col_widths_header[0] / 2) - (logo_w / 2)
-        logo_y = y - (height / 2) - (logo_h / 2)
-        canvas.drawImage(logo_path, logo_x, logo_y, width=logo_w, height=logo_h, preserveAspectRatio=True, mask='auto')
+            logo_y = y - (height / 2) - (logo_h / 2)
+            canvas.drawImage(logo_path, logo_x, logo_y, width=logo_w, height=logo_h, preserveAspectRatio=True, mask='auto')
 
     # 2. Empresa (columna 2)
     canvas.setFont('Helvetica-Bold', 11)
     center_x = x + sum(col_widths_header[:1]) + col_widths_header[1] / 2
-    center_y = y - height / 2
+        center_y = y - height / 2
     canvas.drawCentredString(center_x, center_y + 6, "INR INVERSIONES")
-    canvas.drawCentredString(center_x, center_y - 8, "REINOSO Y CIA. LTDA.")
+        canvas.drawCentredString(center_x, center_y - 8, "REINOSO Y CIA. LTDA.")
 
     # 3. Título (columna 3)
-    canvas.setFont('Helvetica-Bold', 10)
+        canvas.setFont('Helvetica-Bold', 10)
     center_x2 = x + sum(col_widths_header[:2]) + col_widths_header[2] / 2
     canvas.drawCentredString(center_x2, center_y, "CONTROL DE ACTIVIDADES DE MANTENIMIENTO")
 
     # 4. Mes (columna 4)
-    canvas.setFont('Helvetica-Bold', 13)
-    meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-    mes_actual = meses[datetime.now().month - 1]
+        canvas.setFont('Helvetica-Bold', 13)
+        meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+        mes_actual = meses[datetime.now().month - 1]
     center_x3 = x + sum(col_widths_header[:3]) + col_widths_header[3] / 2
     canvas.drawCentredString(center_x3, center_y, mes_actual)
 
     # 5. Código/Edición (columna 5)
     cuadro_x = x + sum(col_widths_header[:4])
     cuadro_w = col_widths_header[4]
-    row_h = height / 4
-    for i, (txt, font) in enumerate([
-        ("Código", 'Helvetica-Bold'),
-        ("71-MT-43", 'Helvetica'),
-        ("Edición", 'Helvetica-Bold'),
-        ("4/Jul/2025", 'Helvetica')
-    ]):
-        canvas.setFont(font, 8)
-        center_x4 = cuadro_x + cuadro_w / 2
-        sub_top = y - i * row_h
-        sub_bot = y - (i + 1) * row_h
-        center_y4 = (sub_top + sub_bot) / 2 - 2
+        row_h = height / 4
+        for i, (txt, font) in enumerate([
+            ("Código", 'Helvetica-Bold'),
+            ("71-MT-43", 'Helvetica'),
+            ("Edición", 'Helvetica-Bold'),
+            ("4/Jul/2025", 'Helvetica')
+        ]):
+            canvas.setFont(font, 8)
+            center_x4 = cuadro_x + cuadro_w / 2
+            sub_top = y - i * row_h
+            sub_bot = y - (i + 1) * row_h
+            center_y4 = (sub_top + sub_bot) / 2 - 2
         canvas.drawCentredString(center_x4, center_y4, txt)
 
     # Líneas horizontales internas del bloque derecho
@@ -388,7 +388,7 @@ def draw_encabezado(canvas, doc):
     canvas.restoreState()
 
 def draw_encabezado_ficha_tecnica(canvas, doc):
-    canvas.saveState()
+        canvas.saveState()
     x = doc.leftMargin
     y = doc.pagesize[1] - doc.topMargin
     height = 55
@@ -431,8 +431,8 @@ def draw_encabezado_ficha_tecnica(canvas, doc):
     row_h = height / 4  # 4 filas
     
     # Líneas horizontales internas del bloque derecho
-    for i in range(1, 4):
-        canvas.line(cuadro_x, y - i * row_h, cuadro_x + cuadro_w, y - i * row_h)
+        for i in range(1, 4):
+            canvas.line(cuadro_x, y - i * row_h, cuadro_x + cuadro_w, y - i * row_h)
     
     # Contenido del bloque derecho - centrado horizontal y vertical
     center_x4 = cuadro_x + cuadro_w / 2
@@ -453,7 +453,7 @@ def draw_encabezado_ficha_tecnica(canvas, doc):
     canvas.setFont('Helvetica', 8)
     canvas.drawCentredString(center_x4, y - 3*row_h - row_h/2 - 5, "5/Jul/2025")
 
-    canvas.restoreState()
+        canvas.restoreState()
 
 # Utilidad para reemplazar el marcador por el total real de páginas
 from PyPDF2 import PdfReader, PdfWriter
@@ -620,7 +620,7 @@ def create_reportlab_pdf_maintenance_detail(mantenimiento, title="Control de Act
     doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=encabezado_y_footer)])
     doc.build(elements)
     buffer.seek(0)
-    return buffer
+    return buffer 
 
 # --- HISTORIAL DE CAMBIOS ---
 def create_reportlab_pdf_historial(historial, mantenimiento_id, title="Historial de Cambios del Mantenimiento"):
@@ -678,7 +678,7 @@ def create_reportlab_pdf_historial(historial, mantenimiento_id, title="Historial
     doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=encabezado_y_footer)])
     doc.build(elements)
     buffer.seek(0)
-    return buffer
+    return buffer 
 
 # --- HOJA DE VIDA DE EQUIPO ---
 def create_reportlab_pdf_equipment_life_sheet(equipo, mantenimientos, title="Hoja de Vida de Equipos"):
@@ -799,14 +799,14 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         'SectionTitle',
         parent=styles['Heading2'],
         fontSize=11,
-        spaceAfter=8,
+        spaceAfter=5,
         alignment=TA_CENTER,
         fontName='Helvetica-Bold',
         textColor=colors.white,
         backColor=colors.grey,
         leftIndent=0,
         rightIndent=0,
-        spaceBefore=10
+        spaceBefore=5
     )
     
     elements = []
@@ -832,7 +832,7 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     ])
     ident_text_table.setStyle(ident_text_style)
     elements.append(ident_text_table)
-    elements.append(Spacer(1, 10))
+    elements.append(Spacer(1, 5))
     
     # Tabla de Código y Nombre del Equipo
     equipo_data = [
@@ -858,7 +858,7 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     
     equipo_table.setStyle(equipo_style)
     elements.append(equipo_table)
-    elements.append(Spacer(1, 15))
+    elements.append(Spacer(1, 10))
     
     # Imagen del equipo - Usar el campo imagen del equipo
     if equipo.imagen:
@@ -887,7 +887,7 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
                     ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
                 ]))
                 elements.append(img_table)
-                elements.append(Spacer(1, 10))
+                elements.append(Spacer(1, 5))
             else:
                 print(f"❌ No se encontró la imagen en: {imagen_path}")
                 static_uploads = os.path.join(os.getcwd(), 'static', 'uploads')
@@ -904,7 +904,19 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
 
     
     # Datos Generales
-    elements.append(Paragraph("Datos Generales", section_style))
+    datos_generales_header = Table([["Datos Generales"]], colWidths=[doc.width])
+    datos_generales_header_style = TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 11),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+    ])
+    datos_generales_header.setStyle(datos_generales_header_style)
+    elements.append(datos_generales_header)
     
     general_data = [
         ['Fecha Ingreso', 'Tipo Equipo', 'Ubicación', 'Marca'],
@@ -936,10 +948,22 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     
     general_table.setStyle(general_style)
     elements.append(general_table)
-    elements.append(Spacer(1, 10))
+    elements.append(Spacer(1, 5))
     
     # Dimensiones
-    elements.append(Paragraph("Dimensiones", section_style))
+    dimensiones_header = Table([["Dimensiones"]], colWidths=[doc.width])
+    dimensiones_header_style = TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 11),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+    ])
+    dimensiones_header.setStyle(dimensiones_header_style)
+    elements.append(dimensiones_header)
     
     dimensiones_data = [
         ['Altura', 'Largo', 'Ancho', 'Peso'],
@@ -964,10 +988,22 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     
     dim_table.setStyle(dim_style)
     elements.append(dim_table)
-    elements.append(Spacer(1, 10))
+    elements.append(Spacer(1, 5))
     
     # Información Energética
-    elements.append(Paragraph("Información Energética", section_style))
+    energia_header = Table([["Información Energética"]], colWidths=[doc.width])
+    energia_header_style = TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 11),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+    ])
+    energia_header.setStyle(energia_header_style)
+    elements.append(energia_header)
     
     energia_data = [
         ['Tipo de Energía', 'Corriente', 'Potencia Instalada', 'Voltaje'],
@@ -991,10 +1027,22 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     ])
     energia_table.setStyle(energia_style)
     elements.append(energia_table)
-    elements.append(Spacer(1, 10))
+    elements.append(Spacer(1, 5))
     
     # Información de Motores
-    elements.append(Paragraph("Información Motores", section_style))
+    motores_header = Table([["Información Motores"]], colWidths=[doc.width])
+    motores_header_style = TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 11),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+    ])
+    motores_header.setStyle(motores_header_style)
+    elements.append(motores_header)
     
     # Solo mostrar tabla si hay motores, sino solo la barra de título
     if motores:
@@ -1036,7 +1084,19 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         elements.append(Spacer(1, 10))
     
     # Información de Consumo
-    elements.append(Paragraph("Información de Consumo", section_style))
+    consumo_header = Table([["Información de Consumo"]], colWidths=[doc.width])
+    consumo_header_style = TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 11),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+    ])
+    consumo_header.setStyle(consumo_header_style)
+    elements.append(consumo_header)
     
     consumo_data = [
         ['Tipo Refrigerante', 'Tipo Lubricante', 'Tipo Combustible'],
@@ -1060,7 +1120,7 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     ])
     consumo_table.setStyle(consumo_style)
     elements.append(consumo_table)
-    elements.append(Spacer(1, 8))
+    elements.append(Spacer(1, 5))
     
     # Repuestos
     repuestos_data = [['Repuestos', str(equipo.repuestos) if equipo.repuestos else '']]
@@ -1079,36 +1139,84 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     ])
     repuestos_table.setStyle(repuestos_style)
     elements.append(repuestos_table)
-    elements.append(Spacer(1, 10))
+    elements.append(Spacer(1, 5))
     
     # Observaciones
-    elements.append(Paragraph("Observaciones", section_style))
+    observaciones_header = Table([["Observaciones"]], colWidths=[doc.width])
+    observaciones_header_style = TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 11),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+    ])
+    observaciones_header.setStyle(observaciones_header_style)
+    elements.append(observaciones_header)
     observaciones_data = [['', str(equipo.observaciones) if equipo.observaciones else '']]
     observaciones_table = Table(observaciones_data, colWidths=[100, 300])
     observaciones_table.setStyle(repuestos_style)
     elements.append(observaciones_table)
-    elements.append(Spacer(1, 10))
+    elements.append(Spacer(1, 5))
     
     # Historial de Mantenimientos
-    elements.append(Paragraph("Historial de Mantenimientos", section_style))
+    historial_header = Table([["Historial de Mantenimientos"]], colWidths=[doc.width])
+    historial_header_style = TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 11),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+    ])
+    historial_header.setStyle(historial_header_style)
+    elements.append(historial_header)
     hist_text = str(equipo.hist_mtto) if equipo.hist_mtto else "El historial del mantenimiento realizado queda en el formato 'registro de mantenimiento de infraestructura' y se anexa a la hoja de vida"
     hist_data = [['', hist_text]]
     hist_table = Table(hist_data, colWidths=[100, 300])
     hist_table.setStyle(repuestos_style)
     elements.append(hist_table)
-    elements.append(Spacer(1, 10))
+    elements.append(Spacer(1, 5))
     
     # Función de la Máquina
-    elements.append(Paragraph("Función de la Máquina", section_style))
+    funcion_header = Table([["Función de la Máquina"]], colWidths=[doc.width])
+    funcion_header_style = TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 11),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+    ])
+    funcion_header.setStyle(funcion_header_style)
+    elements.append(funcion_header)
     func_text = str(equipo.funcion_maq) if equipo.funcion_maq else "Una bomba de agua, es un dispositivo que se utiliza para bombear agua de un lugar a otro, sin importar el fluido."
     func_data = [['', func_text]]
     func_table = Table(func_data, colWidths=[100, 300])
     func_table.setStyle(repuestos_style)
     elements.append(func_table)
-    elements.append(Spacer(1, 10))
+    elements.append(Spacer(1, 5))
     
     # Checklists
-    elements.append(Paragraph("Checklists", section_style))
+    checklists_header = Table([["Checklists"]], colWidths=[doc.width])
+    checklists_header_style = TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 11),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+    ])
+    checklists_header.setStyle(checklists_header_style)
+    elements.append(checklists_header)
     
     checklist_data = [
         ['Ficha Técnica', 'Hoja de Vida', 'Preoperacional', 'Plan de Mantenimiento', 'Inspección de Seguridad'],
@@ -1141,7 +1249,19 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     elements.append(Spacer(1, 10))
     
     # Manuales
-    elements.append(Paragraph("Manuales", section_style))
+    manuales_header = Table([["Manuales"]], colWidths=[doc.width])
+    manuales_header_style = TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 11),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+    ])
+    manuales_header.setStyle(manuales_header_style)
+    elements.append(manuales_header)
     
     manuales_data = [
         ['Operación', 'Eléctrico', 'Mecánicos', 'Partes'],
@@ -1166,7 +1286,7 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     ])
     manuales_table.setStyle(manuales_style)
     elements.append(manuales_table)
-    elements.append(Spacer(1, 10))
+    elements.append(Spacer(1, 5))
     
     # Construir el documento con encabezado personalizado
     from reportlab.platypus import PageTemplate, Frame
@@ -1175,47 +1295,6 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=encabezado_y_footer_ficha_tecnica)])
     
     doc.build(elements)
-    buffer.seek(0)
-    return buffer
-    
-    # Manuales
-    elements.append(Paragraph("Manuales", section_style))
-    
-    manuales_data = [
-        ['Operación', 'Eléctrico', 'Mecánicos', 'Partes'],
-        ['Sí' if equipo.operacion else 'No', 'Sí' if equipo.electrico else 'No',
-         'Sí' if equipo.mecanico else 'No', 'Sí' if equipo.partes else 'No']
-    ]
-    
-    manuales_table = Table(manuales_data, repeatRows=1)
-    manuales_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 9),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 1), (-1, -1), 8),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 4),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-        ('TOPPADDING', (0, 0), (-1, -1), 3),
-        ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
-    ])
-    
-    manuales_table.setStyle(manuales_style)
-    elements.append(manuales_table)
-    
-    # Construir el documento con encabezado específico para ficha técnica y paginación
-    from reportlab.platypus import PageTemplate, Frame
-    encabezado_height = 55
-    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height, id='normal')
-    doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=encabezado_y_footer_ficha_tecnica)])
-    doc.build(elements)
-    
     buffer.seek(0)
     return buffer 
 
@@ -1265,7 +1344,19 @@ def create_reportlab_pdf_lubrication_sheet(equipo, lubricaciones, title="Carta d
     elements.append(Spacer(1, 10))
     
     # Información del equipo
-    elements.append(Paragraph("Información del Equipo", section_style))
+    info_equipo_header = Table([["Información del Equipo"]], colWidths=[doc.width])
+    info_equipo_header_style = TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 11),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+    ])
+    info_equipo_header.setStyle(info_equipo_header_style)
+    elements.append(info_equipo_header)
     
     equipo_data = [
         ['Campo', 'Valor'],
@@ -1303,7 +1394,19 @@ def create_reportlab_pdf_lubrication_sheet(equipo, lubricaciones, title="Carta d
     
     # Cartas de lubricación
     if lubricaciones:
-        elements.append(Paragraph("Cartas de Lubricación", section_style))
+        cartas_lubricacion_header = Table([["Cartas de Lubricación"]], colWidths=[doc.width])
+        cartas_lubricacion_header_style = TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 11),
+            ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('TOPPADDING', (0, 0), (-1, -1), 5),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ])
+        cartas_lubricacion_header.setStyle(cartas_lubricacion_header_style)
+        elements.append(cartas_lubricacion_header)
         
         # Preparar datos de la tabla
         headers = ['N°', 'Mecanismo', 'Cant.', 'Tipo Lubricación', 'Producto', 
