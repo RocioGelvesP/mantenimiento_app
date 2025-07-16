@@ -329,13 +329,12 @@ def nuevo_equipo():
                             ))
             db.session.commit()
             
-            # Registrar auditorÃ­a
+            # Registrar auditoría
             registrar_auditoria(
-                usuario=current_user.username,
+                modulo='equipos',
                 accion='CREAR',
                 tabla='equipos',
-                registro_id=equipo.codigo,
-                detalles=f"CreÃ³ equipo {equipo.codigo} - {equipo.nombre}"
+                descripcion=f"Creó equipo {equipo.codigo} - {equipo.nombre}"
             )
             
             flash(f'MÃ¡quina/Equipo "{form.codigo.data}" y motores guardados correctamente.', 'success')
@@ -637,13 +636,12 @@ def editar_equipo(codigo):
                 db.session.commit()
                 print(f"DEBUG - Commit ejecutado exitosamente")
                 
-                # Registrar auditorÃ­a
+                # Registrar auditoría
                 registrar_auditoria(
-                    usuario=current_user.username,
+                    modulo='equipos',
                     accion='ACTUALIZAR',
                     tabla='equipos',
-                    registro_id=equipo.codigo,
-                    detalles=f"EditÃ³ equipo {equipo.codigo} - {equipo.nombre}"
+                    descripcion=f"Editó equipo {equipo.codigo} - {equipo.nombre}"
                 )
                 
                 # Verificar que los motores se guardaron correctamente
@@ -686,13 +684,12 @@ def eliminar_equipo(codigo):
         db.session.delete(equipo)
         db.session.commit()
         
-        # Registrar auditorÃ­a
+        # Registrar auditoría
         registrar_auditoria(
-            usuario=current_user.username,
+            modulo='equipos',
             accion='ELIMINAR',
             tabla='equipos',
-            registro_id=codigo,
-            detalles=f"EliminÃ³ equipo {equipo_info}"
+            descripcion=f"Eliminó equipo {equipo_info}"
         )
         
         flash(f'Equipo "{codigo}" eliminado correctamente', 'success')
