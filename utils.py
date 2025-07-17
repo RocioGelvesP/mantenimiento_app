@@ -788,14 +788,14 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         'SectionTitle',
         parent=styles['Heading2'],
         fontSize=11,
-        spaceAfter=5,
+        spaceAfter=4,
         alignment=TA_CENTER,
         fontName='Helvetica-Bold',
         textColor=colors.white,
         backColor=colors.grey,
         leftIndent=0,
         rightIndent=0,
-        spaceBefore=5
+        spaceBefore=4
     )
     
     elements = []
@@ -1032,6 +1032,23 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     ])
     motores_header.setStyle(motores_header_style)
     elements.append(motores_header)
+    elements.append(Spacer(1, 8))    # Espacio vertical (ajusta el 8 si quieres más o menos espacio)
+
+    # Definir consumo_header antes de usarlo
+    consumo_header = Table([["Información de Consumo"]], colWidths=[doc.width])
+    consumo_header_style = TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 11),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+    ])
+    consumo_header.setStyle(consumo_header_style)
+    elements.append(Spacer(1, 6))    # Espacio vertical (ajusta el 8 si quieres más o menos espacio)
+    
     
     # Solo mostrar tabla si hay motores, sino solo la barra de título
     if motores:
@@ -1089,8 +1106,8 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     
     consumo_data = [
         ['Tipo Refrigerante', 'Tipo Lubricante', 'Tipo Combustible'],
-        [str(equipo.tipo_refrig) if equipo.tipo_refrig else '', str(equipo.tipo_lub) if equipo.tipo_lub else '',
-         str(equipo.tipo_comb) if equipo.tipo_comb else '']
+        [str(equipo.tipo_refrig) if equipo.tipo_refrig else 'N.A', str(equipo.tipo_lub) if equipo.tipo_lub else 'N.A',
+         str(equipo.tipo_comb) if equipo.tipo_comb else 'N.A']
     ]
     
     consumo_table = Table(consumo_data, colWidths=[doc.width/3, doc.width/3, doc.width/3])
