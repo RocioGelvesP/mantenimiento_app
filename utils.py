@@ -354,7 +354,7 @@ def draw_encabezado(canvas, doc):
     row_h = height / 4
     for i, (txt, font) in enumerate([
         ("Código", 'Helvetica-Bold'),
-        ("71-MT-72", 'Helvetica'),
+        ("71-MT-56", 'Helvetica'),
         ("Edición", 'Helvetica-Bold'),
         ("17/Jul/2025", 'Helvetica')
     ]):
@@ -426,7 +426,7 @@ def draw_encabezado_ficha_tecnica(canvas, doc):
     
     # Fila 2: "71-MT-56"
     canvas.setFont('Helvetica', 8)
-    canvas.drawCentredString(center_x4, y - row_h - row_h/2 - 5, "71-MT-56")
+    canvas.drawCentredString(center_x4, y - row_h - row_h/2 - 5, "71-MT-72")
     
     # Fila 3: "Edición"
     canvas.setFont('Helvetica-Bold', 8)
@@ -689,6 +689,7 @@ def create_reportlab_pdf_equipment_life_sheet(equipo, mantenimientos, title="Hoj
             if os.path.exists(imagen_path):
                 img = Image(imagen_path)
                 img._restrictSize(120, 120)  # Tamaño fijo para la imagen
+                # Imagen sin bordes, diseño limpio
                 info_section.append(img)
             else:
                 # Placeholder si no hay imagen
