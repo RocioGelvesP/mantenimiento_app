@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import abort, flash, redirect, url_for, request, send_file, after_this_request
+from flask import abort, flash, redirect, url_for, request, send_file, after_this_request, Blueprint
 from flask_login import current_user
 import   os
 import platform
@@ -403,14 +403,14 @@ def draw_encabezado_ficha_tecnica(canvas, doc):
         canvas.drawImage(logo_path, logo_x, logo_y, width=50, height=40, mask='auto')
 
     # Columna 2: Texto de empresa
-    canvas.setFont('Helvetica-Bold', 10)
+    canvas.setFont('Helvetica-Bold', 12)
     center_x2 = x + col_widths[0] + col_widths[1]/2
     center_y = y - height/2
     canvas.drawCentredString(center_x2, center_y + 5, "INR INVERSIONES")
     canvas.drawCentredString(center_x2, center_y - 5, "REINOSO Y CIA. LTDA.")
 
     # Columna 3: Título principal
-    canvas.setFont('Helvetica-Bold', 12)
+    canvas.setFont('Helvetica-Bold', 10)
     center_x3 = x + col_widths[0] + col_widths[1] + col_widths[2]/2
     canvas.drawCentredString(center_x3, center_y, "FICHA TÉCNICA DE EQUIPOS")
 
@@ -1631,3 +1631,33 @@ def generar_y_enviar_pdf_con_paginacion(buffer, nombre_archivo="reporte.pdf"):
 # Ejemplo de uso en una ruta Flask:
 # buffer = create_reportlab_pdf_maintenance_report(mantenimientos)
 # return generar_y_enviar_pdf_con_paginacion(buffer, nombre_archivo="mantenimientos_programados.pdf")
+
+import tempfile
+from flask import send_file, after_this_request
+
+def generar_y_enviar_pdf_ficha_tecnica(equipo, motores, nombre_archivo="ficha_tecnica.pdf"):
+    """
+    Genera el PDF de ficha técnica con paginación 'Página X de Y' y lo envía al usuario.
+    """
+    # 1. Genera el PDF base en memoria
+    buffer = create_reportlab_pdf_equipment_technical_sheet(equipo, motores)
+    # 2. Guarda el PDF base en un archivo temporal
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_base:
+        temp_base.write(buffer.getvalue())
+        temp_base_path = temp_base.name
+    # 3. Crea el PDF final con paginación
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_final:
+        temp_final_path = temp_final.name
+    agregar_paginacion_final(temp_base_path, temp_final_path)
+    # 4. Limpia los archivos temporales después de enviar
+    @after_this_request
+    def cleanup(response):
+        import os
+        try:
+            os.remove(temp_base_path)
+            os.remove(temp_final_path)
+        except Exception as e:
+            print(f"Error eliminando archivos temporales: {e}")
+        return response
+    # 5. Envía el PDF final al usuario
+    return send_file(temp_final_path, as_attachment=True, download_name=nombre_archivo, mimetype='application/pdf')

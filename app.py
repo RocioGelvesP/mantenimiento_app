@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -11,7 +11,7 @@ from forms import CompanyForm
 
 # Importación de Blueprints
 from routes.auth import auth_bp
-from routes.equipment import equipment_bp
+from routes.equipment import bp as equipment_bp
 from routes.home import home_bp
 from routes.main import main_bp  
 from routes.users import usuarios_bp 
