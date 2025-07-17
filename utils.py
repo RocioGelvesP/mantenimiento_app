@@ -354,7 +354,7 @@ def draw_encabezado(canvas, doc):
     row_h = height / 4
     for i, (txt, font) in enumerate([
         ("Código", 'Helvetica-Bold'),
-        ("71-MT-56", 'Helvetica'),
+        ("71-MT-72", 'Helvetica'),
         ("Edición", 'Helvetica-Bold'),
         ("17/Jul/2025", 'Helvetica')
     ]):
