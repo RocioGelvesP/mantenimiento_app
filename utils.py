@@ -323,12 +323,12 @@ def draw_encabezado(canvas, doc):
     x = doc.leftMargin
     y = doc.pagesize[1] - doc.topMargin
     height = 55  # Igual que encabezado_height
-    # Anchos personalizados para el encabezado (suma = 764)
-    col_widths_header = [98, 222, 244, 120, 80]  # Ajusta para que sumen 764
+    # Anchos personalizados para el encabezado (4 columnas que ocupan todo el ancho)
+    col_widths_header = [doc.width*0.15, doc.width*0.35, doc.width*0.40, doc.width*0.10]  # Código/edición pequeña
     # Dibuja el borde exterior
     canvas.rect(x, y - height, sum(col_widths_header), height)
     # Líneas verticales
-    for i in range(1, 5):
+    for i in range(1, 4):
         canvas.line(x + sum(col_widths_header[:i]), y - height, x + sum(col_widths_header[:i]), y)
     # --- Contenido de cada bloque ---
     # 1. Logo (columna 1)
@@ -339,7 +339,7 @@ def draw_encabezado(canvas, doc):
         logo_y = y - (height / 2) - (logo_h / 2)
         canvas.drawImage(logo_path, logo_x, logo_y, width=logo_w, height=logo_h, preserveAspectRatio=True, mask='auto')
     # 2. Empresa (columna 2)
-    canvas.setFont('Helvetica-Bold', 11)
+    canvas.setFont('Helvetica-Bold', 12)
     center_x = x + sum(col_widths_header[:1]) + col_widths_header[1] / 2
     center_y = y - height / 2
     canvas.drawCentredString(center_x, center_y + 6, "INR INVERSIONES")
@@ -347,22 +347,16 @@ def draw_encabezado(canvas, doc):
     # 3. Título (columna 3)
     canvas.setFont('Helvetica-Bold', 10)
     center_x2 = x + sum(col_widths_header[:2]) + col_widths_header[2] / 2
-    canvas.drawCentredString(center_x2, center_y, "CONTROL DE ACTIVIDADES DE MANTENIMIENTO")
-    # 4. Mes (columna 4)
-    canvas.setFont('Helvetica-Bold', 13)
-    meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-    mes_actual = meses[datetime.now().month - 1]
-    center_x3 = x + sum(col_widths_header[:3]) + col_widths_header[3] / 2
-    canvas.drawCentredString(center_x3, center_y, mes_actual)
-    # 5. Código/Edición (columna 5)
-    cuadro_x = x + sum(col_widths_header[:4])
-    cuadro_w = col_widths_header[4]
+    canvas.drawCentredString(center_x2, center_y, "HOJA DE VIDA")
+    # 4. Código/Edición (columna 4) - ahora es la última columna
+    cuadro_x = x + sum(col_widths_header[:3])
+    cuadro_w = col_widths_header[3]
     row_h = height / 4
     for i, (txt, font) in enumerate([
         ("Código", 'Helvetica-Bold'),
-        ("71-MT-43", 'Helvetica'),
+        ("71-MT-56", 'Helvetica'),
         ("Edición", 'Helvetica-Bold'),
-        ("4/Jul/2025", 'Helvetica')
+        ("17/Jul/2025", 'Helvetica')
     ]):
         canvas.setFont(font, 8)
         center_x4 = cuadro_x + cuadro_w / 2
@@ -677,83 +671,272 @@ def create_reportlab_pdf_equipment_life_sheet(equipo, mantenimientos, title="Hoj
     styles = getSampleStyleSheet()
     title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=16, spaceAfter=20, alignment=TA_CENTER, fontName='Helvetica-Bold')
     elements = []
-    elements.append(Paragraph(title, title_style))
-    elements.append(Spacer(1, 10))
-    info_data = [
-        ['Campo', 'Valor', 'Campo', 'Valor'],
-        ['Código', str(equipo.codigo) if equipo.codigo else '', 'Marca', str(equipo.marca) if equipo.marca else ''],
-        ['Nombre', str(equipo.nombre) if equipo.nombre else '', 'Modelo', str(equipo.modelo) if equipo.modelo else ''],
-        ['Ubicación', str(equipo.ubicacion) if equipo.ubicacion else '', 'Serie', str(equipo.serie) if equipo.serie else ''],
-        ['Estado', str(equipo.estado_eq) if equipo.estado_eq else '', 'Fecha Ingreso', equipo.fecha_ingreso.strftime('%d/%m/%Y') if equipo.fecha_ingreso else ''],
+    # Quitar el título principal ya que está en el encabezado
+    # elements.append(Paragraph(title, title_style))
+    # elements.append(Spacer(1, 10))
+    
+    # Sección de información del equipo con imagen
+    info_section = []
+    
+    # Imagen del equipo (lado izquierdo)
+    if equipo.imagen:
+        try:
+            if equipo.imagen.startswith('uploads/'):
+                imagen_path = os.path.join(os.getcwd(), 'static', equipo.imagen)
+            else:
+                imagen_path = os.path.join(os.getcwd(), 'static', 'uploads', equipo.imagen)
+            
+            if os.path.exists(imagen_path):
+                img = Image(imagen_path)
+                img._restrictSize(120, 120)  # Tamaño fijo para la imagen
+                info_section.append(img)
+            else:
+                # Placeholder si no hay imagen
+                info_section.append(Paragraph("Sin imagen", styles['Normal']))
+        except Exception as e:
+            info_section.append(Paragraph("Error al cargar imagen", styles['Normal']))
+    else:
+        info_section.append(Paragraph("Sin imagen", styles['Normal']))
+    
+    # Información del equipo (lado derecho) - organizada en 3 columnas con texto flexible
+    equipo_info = [
+        [
+            Paragraph('Código:', ParagraphStyle('label', fontName='Helvetica-Bold', fontSize=9, alignment=TA_LEFT)),
+            Paragraph(str(equipo.codigo) if equipo.codigo else '', ParagraphStyle('value', fontName='Helvetica', fontSize=9, alignment=TA_LEFT)),
+            Paragraph('Marca:', ParagraphStyle('label', fontName='Helvetica-Bold', fontSize=9, alignment=TA_LEFT)),
+            Paragraph(str(equipo.marca) if equipo.marca else '', ParagraphStyle('value', fontName='Helvetica', fontSize=9, alignment=TA_LEFT)),
+            Paragraph('Serie:', ParagraphStyle('label', fontName='Helvetica-Bold', fontSize=9, alignment=TA_LEFT)),
+            Paragraph(str(equipo.serie) if equipo.serie else '', ParagraphStyle('value', fontName='Helvetica', fontSize=9, alignment=TA_LEFT))
+        ],
+        [
+            Paragraph('Nombre:', ParagraphStyle('label', fontName='Helvetica-Bold', fontSize=9, alignment=TA_LEFT)),
+            Paragraph(str(equipo.nombre) if equipo.nombre else '', ParagraphStyle('value', fontName='Helvetica', fontSize=9, alignment=TA_LEFT)),
+            Paragraph('Modelo:', ParagraphStyle('label', fontName='Helvetica-Bold', fontSize=9, alignment=TA_LEFT)),
+            Paragraph(str(equipo.modelo) if equipo.modelo else '', ParagraphStyle('value', fontName='Helvetica', fontSize=9, alignment=TA_LEFT)),
+            Paragraph('Estado:', ParagraphStyle('label', fontName='Helvetica-Bold', fontSize=9, alignment=TA_LEFT)),
+            Paragraph(str(equipo.estado_eq) if equipo.estado_eq else '', ParagraphStyle('value', fontName='Helvetica', fontSize=9, alignment=TA_LEFT))
+        ],
+        [
+            Paragraph('Ubicación:', ParagraphStyle('label', fontName='Helvetica-Bold', fontSize=9, alignment=TA_LEFT)),
+            Paragraph(str(equipo.ubicacion) if equipo.ubicacion else '', ParagraphStyle('value', fontName='Helvetica', fontSize=9, alignment=TA_LEFT)),
+            Paragraph('Fecha Ingreso:', ParagraphStyle('label', fontName='Helvetica-Bold', fontSize=9, alignment=TA_LEFT)),
+            Paragraph(equipo.fecha_ingreso.strftime('%d/%m/%Y') if equipo.fecha_ingreso else '', ParagraphStyle('value', fontName='Helvetica', fontSize=9, alignment=TA_LEFT)),
+            '', ''
+        ]
     ]
-    info_table = Table(info_data, repeatRows=1)
+    info_table = Table(equipo_info, colWidths=[70, 150, 80, 120, 80, 120])
     info_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 1), (-1, -1), 9),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.white]),
-        ('LEFTPADDING', (0, 0), (-1, -1), 6),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-        ('TOPPADDING', (0, 0), (-1, -1), 3),
-        ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 4),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+        # Sin bordes para un formato más limpio
+        ('GRID', (0, 0), (-1, -1), 0, colors.white),
     ])
     info_table.setStyle(info_style)
-    elements.append(info_table)
+    # Crear tabla principal: imagen (columna 1) + info_table (columna 2)
+    main_layout = Table([[info_section[0], info_table]], colWidths=[150, 570])
+    main_layout.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (0, 0), 'LEFT'),   # Imagen alineada a la izquierda
+        ('ALIGN', (1, 0), (1, 0), 'LEFT'),   # Info a la izquierda
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('LEFTPADDING', (0, 0), (0, 0), 0),  # Sin padding izquierdo en la imagen
+        ('RIGHTPADDING', (0, 0), (0, 0), 0), # Sin padding derecho en la imagen
+        ('LEFTPADDING', (1, 0), (1, 0), 15), # Padding izquierdo en la info
+        ('RIGHTPADDING', (1, 0), (1, 0), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        # Sin bordes para un formato más limpio
+        ('GRID', (0, 0), (-1, -1), 0, colors.white),
+    ]))
+    elements.append(main_layout)
     elements.append(Spacer(1, 15))
+    
+    # Sección de mantenimientos realizados
     if mantenimientos:
-        elements.append(Paragraph("Mantenimientos Realizados", title_style))
+        # Crear título con fondo gris claro
+        title_with_bg = Paragraph(
+            "Mantenimientos Realizados",
+            ParagraphStyle(
+                'TitleWithBackground',
+                parent=title_style,
+                fontSize=12,  # Reducir el tamaño de la fuente
+                alignment=TA_CENTER,  # Centrar el texto
+                backColor=colors.lightgrey,
+                leftIndent=0,
+                rightIndent=0,
+                spaceBefore=0,
+                spaceAfter=0,
+                paddingTop=8,
+                paddingBottom=8,
+                paddingLeft=10,
+                paddingRight=10
+            )
+        )
+        # Crear tabla de una sola celda para que ocupe todo el ancho
+        title_table = Table([[title_with_bg]], colWidths=[doc.width])
+        title_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (0, 0), 'CENTER'),
+            ('VALIGN', (0, 0), (0, 0), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (0, 0), 0),
+            ('RIGHTPADDING', (0, 0), (0, 0), 0),
+            ('TOPPADDING', (0, 0), (0, 0), 0),
+            ('BOTTOMPADDING', (0, 0), (0, 0), 0),
+            ('GRID', (0, 0), (0, 0), 0, colors.white),  # Sin bordes
+        ]))
+        elements.append(title_table)
         elements.append(Spacer(1, 10))
-        headers = ['F. Inicio', 'F. Fin', 'Tiempo', 'Tipo', 'Servicio', 'Técnico', 'Repuestos', 'Herramientas', 'Observaciones', 'C. Rep.', 'C. Herr.', 'C. MDO', 'Costo Total']
+        
+        # Tabla de mantenimientos más compacta
+        headers = ['Fech./Hor. Inic.', 'Fec./Hor. Fin', 'Tiempo', 'Tipo', 'Actividad', 'Técnico', 'Repuestos', 'Herramientas', 'Observaciones', 'C. Rep.', 'C. Herr.', 'C. MDO', 'Costo Total']
         data = [headers]
+        
+        # Calcular totales
+        total_costo_rep = 0
+        total_costo_herram = 0
+        total_costo_mdo = 0
+        total_general = 0
+        
         for mtto in mantenimientos:
             costo_total = (mtto.costo_rep or 0) + (mtto.costo_herram or 0) + (mtto.costo_mdo or 0)
+            total_costo_rep += mtto.costo_rep or 0
+            total_costo_herram += mtto.costo_herram or 0
+            total_costo_mdo += mtto.costo_mdo or 0
+            total_general += costo_total
+            
             row = [
-                mtto.hora_inicial.strftime('%d/%m/%Y %H:%M') if mtto.hora_inicial else '',
-                mtto.hora_final.strftime('%d/%m/%Y %H:%M') if mtto.hora_final else '',
+                Paragraph(mtto.hora_inicial.strftime('%d/%m/%Y %H:%M') if mtto.hora_inicial else '', ParagraphStyle('fecha', fontSize=7, leading=9)),
+                Paragraph(mtto.hora_final.strftime('%d/%m/%Y %H:%M') if mtto.hora_final else '', ParagraphStyle('fecha', fontSize=7, leading=9)),
                 str(mtto.tiempo_gastado) if mtto.tiempo_gastado else '',
                 str(mtto.tipo_mantenimiento) if mtto.tipo_mantenimiento else '',
-                str(mtto.servicio) if mtto.servicio else '',
+                Paragraph(str(mtto.servicio) if mtto.servicio else '', ParagraphStyle('servicio', fontSize=7, leading=9)),
                 str(mtto.tecnico_realizador or mtto.tecnico_asignado) if mtto.tecnico_realizador or mtto.tecnico_asignado else '',
                 str(mtto.repuestos) if mtto.repuestos else '',
                 str(mtto.herramientas) if mtto.herramientas else '',
-                str(mtto.observaciones) if mtto.observaciones else '',
+                Paragraph(str(mtto.observaciones) if mtto.observaciones else '', ParagraphStyle('obs', fontSize=7, leading=9)),
                 f"${mtto.costo_rep:,.2f}" if mtto.costo_rep else '$0.00',
                 f"${mtto.costo_herram:,.2f}" if mtto.costo_herram else '$0.00',
                 f"${mtto.costo_mdo:,.2f}" if mtto.costo_mdo else '$0.00',
                 f"${costo_total:,.2f}"
             ]
             data.append(row)
-        maint_table = Table(data, repeatRows=1)
+        
+        # Agregar fila de totales
+        totales_row = ['', '', '', '', '', 'Totales:', '', '', '', 
+                      f"${total_costo_rep:,.2f}", f"${total_costo_herram:,.2f}", 
+                      f"${total_costo_mdo:,.2f}", f"${total_general:,.2f}"]
+        data.append(totales_row)
+        
+        maint_table = Table(data, repeatRows=1, hAlign='LEFT')
         maint_style = TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.whitesmoke),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 8),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -1), 7),
+            ('FONTSIZE', (0, 0), (-1, 0), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
+            ('BACKGROUND', (0, 1), (-1, -2), colors.white),  # Filas de datos
+            ('GRID', (0, 0), (-1, -1), 0.7, colors.black),
+            ('FONTNAME', (0, 1), (-1, -2), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -2), 8),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.white]),
-            ('LEFTPADDING', (0, 0), (-1, -1), 3),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+            ('LEFTPADDING', (0, 0), (-1, -1), 4),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 4),
             ('TOPPADDING', (0, 0), (-1, -1), 2),
             ('BOTTOMPADDING', (0, 1), (-1, -1), 2),
+            # Centrar columnas específicas (0, 1, 2, 3, 5)
+            ('ALIGN', (0, 1), (0, -2), 'CENTER'),   # Columna 1: Fech./Hor. Inic.
+            ('ALIGN', (1, 1), (1, -2), 'CENTER'),   # Columna 2: Fec./Hor. Fin
+            ('ALIGN', (2, 1), (2, -2), 'CENTER'), # Columna 3: Tiempo
+            ('ALIGN', (3, 1), (3, -2), 'CENTER'), # Columna 4: Tipo
+            ('ALIGN', (5, 1), (5, -2), 'CENTER'), # Columna 6: Técnico
+            # Alinear columnas de costos a la derecha
+            ('ALIGN', (9, 1), (9, -2), 'RIGHT'),   # Columna 9: C. Rep.
+            ('ALIGN', (10, 1), (10, -2), 'RIGHT'), # Columna 10: C. Herr.
+            ('ALIGN', (11, 1), (11, -2), 'RIGHT'), # Columna 11: C. MDO
+            ('ALIGN', (12, 1), (12, -2), 'RIGHT'), # Columna 12: Costo Total
+            # Fila de totales - alineación específica
+            ('BACKGROUND', (0, -1), (-1, -1), colors.white),
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, -1), (-1, -1), 9),
+            ('ALIGN', (0, -1), (5, -1), 'LEFT'),    # Columnas 0-5 alineadas a la izquierda
+            ('ALIGN', (9, -1), (12, -1), 'RIGHT'),  # Columnas de costos (9-12) alineadas a la derecha
         ])
         maint_table.setStyle(maint_style)
         elements.append(maint_table)
+        elements.append(Spacer(1, 15))
+        
+        # Sección de estadísticas
+        # Crear título con fondo gris claro (igual que mantenimientos)
+        stats_title_with_bg = Paragraph(
+            "Estadísticas",
+            ParagraphStyle(
+                'StatsTitleWithBackground',
+                parent=title_style,
+                fontSize=12,  # Reducir el tamaño de la fuente
+                alignment=TA_CENTER,  # Centrar el texto
+                backColor=colors.lightgrey,
+                leftIndent=0,
+                rightIndent=0,
+                spaceBefore=0,
+                spaceAfter=0,
+                paddingTop=8,
+                paddingBottom=8,
+                paddingLeft=10,
+                paddingRight=10
+            )
+        )
+        # Crear tabla de una sola celda para que ocupe todo el ancho
+        stats_title_table = Table([[stats_title_with_bg]], colWidths=[doc.width])
+        stats_title_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (0, 0), 'CENTER'),
+            ('VALIGN', (0, 0), (0, 0), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (0, 0), 0),
+            ('RIGHTPADDING', (0, 0), (0, 0), 0),
+            ('TOPPADDING', (0, 0), (0, 0), 0),
+            ('BOTTOMPADDING', (0, 0), (0, 0), 0),
+            ('GRID', (0, 0), (0, 0), 0, colors.white),  # Sin bordes
+        ]))
+        elements.append(stats_title_table)
+        elements.append(Spacer(1, 10))
+        
+        # Calcular estadísticas
+        total_programados = len(mantenimientos)
+        total_completados = len([m for m in mantenimientos if m.hora_final])
+        total_pendientes = total_programados - total_completados
+        porcentaje_completado = (total_completados / total_programados * 100) if total_programados > 0 else 0
+        
+        stats_data = [
+            ['Total Mttos Prog.', 'Total Pendientes', 'Total Completados', 'Prog. Vs Comp.'],
+            [str(total_programados), str(total_pendientes), str(total_completados), f"{porcentaje_completado:.0f}%"]
+        ]
+        
+        stats_table = Table(stats_data, colWidths=[doc.width/4, doc.width/4, doc.width/4, doc.width/4])
+        stats_style = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.whitesmoke),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+            ('GRID', (0, 0), (-1, -1), 0.7, colors.black),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 8),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 4),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+            ('TOPPADDING', (0, 0), (-1, -1), 2),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 2),
+            ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
+        ])
+        stats_table.setStyle(stats_style)
+        elements.append(stats_table)
     else:
         elements.append(Paragraph("No hay mantenimientos realizados registrados.", styles['Normal']))
+    
     from reportlab.platypus import PageTemplate, Frame
     encabezado_height = 55
     frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height, id='normal')

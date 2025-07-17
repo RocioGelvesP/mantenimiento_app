@@ -809,7 +809,7 @@ def exportar_equipos():
         worksheet['AK1'].font = Font(bold=True, size=10)
         worksheet['AK1'].alignment = Alignment(horizontal="center", vertical="center")
 
-        worksheet['AK2'].value = "71-MT-72"
+        worksheet['AK2'].value = "71-MT-56"
         worksheet['AK2'].font = Font(underline="single", color="0000FF")
         worksheet['AK2'].alignment = Alignment(horizontal="center", vertical="center")
 
