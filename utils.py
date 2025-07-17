@@ -841,8 +841,8 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
         ('LEFTPADDING', (0, 0), (-1, -1), 5),
         ('RIGHTPADDING', (0, 0), (-1, -1), 5),
-        ('TOPPADDING', (0, 0), (-1, -1), 4),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ])
     
     equipo_table.setStyle(equipo_style)
@@ -901,8 +901,8 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ])
     datos_generales_header.setStyle(datos_generales_header_style)
     elements.append(datos_generales_header)
@@ -931,8 +931,8 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
         ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-        ('TOPPADDING', (0, 0), (-1, -1), 3),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ])
     
     general_table.setStyle(general_style)
@@ -948,8 +948,8 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ])
     dimensiones_header.setStyle(dimensiones_header_style)
     elements.append(dimensiones_header)
@@ -971,8 +971,8 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
         ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-        ('TOPPADDING', (0, 0), (-1, -1), 3),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ])
     
     dim_table.setStyle(dim_style)
@@ -988,8 +988,8 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ])
     energia_header.setStyle(energia_header_style)
     elements.append(energia_header)
@@ -1011,8 +1011,8 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
         ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-        ('TOPPADDING', (0, 0), (-1, -1), 3),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ])
     energia_table.setStyle(energia_style)
     elements.append(energia_table)
@@ -1027,35 +1027,16 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ])
     motores_header.setStyle(motores_header_style)
     elements.append(motores_header)
-    elements.append(Spacer(1, 8))    # Espacio vertical (ajusta el 8 si quieres más o menos espacio)
-
-    # Definir consumo_header antes de usarlo
-    consumo_header = Table([["Información de Consumo"]], colWidths=[doc.width])
-    consumo_header_style = TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 11),
-        ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-    ])
-    consumo_header.setStyle(consumo_header_style)
-    elements.append(Spacer(1, 6))    # Espacio vertical (ajusta el 8 si quieres más o menos espacio)
-    
-    
-    # Solo mostrar tabla si hay motores, sino solo la barra de título
+    # NO Spacer aquí para que la tabla quede pegada
     if motores:
-        motores_headers = ['N°', 'Nombre Motor', 'Descripción', 'Tipo', 'Dirección de Rotación', 
-                          'RPM', 'Eficiencia', 'Corriente', 'Potencia Instalada', 'Voltaje']
+        motores_headers = ['N°', 'Nom. Motor', 'Descripción', 'Tipo', 'Dir. Rotación',
+                          'RPM', 'Eficiencia', 'Corriente', 'Pot. Instalada', 'Voltaje']
         motores_data = [motores_headers]
-        
         for i, motor in enumerate(motores, 1):
             row = [
                 str(i),
@@ -1070,10 +1051,14 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
                 str(motor.voltaje_Motor) if motor.voltaje_Motor else ''
             ]
             motores_data.append(row)
-        
-        motores_table = Table(motores_data, repeatRows=1)
+        # Definir ancho reducido para la columna 'N°' y repartir el resto
+        ancho_n = doc.width * 0.05  # 5% del ancho total para 'N°'
+        ancho_otros = (doc.width - ancho_n) / 9  # El resto para las otras 9 columnas
+        motores_col_widths = [ancho_n] + [ancho_otros] * 9
+        motores_table = Table(motores_data, colWidths=motores_col_widths)
         motores_style = TableStyle([
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),  # Encabezados centrados
+            ('ALIGN', (0, 1), (-1, -1), 'LEFT'),   # Resto de filas a la izquierda
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'), # Primera fila (títulos) en negrita
             ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),     # Resto de filas en texto normal
             ('FONTSIZE', (0, 0), (-1, -1), 8),
@@ -1081,10 +1066,9 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('LEFTPADDING', (0, 0), (-1, -1), 4),
             ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-            ('TOPPADDING', (0, 0), (-1, -1), 3),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+            ('TOPPADDING', (0, 0), (-1, -1), 2),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
         ])
-        
         motores_table.setStyle(motores_style)
         elements.append(motores_table)
         elements.append(Spacer(1, 10))
@@ -1098,8 +1082,8 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ])
     consumo_header.setStyle(consumo_header_style)
     elements.append(consumo_header)
@@ -1109,7 +1093,6 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         [str(equipo.tipo_refrig) if equipo.tipo_refrig else 'N.A', str(equipo.tipo_lub) if equipo.tipo_lub else 'N.A',
          str(equipo.tipo_comb) if equipo.tipo_comb else 'N.A']
     ]
-    
     consumo_table = Table(consumo_data, colWidths=[doc.width/3, doc.width/3, doc.width/3])
     consumo_style = TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),           # Todo centrado
@@ -1121,8 +1104,8 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
         ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-        ('TOPPADDING', (0, 0), (-1, -1), 3),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ])
     consumo_table.setStyle(consumo_style)
     elements.append(consumo_table)
@@ -1130,7 +1113,7 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     
     # Repuestos
     repuestos_data = [['Repuestos', str(equipo.repuestos) if equipo.repuestos else '']]
-    repuestos_table = Table(repuestos_data, colWidths=[100, 300])
+    repuestos_table = Table(repuestos_data, colWidths=[doc.width * 0.15, doc.width * 0.85])
     repuestos_style = TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
         ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),  # Primera columna (título) en negrita
@@ -1140,31 +1123,11 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
         ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-        ('TOPPADDING', (0, 0), (-1, -1), 3),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ])
     repuestos_table.setStyle(repuestos_style)
     elements.append(repuestos_table)
-    elements.append(Spacer(1, 5))
-    
-    # Observaciones
-    observaciones_header = Table([["Observaciones"]], colWidths=[doc.width])
-    observaciones_header_style = TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 11),
-        ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-    ])
-    observaciones_header.setStyle(observaciones_header_style)
-    elements.append(observaciones_header)
-    observaciones_data = [['', str(equipo.observaciones) if equipo.observaciones else '']]
-    observaciones_table = Table(observaciones_data, colWidths=[100, 300])
-    observaciones_table.setStyle(repuestos_style)
-    elements.append(observaciones_table)
     elements.append(Spacer(1, 5))
     
     # Historial de Mantenimientos
@@ -1176,15 +1139,25 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ])
     historial_header.setStyle(historial_header_style)
     elements.append(historial_header)
     hist_text = str(equipo.hist_mtto) if equipo.hist_mtto else "El historial del mantenimiento realizado queda en el formato 'registro de mantenimiento de infraestructura' y se anexa a la hoja de vida"
-    hist_data = [['', hist_text]]
-    hist_table = Table(hist_data, colWidths=[100, 300])
-    hist_table.setStyle(repuestos_style)
+    hist_data = [[hist_text]]
+    hist_table = Table(hist_data, colWidths=[doc.width])
+    hist_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (0, 0), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (0, 0), 8),
+        ('GRID', (0, 0), (0, 0), 0.5, colors.black),
+        ('VALIGN', (0, 0), (0, 0), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (0, 0), 4),
+        ('RIGHTPADDING', (0, 0), (0, 0), 4),
+        ('TOPPADDING', (0, 0), (0, 0), 2),
+        ('BOTTOMPADDING', (0, 0), (0, 0), 2),
+    ]))
     elements.append(hist_table)
     elements.append(Spacer(1, 5))
     
@@ -1197,20 +1170,30 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ])
     funcion_header.setStyle(funcion_header_style)
     elements.append(funcion_header)
     func_text = str(equipo.funcion_maq) if equipo.funcion_maq else "Una bomba de agua, es un dispositivo que se utiliza para bombear agua de un lugar a otro, sin importar el fluido."
-    func_data = [['', func_text]]
-    func_table = Table(func_data, colWidths=[100, 300])
-    func_table.setStyle(repuestos_style)
+    func_data = [[func_text]]
+    func_table = Table(func_data, colWidths=[doc.width])
+    func_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (0, 0), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (0, 0), 8),
+        ('GRID', (0, 0), (0, 0), 0.5, colors.black),
+        ('VALIGN', (0, 0), (0, 0), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (0, 0), 4),
+        ('RIGHTPADDING', (0, 0), (0, 0), 4),
+        ('TOPPADDING', (0, 0), (0, 0), 2),
+        ('BOTTOMPADDING', (0, 0), (0, 0), 2),
+    ]))
     elements.append(func_table)
     elements.append(Spacer(1, 5))
     
     # Checklists
-    checklists_header = Table([["Checklists"]], colWidths=[doc.width])
+    checklists_header = Table([["Documentos"]], colWidths=[doc.width])
     checklists_header_style = TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
@@ -1218,8 +1201,8 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ])
     checklists_header.setStyle(checklists_header_style)
     elements.append(checklists_header)
@@ -1229,7 +1212,7 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         ['Sí' if equipo.ficha_tecnica else 'No', 'Sí' if equipo.hoja_vida else 'No',
          'Sí' if equipo.preoperacional else 'No', 'Sí' if equipo.plan_mantenimiento else 'No',
          'Sí' if equipo.inspeccion_seguridad else 'No'],
-        ['Procedimientos de Operación', 'Manuales', 'Certificaciones', 'Registro de Mantenimientos', ''],
+        ['Procedimientos de Oper.', 'Manuales', 'Certificaciones', 'Registro de MTTOS', ''],
         ['Sí' if equipo.procedimientos_operacion else 'No', 'Sí' if equipo.manual_usuario else 'No',
          'Sí' if equipo.certificaciones else 'No', 'Sí' if equipo.registro_mantenimientos else 'No', '']
     ]
@@ -1246,8 +1229,8 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
         ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-        ('TOPPADDING', (0, 0), (-1, -1), 3),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ])
     
     checklist_table.setStyle(checklist_style)
@@ -1263,18 +1246,20 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
         ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ])
     manuales_header.setStyle(manuales_header_style)
     elements.append(manuales_header)
     
     manuales_data = [
         ['Operación', 'Eléctrico', 'Mecánicos', 'Partes'],
-        [str(equipo.manual_operacion) if hasattr(equipo, 'manual_operacion') and equipo.manual_operacion else 'None', 
-         str(equipo.manual_electrico) if hasattr(equipo, 'manual_electrico') and equipo.manual_electrico else 'None',
-         str(equipo.manual_mecanicos) if hasattr(equipo, 'manual_mecanicos') and equipo.manual_mecanicos else 'None',
-         str(equipo.manual_partes) if hasattr(equipo, 'manual_partes') and equipo.manual_partes else 'None']
+        [
+            'Sí' if getattr(equipo, 'manual_operacion', False) else 'No',
+            'Sí' if getattr(equipo, 'manual_electrico', False) else 'No',
+            'Sí' if getattr(equipo, 'manual_mecanicos', False) else 'No',
+            'Sí' if getattr(equipo, 'manual_partes', False) else 'No'
+        ]
     ]
     
     manuales_table = Table(manuales_data, colWidths=[doc.width/4, doc.width/4, doc.width/4, doc.width/4])
@@ -1292,6 +1277,36 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     ])
     manuales_table.setStyle(manuales_style)
     elements.append(manuales_table)
+    elements.append(Spacer(1, 5))
+
+     # Observaciones
+    observaciones_header = Table([["Observaciones"]], colWidths=[doc.width])
+    observaciones_header_style = TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 11),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+    ])
+    observaciones_header.setStyle(observaciones_header_style)
+    elements.append(observaciones_header)
+    observaciones_data = [[str(equipo.observaciones) if equipo.observaciones else '']]
+    observaciones_table = Table(observaciones_data, colWidths=[doc.width])
+    observaciones_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (0, 0), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (0, 0), 8),
+        ('GRID', (0, 0), (0, 0), 0.5, colors.black),
+        ('VALIGN', (0, 0), (0, 0), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (0, 0), 4),
+        ('RIGHTPADDING', (0, 0), (0, 0), 4),
+        ('TOPPADDING', (0, 0), (0, 0), 2),
+        ('BOTTOMPADDING', (0, 0), (0, 0), 2),
+    ]))
+    elements.append(observaciones_table)
     elements.append(Spacer(1, 5))
     
     # Construir el documento con encabezado personalizado
