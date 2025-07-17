@@ -321,7 +321,7 @@ def add_footer(canvas, doc):
 def draw_encabezado(canvas, doc):
     canvas.saveState()
     x = doc.leftMargin
-    y = doc.pagesize[1] - 5*mm  # Subir el encabezado más hacia arriba
+    y = doc.pagesize[1] - doc.topMargin
     height = 55  # Igual que encabezado_height
     # Anchos personalizados para el encabezado (4 columnas que ocupan todo el ancho)
     col_widths_header = [doc.width*0.15, doc.width*0.35, doc.width*0.40, doc.width*0.10]  # Código/edición pequeña
@@ -369,6 +369,65 @@ def draw_encabezado(canvas, doc):
         canvas.line(cuadro_x, y - i * row_h, cuadro_x + cuadro_w, y - i * row_h)
     # NO dibujar paginación aquí
     canvas.restoreState()
+
+def draw_encabezado_mantenimientos(canvas, doc):
+    canvas.saveState()
+    x = doc.leftMargin
+    y = doc.pagesize[1] - doc.topMargin
+    height = 55  # Igual que encabezado_height
+    # Anchos personalizados para el encabezado (suma = 764)
+    col_widths_header = [98, 222, 244, 120, 80]  # Ajusta para que sumen 764
+    # Dibuja el borde exterior
+    canvas.rect(x, y - height, sum(col_widths_header), height)
+    # Líneas verticales
+    for i in range(1, 5):
+        canvas.line(x + sum(col_widths_header[:i]), y - height, x + sum(col_widths_header[:i]), y)
+    # --- Contenido de cada bloque ---
+    # 1. Logo (columna 1)
+    logo_path = os.path.join(os.getcwd(), 'static', 'logo.png')
+    if os.path.exists(logo_path):
+        logo_w, logo_h = 55, 35
+        logo_x = x + (col_widths_header[0] / 2) - (logo_w / 2)
+        logo_y = y - (height / 2) - (logo_h / 2)
+        canvas.drawImage(logo_path, logo_x, logo_y, width=logo_w, height=logo_h, preserveAspectRatio=True, mask='auto')
+    # 2. Empresa (columna 2)
+    canvas.setFont('Helvetica-Bold', 11)
+    center_x = x + sum(col_widths_header[:1]) + col_widths_header[1] / 2
+    center_y = y - height / 2
+    canvas.drawCentredString(center_x, center_y + 6, "INR INVERSIONES")
+    canvas.drawCentredString(center_x, center_y - 8, "REINOSO Y CIA. LTDA.")
+    # 3. Título (columna 3)
+    canvas.setFont('Helvetica-Bold', 10)
+    center_x2 = x + sum(col_widths_header[:2]) + col_widths_header[2] / 2
+    canvas.drawCentredString(center_x2, center_y, "CONTROL DE ACTIVIDADES DE MANTENIMIENTO")
+    # 4. Mes (columna 4)
+    canvas.setFont('Helvetica-Bold', 13)
+    meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+    mes_actual = meses[datetime.now().month - 1]
+    center_x3 = x + sum(col_widths_header[:3]) + col_widths_header[3] / 2
+    canvas.drawCentredString(center_x3, center_y, mes_actual)
+    # 5. Código/Edición (columna 5)
+    cuadro_x = x + sum(col_widths_header[:4])
+    cuadro_w = col_widths_header[4]
+    row_h = height / 4
+    for i, (txt, font) in enumerate([
+        ("Código", 'Helvetica-Bold'),
+        ("71-MT-43", 'Helvetica'),
+        ("Edición", 'Helvetica-Bold'),
+        ("4/Jul/2025", 'Helvetica')
+    ]):
+        canvas.setFont(font, 8)
+        center_x4 = cuadro_x + cuadro_w / 2
+        sub_top = y - i * row_h
+        sub_bot = y - (i + 1) * row_h
+        center_y4 = (sub_top + sub_bot) / 2 - 2
+        canvas.drawCentredString(center_x4, center_y4, txt)
+    # Líneas horizontales internas del bloque derecho
+    for i in range(1, 4):
+        canvas.line(cuadro_x, y - i * row_h, cuadro_x + cuadro_w, y - i * row_h)
+    # NO dibujar paginación aquí
+    canvas.restoreState()
+
 
 def draw_encabezado_ficha_tecnica(canvas, doc):
     canvas.saveState()
@@ -424,7 +483,7 @@ def draw_encabezado_ficha_tecnica(canvas, doc):
     canvas.setFont('Helvetica-Bold', 8)
     canvas.drawCentredString(center_x4, y - row_h/2 - 5, "Código")
     
-    # Fila 2: "71-MT-56"
+    # Fila 2: "71-MT-72"
     canvas.setFont('Helvetica', 8)
     canvas.drawCentredString(center_x4, y - row_h - row_h/2 - 5, "71-MT-72")
     
@@ -547,10 +606,11 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
     from reportlab.platypus import PageTemplate, Frame
     encabezado_height = 55
     frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height, id='normal')
-    doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=encabezado_y_footer)])
+    doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=encabezado_y_footer_mantenimientos)])
     doc.build(elements)
     buffer.seek(0)
     return buffer
+
 
 # --- DETALLE DE MANTENIMIENTO ---
 def create_reportlab_pdf_maintenance_detail(mantenimiento, title="Control de Actividades de Mantenimiento"):
@@ -609,7 +669,7 @@ def create_reportlab_pdf_maintenance_detail(mantenimiento, title="Control de Act
 def create_reportlab_pdf_historial(historial, mantenimiento_id, title="Historial de Cambios del Mantenimiento"):
     buffer = BytesIO()
     pagesize = landscape(A4)
-    doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=20*mm, bottomMargin=30*mm)
+    doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=30*mm, bottomMargin=30*mm)
     styles = getSampleStyleSheet()
     title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=16, spaceAfter=20, alignment=TA_CENTER, fontName='Helvetica-Bold')
     elements = []
@@ -658,7 +718,7 @@ def create_reportlab_pdf_historial(historial, mantenimiento_id, title="Historial
     from reportlab.platypus import PageTemplate, Frame
     encabezado_height = 55
     frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height, id='normal')
-    doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=encabezado_y_footer)])
+    doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=encabezado_y_footer_mantenimientos)])
     doc.build(elements)
     buffer.seek(0)
     return buffer 
@@ -1750,6 +1810,13 @@ def encabezado_y_footer(canvas, doc):
 def encabezado_y_footer_ficha_tecnica(canvas, doc):
     draw_encabezado_ficha_tecnica(canvas, doc)
     add_pagination_footer(canvas, doc)
+
+# --- FUNCIÓN PARA ENCABEZADO Y PIE DE PÁGINA ESPECÍFICA PARA MANTENIMIENTOS ---
+def encabezado_y_footer_mantenimientos(canvas, doc):
+    draw_encabezado_mantenimientos(canvas, doc)
+    add_pagination_footer(canvas, doc)
+
+
 
 from PyPDF2 import PdfReader, PdfWriter
 from reportlab.pdfgen import canvas as rl_canvas
