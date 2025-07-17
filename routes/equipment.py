@@ -5,7 +5,7 @@ from datetime import datetime, timezone, timedelta
 from models import db, Equipo, MotorEquipo, Programado, Company, EquipoMedicion, HistorialEquipo, get_or_404
 from flask_wtf import FlaskForm
 from wtforms import StringField, BooleanField
-from utils import require_role, require_any_role, get_equipos_filtrados_por_rol, require_delete_permission, get_pdf_config, get_pdf_options, registrar_auditoria
+from utils import require_role, require_any_role, get_equipos_filtrados_por_rol, require_delete_permission, get_pdf_config, get_pdf_options, registrar_auditoria, generar_y_enviar_pdf_ficha_tecnica
 import pandas as pd
 import pdfkit
 import shutil
@@ -14,7 +14,7 @@ import traceback
 from forms import EquipoForm
 from werkzeug.utils import secure_filename
 
-equipment_bp = Blueprint('equipment', __name__, url_prefix='/equipos')
+bp = Blueprint('equipment', __name__, url_prefix='/equipos')
 
 def get_local_datetime():
     """Obtiene la fecha y hora local (Colombia)"""
@@ -22,7 +22,7 @@ def get_local_datetime():
     colombia_tz = timezone(timedelta(hours=-5))  # UTC-5 para Colombia
     return utc_now.astimezone(colombia_tz)
 
-@equipment_bp.route('/listar', methods=['GET'])
+@bp.route('/listar', methods=['GET'])
 @login_required
 def listar_equipos():
     # Obtener parÃ¡metros de filtro desde la URL
@@ -111,7 +111,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-@equipment_bp.route('/nuevo', methods=['GET', 'POST'])
+@bp.route('/nuevo', methods=['GET', 'POST'])
 @login_required
 @require_any_role('super_admin', 'admin', 'supervisor')
 def nuevo_equipo():
@@ -348,7 +348,7 @@ def nuevo_equipo():
     return render_template('equipos/nuevo_equipo.html', form=form)
 
     #EDITAR EQUIPO
-@equipment_bp.route('/editar/<codigo>', methods=['GET', 'POST'])
+@bp.route('/editar/<codigo>', methods=['GET', 'POST'])
 @login_required
 @require_any_role('super_admin', 'admin', 'supervisor')
 def editar_equipo(codigo):
@@ -662,7 +662,7 @@ def editar_equipo(codigo):
     return render_template('equipos/editar_equipo.html', form=form, equipo=equipo, motores=motores, mediciones=mediciones)
 
     #ELIMINAR EQUIPO
-@equipment_bp.route('/eliminar/<codigo>', methods=['POST'])
+@bp.route('/eliminar/<codigo>', methods=['POST'])
 @login_required
 @require_delete_permission()
 def eliminar_equipo(codigo):
@@ -700,7 +700,7 @@ def eliminar_equipo(codigo):
 
 
     #EXPORTAR EL INFORME DE EQUIPOS EN EXCEL
-@equipment_bp.route('/exportar_equipos', methods=['GET'])
+@bp.route('/exportar_equipos', methods=['GET'])
 @login_required
 @require_any_role('admin', 'supervisor')
 def exportar_equipos():
@@ -845,7 +845,7 @@ def exportar_equipos():
     return send_file(buffer, as_attachment=True, download_name="informe_equipos.xlsx", mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
     #EXPORTAR INFORME EN PDF
-@equipment_bp.route('/informe_equipo/<codigo>')
+@bp.route('/informe_equipo/<codigo>')
 @login_required
 def informe_equipo(codigo):
     equipo = get_or_404(Equipo, codigo)
@@ -876,12 +876,12 @@ def informe_equipo(codigo):
                          costos_por_tipo=costos_por_tipo,
                          historial=historial)
 
-@equipment_bp.route('/', methods=['GET'])
+@bp.route('/', methods=['GET'])
 def lista_equipos():
     equipos = Equipo.query.all()
     return render_template('equipos/listar_equipos.html', equipos=equipos)
 
-@equipment_bp.route('/hoja_vida/<codigo>')
+@bp.route('/hoja_vida/<codigo>')
 @login_required
 def hoja_vida_equipo(codigo):
     equipo = get_or_404(Equipo, codigo)
@@ -911,7 +911,7 @@ def hoja_vida_equipo(codigo):
                            es_pdf=False,
                            base_url=request.host_url)
 
-@equipment_bp.route('/descargar_hoja_vida/<codigo>')
+@bp.route('/descargar_hoja_vida/<codigo>')
 @login_required
 def descargar_hoja_vida(codigo):
     try:
@@ -938,7 +938,7 @@ def descargar_hoja_vida(codigo):
         flash('Error al generar el PDF de la hoja de vida. Por favor, intente nuevamente.', 'error')
         return redirect(url_for('equipment.hoja_vida_equipo', codigo=codigo))
 
-@equipment_bp.route('/importar', methods=['GET', 'POST'])
+@bp.route('/importar', methods=['GET', 'POST'])
 @login_required
 @require_any_role('admin', 'supervisor')
 def importar_equipos():
@@ -992,7 +992,7 @@ def importar_equipos():
     
     return render_template('equipment/importar.html')
 
-@equipment_bp.route('/plantilla')
+@bp.route('/plantilla')
 @login_required
 @require_any_role('admin', 'supervisor')
 def descargar_plantilla():
@@ -1038,30 +1038,15 @@ def descargar_plantilla():
         download_name='plantilla_equipos.xlsx'
     )
 
-@equipment_bp.route('/descargar_ficha_tecnica/<codigo>')
+@bp.route('/descargar_ficha_tecnica/<codigo>')
 @login_required
 def descargar_ficha_tecnica(codigo):
-    try:
-        equipo = get_or_404(Equipo, codigo)
-        motores = MotorEquipo.query.filter_by(equipo_codigo=codigo).all()
-        
-        # Generar PDF con ReportLab
-        from utils import create_reportlab_pdf_equipment_technical_sheet
-        pdf_buffer = create_reportlab_pdf_equipment_technical_sheet(equipo, motores)
-        
-        # Crear respuesta
-        response = make_response(pdf_buffer.getvalue())
-        response.headers['Content-Type'] = 'application/pdf'
-        response.headers['Content-Disposition'] = f'attachment; filename=ficha_tecnica_{equipo.codigo}.pdf'
-        
-        return response
-        
-    except Exception as e:
-        current_app.logger.error(f"Error al generar PDF: {str(e)}")
-        flash('Error al generar el PDF. Por favor, intente nuevamente.', 'error')
-        return redirect(url_for('equipment.listar_equipos'))
+    equipo = get_or_404(Equipo, codigo)
+    motores = MotorEquipo.query.filter_by(equipo_codigo=codigo).all()
+    from utils import generar_y_enviar_pdf_ficha_tecnica
+    return generar_y_enviar_pdf_ficha_tecnica(equipo, motores, nombre_archivo=f"ficha_tecnica_{equipo.codigo}.pdf")
 
-@equipment_bp.route('/agregar_motor', methods=['POST'])
+@bp.route('/agregar_motor', methods=['POST'])
 @login_required
 @require_any_role('admin', 'supervisor')
 def agregar_motor():
@@ -1104,7 +1089,7 @@ def agregar_motor():
         db.session.rollback()
         return jsonify({'error': f'Error al agregar motor: {str(e)}'}), 500
 
-@equipment_bp.route('/editar_motor/<int:id>', methods=['POST'])
+@bp.route('/editar_motor/<int:id>', methods=['POST'])
 @login_required
 @require_any_role('admin', 'supervisor')
 def editar_motor(id):
@@ -1133,7 +1118,7 @@ def editar_motor(id):
         db.session.rollback()
         return jsonify({'error': f'Error al actualizar motor: {str(e)}'}), 500
 
-@equipment_bp.route('/eliminar_motor/<int:id>', methods=['POST'])
+@bp.route('/eliminar_motor/<int:id>', methods=['POST'])
 @login_required
 @require_any_role('admin', 'supervisor')
 def eliminar_motor(id):
@@ -1151,7 +1136,7 @@ def eliminar_motor(id):
         db.session.rollback()
         return jsonify({'error': f'Error al eliminar motor: {str(e)}'}), 500
 
-@equipment_bp.route('/listado_maestro', methods=['GET'])
+@bp.route('/listado_maestro', methods=['GET'])
 @login_required
 @require_any_role('admin', 'supervisor')
 def listado_maestro():
@@ -1211,7 +1196,7 @@ def listado_maestro():
     return send_file(output, as_attachment=True, download_name='listado_maestro.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 # Nueva ruta para ver el historial de un equipo
-@equipment_bp.route('/historial/<codigo>')
+@bp.route('/historial/<codigo>')
 @login_required
 @require_any_role('super_admin', 'admin', 'supervisor')
 def historial_equipo(codigo):
@@ -1219,7 +1204,7 @@ def historial_equipo(codigo):
     historial = HistorialEquipo.query.filter_by(equipo_codigo=codigo).order_by(HistorialEquipo.fecha_cambio.desc()).all()
     return render_template('equipos/historial_equipo.html', equipo=equipo, historial=historial)
 
-@equipment_bp.route('/historiales', methods=['GET'])
+@bp.route('/historiales', methods=['GET'])
 @login_required
 @require_any_role('super_admin', 'admin', 'supervisor')
 def historiales_equipos():
