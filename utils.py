@@ -321,7 +321,7 @@ def add_footer(canvas, doc):
 def draw_encabezado(canvas, doc):
     canvas.saveState()
     x = doc.leftMargin
-    y = doc.pagesize[1] - doc.topMargin
+    y = doc.pagesize[1] - 5*mm  # Subir el encabezado más hacia arriba
     height = 55  # Igual que encabezado_height
     # Anchos personalizados para el encabezado (4 columnas que ocupan todo el ancho)
     col_widths_header = [doc.width*0.15, doc.width*0.35, doc.width*0.40, doc.width*0.10]  # Código/edición pequeña
@@ -461,7 +461,7 @@ def agregar_total_paginas(input_pdf_path, output_pdf_path, pagesize):
                 self.pagesize = pagesize
                 self.leftMargin = 10 * mm
                 self.rightMargin = 10 * mm
-                self.topMargin = 20 * mm
+                self.topMargin = 10 * mm  # Reducido para que coincida con el documento principal
                 self.bottomMargin = 30 * mm
                 self.width = pagesize[0] - self.leftMargin - self.rightMargin
                 self.height = pagesize[1] - self.topMargin - self.bottomMargin
@@ -667,7 +667,7 @@ def create_reportlab_pdf_historial(historial, mantenimiento_id, title="Historial
 def create_reportlab_pdf_equipment_life_sheet(equipo, mantenimientos, title="Hoja de Vida de Equipos"):
     buffer = BytesIO()
     pagesize = landscape(A4)
-    doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=20*mm, bottomMargin=30*mm)
+    doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=10*mm, bottomMargin=30*mm)
     styles = getSampleStyleSheet()
     title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=16, spaceAfter=20, alignment=TA_CENTER, fontName='Helvetica-Bold')
     elements = []
@@ -752,6 +752,8 @@ def create_reportlab_pdf_equipment_life_sheet(equipo, mantenimientos, title="Hoj
         # Sin bordes para un formato más limpio
         ('GRID', (0, 0), (-1, -1), 0, colors.white),
     ]))
+    # Agregar espacio antes de la tabla principal para bajarla un poco
+    elements.append(Spacer(1, 20))
     elements.append(main_layout)
     elements.append(Spacer(1, 15))
     
@@ -940,7 +942,8 @@ def create_reportlab_pdf_equipment_life_sheet(equipo, mantenimientos, title="Hoj
     
     from reportlab.platypus import PageTemplate, Frame
     encabezado_height = 55
-    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height, id='normal')
+    # Ajustar el frame para que comience después del encabezado con el nuevo margen superior
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height + 10*mm, id='normal')
     doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=encabezado_y_footer)])
     doc.build(elements)
     buffer.seek(0)
@@ -1837,6 +1840,35 @@ def generar_y_enviar_pdf_ficha_tecnica(equipo, motores, nombre_archivo="ficha_te
     @after_this_request
     def cleanup(response):
         import os
+        try:
+            os.remove(temp_base_path)
+            os.remove(temp_final_path)
+        except Exception as e:
+            print(f"Error eliminando archivos temporales: {e}")
+        return response
+    # 5. Envía el PDF final al usuario
+    return send_file(temp_final_path, as_attachment=True, download_name=nombre_archivo, mimetype='application/pdf')
+
+def generar_y_enviar_pdf_hoja_vida(equipo, mantenimientos, nombre_archivo="hoja_vida.pdf"):
+    """
+    Genera el PDF de hoja de vida con paginación 'Página X de Y' y lo envía al usuario.
+    """
+    # 1. Genera el PDF base en memoria
+    buffer = create_reportlab_pdf_equipment_life_sheet(equipo, mantenimientos)
+    # 2. Guarda el PDF base en un archivo temporal
+    import tempfile
+    from flask import send_file, after_this_request
+    import os
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_base:
+        temp_base.write(buffer.getvalue())
+        temp_base_path = temp_base.name
+    # 3. Crea el PDF final con paginación
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_final:
+        temp_final_path = temp_final.name
+    agregar_paginacion_final(temp_base_path, temp_final_path)
+    # 4. Limpia los archivos temporales después de enviar
+    @after_this_request
+    def cleanup(response):
         try:
             os.remove(temp_base_path)
             os.remove(temp_final_path)

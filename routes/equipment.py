@@ -921,16 +921,9 @@ def descargar_hoja_vida(codigo):
         # Solo completados para la tabla de mantenimientos realizados
         mantenimientos = [m for m in todos_mantenimientos if m.estado_final == 'Completado']
         
-        # Generar PDF con ReportLab
-        from utils import create_reportlab_pdf_equipment_life_sheet
-        pdf_buffer = create_reportlab_pdf_equipment_life_sheet(equipo, mantenimientos)
-        
-        # Enviar el archivo
-        response = make_response(pdf_buffer.getvalue())
-        response.headers['Content-Type'] = 'application/pdf'
-        response.headers['Content-Disposition'] = f'attachment; filename=hoja_vida_{equipo.codigo}.pdf'
-        
-        return response
+        # Usar la función que incluye paginación "Página X de Y"
+        from utils import generar_y_enviar_pdf_hoja_vida
+        return generar_y_enviar_pdf_hoja_vida(equipo, mantenimientos, nombre_archivo=f"hoja_vida_{equipo.codigo}.pdf")
         
     except Exception as e:
         current_app.logger.error(f"Error al generar PDF de hoja de vida para equipo {codigo}: {str(e)}")
