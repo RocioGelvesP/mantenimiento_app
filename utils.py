@@ -1034,8 +1034,8 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     elements.append(motores_header)
     # NO Spacer aquí para que la tabla quede pegada
     if motores:
-        motores_headers = ['N°', 'Nom. Motor', 'Descripción', 'Tipo', 'Dir. Rotación',
-                          'RPM', 'Eficiencia', 'Corriente', 'Pot. Instalada', 'Voltaje']
+        motores_headers = ['N°', 'Nom. Motor', 'Descripción', 'Tipo', 'Energía',
+                          'RPM', 'Eficiencia', 'Corriente', 'Potencia', 'Voltaje']
         motores_data = [motores_headers]
         for i, motor in enumerate(motores, 1):
             row = [
