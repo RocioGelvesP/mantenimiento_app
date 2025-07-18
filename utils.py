@@ -938,9 +938,9 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
     doc = BaseDocTemplate(
         buffer,
         pagesize=pagesize,
-        leftMargin=10 * mm,
-        rightMargin=10 * mm,
-        topMargin=55,  # Mantener espacio para el encabezado
+        leftMargin=10 * mm,  # Restaurar margen izquierdo original
+        rightMargin=10 * mm,  # Restaurar margen derecho original
+        topMargin=55,  # Espacio para el encabezado
         bottomMargin=20 * mm
     )
 
@@ -1631,14 +1631,184 @@ def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA
     buffer.seek(0)
     return buffer 
 
-def create_reportlab_pdf_lubrication_sheet(equipo, lubricaciones, title="Carta de Lubricación"):
+# 🧾 Encabezado y footer en TODAS las páginas Lubricacion
+def encabezado_y_footer_lubricacion(canvas, doc):
+    canvas.saveState()
+    x = doc.leftMargin
+    y = doc.pagesize[1] - doc.topMargin
+    height = 55
+
+    # Anchos de las 5 columnas (ajustados según la imagen)
+    # Columna 1: Logo, Columna 2: Empresa, Columna 3: Título, Columna 4: Vacía, Columna 5: Código/Edición
+    col_widths = [doc.width*0.12, doc.width*0.28, doc.width*0.28, doc.width*0.12, doc.width*0.20]
+
+    # Dibuja el borde exterior
+    canvas.rect(x, y - height, doc.width, height)
+
+    # Líneas verticales separadoras (4 líneas para 5 columnas)
+    current_x = x
+    for i in range(4):
+        current_x += col_widths[i]
+        canvas.line(current_x, y - height, current_x, y)
+
+    # --- Contenido del encabezado ---
+    # Columna 1: Logo
+    logo_path = os.path.join(os.getcwd(), 'static', 'logo.png')
+    if os.path.exists(logo_path):
+        logo_x = x + (col_widths[0] / 2) - 25
+        logo_y = y - height/2 - 20
+        canvas.drawImage(logo_path, logo_x, logo_y, width=50, height=40, mask='auto')
+
+    # Columna 2: Texto de empresa
+    canvas.setFont('Helvetica-Bold', 10)
+    center_x2 = x + col_widths[0] + col_widths[1]/2
+    center_y = y - height/2
+    canvas.drawCentredString(center_x2, center_y + 5, "INR INVERSIONES")
+    canvas.drawCentredString(center_x2, center_y - 5, "REINOSO Y CIA. LTDA.")
+
+    # Columna 3: Título principal
+    canvas.setFont('Helvetica-Bold', 10)
+    center_x3 = x + col_widths[0] + col_widths[1] + col_widths[2]/2
+    canvas.drawCentredString(center_x3, center_y, "CARTA DE LUBRICACIÓN")
+
+    # Columna 4: Vacía (no se agrega contenido)
+
+    # Columna 5: Código y Edición (dividido en 4 espacios verticales)
+    cuadro_x = x + col_widths[0] + col_widths[1] + col_widths[2] + col_widths[3]
+    cuadro_w = col_widths[4]
+    row_h = height / 4  # 4 filas
+    
+    # Líneas horizontales internas del bloque derecho
+    for i in range(1, 4):
+        canvas.line(cuadro_x, y - i * row_h, cuadro_x + cuadro_w, y - i * row_h)
+    
+    # Contenido del bloque derecho - centrado horizontal y vertical
+    center_x5 = cuadro_x + cuadro_w / 2
+    
+    # Fila 1: "Código"
+    canvas.setFont('Helvetica-Bold', 8)
+    canvas.drawCentredString(center_x5, y - row_h/2 - 5, "Código")
+    
+    # Fila 2: "71-MT-65"
+    canvas.setFont('Helvetica', 8)
+    canvas.drawCentredString(center_x5, y - row_h - row_h/2 - 5, "71-MT-65")
+    
+    # Fila 3: "Edición"
+    canvas.setFont('Helvetica-Bold', 8)
+    canvas.drawCentredString(center_x5, y - 2*row_h - row_h/2 - 5, "Edición")
+    
+    # Fila 4: "18/Jul/2025"
+    canvas.setFont('Helvetica', 8)
+    canvas.drawCentredString(center_x5, y - 3*row_h - row_h/2 - 5, "18/Jul/2025")
+
+    # --- Pie de página con paginación ---
+    # Obtener el número de página actual y total
+    page_num = canvas.getPageNumber()
+    
+    # Dibujar paginación en la esquina inferior derecha
+    canvas.setFont('Helvetica', 8)
+    canvas.setFillColor(colors.black)
+    
+    # Calcular posición para la esquina inferior derecha (más abajo)
+    pagination_x = doc.pagesize[0] - doc.rightMargin - 50  # 50 puntos desde el margen derecho
+    pagination_y = doc.bottomMargin - 5  # 5 puntos por debajo del margen inferior (más abajo)
+    
+    canvas.drawRightString(pagination_x, pagination_y, f"Página {page_num} de {page_num}")
+    
+    # --- Convenciones en el pie de página ---
+    # Posición para las convenciones (más hacia el inferior)
+    convenciones_y = doc.bottomMargin - 5  # 5 puntos por debajo del margen inferior (más abajo)
+    
+    # Título "Convenciones:"
+    canvas.setFont('Helvetica-Bold', 10)
+    canvas.setFillColor(colors.black)
+    canvas.drawString(doc.leftMargin + 5, convenciones_y, "Convenciones:")
+    
+    # Símbolos y texto de convenciones
+    canvas.setFont('Helvetica', 8)
+    
+    # ● Aceite (rojo)
+    canvas.setFillColor(colors.red)
+    canvas.drawString(doc.leftMargin + 80, convenciones_y, "●")
+    canvas.setFillColor(colors.black)
+    canvas.drawString(doc.leftMargin + 95, convenciones_y, "Aceite")
+    
+    # ▲ Grasa (azul)
+    canvas.setFillColor(colors.blue)
+    canvas.drawString(doc.leftMargin + 140, convenciones_y, "▲")
+    canvas.setFillColor(colors.black)
+    canvas.drawString(doc.leftMargin + 155, convenciones_y, "Grasa")
+    
+    # ■ Verificar (verde)
+    canvas.setFillColor(colors.green)
+    canvas.drawString(doc.leftMargin + 200, convenciones_y, "■")
+    canvas.setFillColor(colors.black)
+    canvas.drawString(doc.leftMargin + 215, convenciones_y, "Verificar")
+
+    canvas.restoreState()
+
+# Utilidad para reemplazar el marcador por el total real de páginas
+from PyPDF2 import PdfReader, PdfWriter
+from reportlab.pdfgen import canvas as rl_canvas
+from io import BytesIO
+
+def agregar_total_paginas(input_pdf_path, output_pdf_path, pagesize):
+    from PyPDF2 import PdfReader, PdfWriter
+    from reportlab.pdfgen import canvas as rl_canvas
+    from io import BytesIO
+
+    reader = PdfReader(input_pdf_path)
+    writer = PdfWriter()
+    total = len(reader.pages)
+    for i, page in enumerate(reader.pages, 1):
+        packet = BytesIO()
+        can = rl_canvas.Canvas(packet, pagesize=pagesize)
+        # --- DIBUJAR ENCABEZADO ---
+        # Simular un objeto doc para pasar a draw_encabezado
+        class DummyDoc:
+            def __init__(self, pagesize):
+                self.pagesize = pagesize
+                self.leftMargin = 10 * mm
+                self.rightMargin = 10 * mm
+                self.topMargin = 10 * mm  # Reducido para que coincida con el documento principal
+                self.bottomMargin = 30 * mm
+                self.width = pagesize[0] - self.leftMargin - self.rightMargin
+                self.height = pagesize[1] - self.topMargin - self.bottomMargin
+        dummy_doc = DummyDoc(pagesize)
+        draw_encabezado(can, dummy_doc)
+        # --- DIBUJAR PAGINACIÓN ---
+        try:
+            can.setFont("DejaVuSans-Bold", 10)
+        except:
+            can.setFont("Helvetica-Bold", 10)
+        can.drawCentredString(
+            pagesize[0] / 2,  # Centro de la página
+            30,               # Más cerca del borde inferior
+            f"Página {i} de {total}"
+        )
+        can.save()
+        packet.seek(0)
+        from PyPDF2 import PdfReader as RLReader
+        overlay = RLReader(packet)
+        page.merge_page(overlay.pages[0])
+        writer.add_page(page)
+    with open(output_pdf_path, "wb") as f:
+        writer.write(f)
+
+# USO:
+# 1. Genera el PDF con el marcador (por ejemplo, usando BytesIO y guardando en un archivo temporal)
+# 2. Llama a agregar_total_paginas para crear el PDF final con la paginación correcta
+    # --- FUNCIÓN PARA ENCABEZADO Y PIE DE PÁGINA ESPECÍFICA PARA MANTENIMIENTOS ---
+
+def create_reportlab_pdf_lubrication_sheet(equipo, lubricaciones, title="Carta de Lubricación", include_footer=True):
     """
-    Crea un PDF de carta de lubricación usando ReportLab.
+    Crea un PDF de carta de lubricación usando ReportLab con encabezado en todas las páginas.
     
     Args:
         equipo: Objeto Equipo
         lubricaciones: Lista de objetos Lubricacion
         title: Título del reporte
+        include_footer: Si incluir paginación
     
     Returns:
         BytesIO object con el PDF
@@ -1646,20 +1816,33 @@ def create_reportlab_pdf_lubrication_sheet(equipo, lubricaciones, title="Carta d
     buffer = BytesIO()
     pagesize = A4  # Portrait para carta de lubricación
     
-    doc = SimpleDocTemplate(buffer, pagesize=pagesize, 
-                           rightMargin=10*mm, leftMargin=10*mm,
-                           topMargin=10*mm, bottomMargin=30*mm)
+    # Configuración basada en el patrón de mantenimientos
+    encabezado_height = 55  # en puntos, no mm
+    doc = BaseDocTemplate(
+        buffer,
+        pagesize=pagesize,
+        leftMargin=10 * mm,  # Restaurar margen izquierdo original
+        rightMargin=10 * mm,  # Restaurar margen derecho original
+        topMargin=55,  # Espacio para el encabezado
+        bottomMargin=30 * mm
+    )
+
+    # Configurar el documento para incluir footer
+    doc.include_footer = include_footer
+    
+    # Crear PageTemplate con frame ajustado
+    frame = Frame(
+        doc.leftMargin,
+        doc.bottomMargin,
+        doc.width,
+        doc.height - encabezado_height + 35,  # Ajuste para acercar contenido al encabezado
+        id='normal'
+    )
+    # 🧾 Encabezado y footer en TODAS las páginas
+    template = PageTemplate(id='all', frames=[frame], onPage=encabezado_y_footer_lubricacion)
+    doc.addPageTemplates([template])
     
     styles = getSampleStyleSheet()
-    title_style = ParagraphStyle(
-        'CustomTitle',
-        parent=styles['Heading1'],
-        fontSize=16,
-        spaceAfter=20,
-        alignment=TA_CENTER,
-        fontName='Helvetica-Bold'
-    )
-    
     section_style = ParagraphStyle(
         'SectionTitle',
         parent=styles['Heading2'],
@@ -1669,128 +1852,196 @@ def create_reportlab_pdf_lubrication_sheet(equipo, lubricaciones, title="Carta d
         fontName='Helvetica-Bold',
         textColor=colors.grey
     )
-    
     elements = []
+    # Eliminar el título principal (no agregar Paragraph(title, ...))
+    elements.append(Spacer(1, 35))  # Más espacio para separar del encabezado
     
-    # Título
-    elements.append(Paragraph(title, title_style))
-    elements.append(Spacer(1, 10))
-    
-    # Información del equipo
-    info_equipo_header = Table([["Información del Equipo"]], colWidths=[doc.width])
-    info_equipo_header_style = TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 11),
-        ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-    ])
-    info_equipo_header.setStyle(info_equipo_header_style)
-    elements.append(info_equipo_header)
-    
+    # Tabla simplificada con CÓDIGO y NOMBRE DEL EQUIPO
     equipo_data = [
-        ['Campo', 'Valor'],
-        ['Código', str(equipo.codigo) if equipo.codigo else ''],
-        ['Nombre', str(equipo.nombre) if equipo.nombre else ''],
-        ['Ubicación', str(equipo.ubicacion) if equipo.ubicacion else ''],
-        ['Marca', str(equipo.marca) if equipo.marca else ''],
-        ['Modelo', str(equipo.modelo) if equipo.modelo else ''],
-        ['Serie', str(equipo.serie) if equipo.serie else '']
+        ['CÓDIGO', 'NOMBRE DEL EQUIPO'],
+        [str(equipo.codigo) if equipo.codigo else '', str(equipo.nombre) if equipo.nombre else '']
     ]
     
-    equipo_table = Table(equipo_data, repeatRows=1)
+    equipo_table = Table(equipo_data, colWidths=[doc.width*0.5, doc.width*0.5])
     equipo_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, 0), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 4),  # Reducido de 8 a 4
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
         ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
         ('FONTSIZE', (0, 1), (-1, -1), 9),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.white]),
         ('LEFTPADDING', (0, 0), (-1, -1), 6),
         ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-        ('TOPPADDING', (0, 0), (-1, -1), 3),
-        ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),  # Reducido de 4 a 2
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 2),  # Reducido de 4 a 2
     ])
     
     equipo_table.setStyle(equipo_style)
     elements.append(equipo_table)
-    elements.append(Spacer(1, 15))
+    elements.append(Spacer(1, 5))  # Reducido de 15 a 5 para subir la imagen
     
-    # Cartas de lubricación
-    if lubricaciones:
-        cartas_lubricacion_header = Table([["Cartas de Lubricación"]], colWidths=[doc.width])
-        cartas_lubricacion_header_style = TableStyle([
+    # Tabla para la imagen del punto de lubricación
+    if hasattr(equipo, 'imagen_lubricacion') and equipo.imagen_lubricacion:
+        # Si el equipo tiene imagen de lubricación, la mostramos
+        imagen_path = os.path.join(os.getcwd(), 'static', 'uploads', equipo.imagen_lubricacion)
+        if os.path.exists(imagen_path):
+            # Crear tabla con imagen centrada
+            imagen_table = Table([[Image(imagen_path, width=150, height=120, kind='proportional')]], 
+                                colWidths=[doc.width])
+            imagen_style = TableStyle([
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('LEFTPADDING', (0, 0), (-1, -1), 0),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+                ('TOPPADDING', (0, 0), (-1, -1), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+            ])
+            imagen_table.setStyle(imagen_style)
+            elements.append(imagen_table)
+        else:
+            # Si no existe la imagen, mostrar un placeholder
+            placeholder_table = Table([["[Imagen del punto de lubricación]"]], colWidths=[doc.width])
+            placeholder_style = TableStyle([
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 0), (-1, -1), 12),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('BACKGROUND', (0, 0), (-1, -1), colors.lightgrey),
+                ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+                ('LEFTPADDING', (0, 0), (-1, -1), 10),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+                ('TOPPADDING', (0, 0), (-1, -1), 50),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 50),
+            ])
+            placeholder_table.setStyle(placeholder_style)
+            elements.append(placeholder_table)
+    else:
+        # Si no hay imagen de lubricación, mostrar un placeholder
+        placeholder_table = Table([["[Imagen del punto de lubricación]"]], colWidths=[doc.width])
+        placeholder_style = TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 11),
-            ('BACKGROUND', (0, 0), (-1, -1), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 12),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('TOPPADDING', (0, 0), (-1, -1), 5),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+            ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('LEFTPADDING', (0, 0), (-1, -1), 10),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+            ('TOPPADDING', (0, 0), (-1, -1), 50),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 50),
         ])
-        cartas_lubricacion_header.setStyle(cartas_lubricacion_header_style)
-        elements.append(cartas_lubricacion_header)
-        
-        # Preparar datos de la tabla
-        headers = ['N°', 'Mecanismo', 'Cant.', 'Tipo Lubricación', 'Producto', 
-                  'Método Lubricación', 'Frecuencia Inspección', 'Observaciones']
-        data = [headers]
-        
-        # Agregar datos de lubricaciones
+        placeholder_table.setStyle(placeholder_style)
+        elements.append(placeholder_table)
+    
+    elements.append(Spacer(1, 5))  # Reducido de 15 a 5 para acercar las tablas
+    
+    # Crear estilos para los párrafos
+    header_style = ParagraphStyle(
+        'Header',
+        fontName='Helvetica-Bold',
+        fontSize=9,
+        alignment=TA_CENTER,
+        spaceAfter=0,
+        spaceBefore=0
+    )
+    
+    data_style = ParagraphStyle(
+        'Data',
+        fontName='Helvetica',
+        fontSize=8,
+        alignment=TA_LEFT,
+        spaceAfter=0,
+        spaceBefore=0,
+        wordWrap='CJK'  # Permite salto de línea
+    )
+    
+    data_style_center = ParagraphStyle(
+        'DataCenter',
+        fontName='Helvetica',
+        fontSize=8,
+        alignment=TA_CENTER,
+        spaceAfter=0,
+        spaceBefore=0
+    )
+    
+    # Preparar datos de la tabla - SIEMPRE mostrar encabezados
+    headers = [
+        Paragraph('N°', header_style),
+        Paragraph('Mecanismo', header_style),
+        Paragraph('Cant.', header_style),
+        Paragraph('Tipo Lubricación', header_style),
+        Paragraph('Producto', header_style),
+        Paragraph('Método Lubricación', header_style),
+        Paragraph('Frecuencia Inspección', header_style),
+        Paragraph('Observaciones', header_style)
+    ]
+    data = [headers]
+    
+    # Agregar datos de lubricaciones si existen
+    if lubricaciones:
         for lub in lubricaciones:
             row = [
-                str(lub.numero) if lub.numero else '',
-                str(lub.mecanismo) if lub.mecanismo else '',
-                str(lub.cantidad) if lub.cantidad else '',
-                str(lub.tipo_lubricante) if lub.tipo_lubricante else '',
-                str(lub.producto) if lub.producto else '',
-                str(lub.metodo_lubricacion) if lub.metodo_lubricacion else '',
-                str(lub.frecuencia_inspeccion) if lub.frecuencia_inspeccion else '',
-                str(lub.observaciones) if lub.observaciones else ''
+                Paragraph(str(lub.numero) if lub.numero else '', data_style_center),
+                Paragraph(str(lub.mecanismo) if lub.mecanismo else '', data_style),
+                Paragraph(str(lub.cantidad) if lub.cantidad else '', data_style),
+                Paragraph(str(lub.tipo_lubricante) if lub.tipo_lubricante else '', data_style),
+                Paragraph(str(lub.producto) if lub.producto else '', data_style),
+                Paragraph(str(lub.metodo_lubricacion) if lub.metodo_lubricacion else '', data_style),
+                Paragraph(str(lub.frecuencia_inspeccion) if lub.frecuencia_inspeccion else '', data_style),
+                Paragraph(str(lub.observaciones) if lub.observaciones else '', data_style)
             ]
             data.append(row)
-        
-        # Crear tabla de lubricaciones
-        lub_table = Table(data, repeatRows=1)
-        lub_style = TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 8),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -1), 7),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.white]),
-            ('LEFTPADDING', (0, 0), (-1, -1), 3),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 3),
-            ('TOPPADDING', (0, 0), (-1, -1), 2),
-            ('BOTTOMPADDING', (0, 1), (-1, -1), 2),
-        ])
-        
-        lub_table.setStyle(lub_style)
-        elements.append(lub_table)
-    else:
-        elements.append(Paragraph("No hay cartas de lubricación registradas para este equipo.", styles['Normal']))
+    # Si no hay datos, solo mostrar los encabezados (no agregar filas de ejemplo)
+    
+    # Crear tabla de lubricaciones - SIEMPRE se crea
+    # Definir anchos de columnas proporcionales para que quepan todas
+    col_widths = [
+        doc.width * 0.08,  # N° (8%)
+        doc.width * 0.15,  # Mecanismo (15%)
+        doc.width * 0.08,  # Cant. (8%)
+        doc.width * 0.12,  # Tipo Lubricación (12%)
+        doc.width * 0.15,  # Producto (15%)
+        doc.width * 0.12,  # Método Lubricación (12%)
+        doc.width * 0.12,  # Frecuencia Inspección (12%)
+        doc.width * 0.18   # Observaciones (18%)
+    ]
+    lub_table = Table(data, repeatRows=1, colWidths=col_widths)
+    lub_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),  # Header con fondo gris claro
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Texto negro en header
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),  # Fondo blanco para datos
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Bordes negros
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 2),  # Margen interno pequeño
+        ('RIGHTPADDING', (0, 0), (-1, -1), 2),  # Margen interno pequeño
+        ('TOPPADDING', (0, 0), (-1, -1), 3),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
+    ])
+    
+    lub_table.setStyle(lub_style)
+    elements.append(lub_table)
     
     # Construir el documento
-    doc.build(elements, onFirstPage=draw_encabezado, onLaterPages=draw_encabezado)
+    doc.build(elements)
     
     buffer.seek(0)
-    return buffer 
+    return buffer
+
+
+def generar_y_enviar_pdf_lubricacion(equipo, lubricaciones):
+    """
+    Genera el PDF de lubricación con encabezado y paginación "Página X de Y" en todas las páginas.
+    """
+    # Generar PDF base con encabezado y paginación básica
+    buffer = create_reportlab_pdf_lubrication_sheet(equipo, lubricaciones, include_footer=False)
+    
+    # Usar la función que agrega paginación total y envía el archivo
+    nombre_archivo = f'carta_lubricacion_{equipo.codigo}_{datetime.now().strftime("%Y%m%d_%H%M")}.pdf'
+    return generar_y_enviar_pdf_con_paginacion(buffer, nombre_archivo)
+
 
 # Ejemplo completo de uso para paginación 'Página X de Y' en tu reporte
 # 1. Genera el PDF con el marcador '__TOTAL__' en el pie de página
