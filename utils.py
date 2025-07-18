@@ -12,7 +12,7 @@ from datetime import datetime
 # ============================================================================
 
 from reportlab.lib.pagesizes import A4, landscape
-from reportlab.platypus import Table, TableStyle, Paragraph, Image, SimpleDocTemplate, Spacer
+from reportlab.platypus import Table, TableStyle, Paragraph, Image, SimpleDocTemplate, Spacer, PageTemplate, Frame, BaseDocTemplate
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, mm
 from reportlab.lib import colors
@@ -318,6 +318,7 @@ def add_footer(canvas, doc):
     )
     canvas.restoreState()
 
+# --- ENCABEZADO HOJA DE VIDA ---
 def draw_encabezado(canvas, doc):
     canvas.saveState()
     x = doc.leftMargin
@@ -369,359 +370,6 @@ def draw_encabezado(canvas, doc):
         canvas.line(cuadro_x, y - i * row_h, cuadro_x + cuadro_w, y - i * row_h)
     # NO dibujar paginación aquí
     canvas.restoreState()
-
-def draw_encabezado_mantenimientos(canvas, doc):
-    canvas.saveState()
-    x = doc.leftMargin
-    y = doc.pagesize[1] - doc.topMargin
-    height = 55  # Igual que encabezado_height
-    # Anchos personalizados para el encabezado (suma = 764)
-    col_widths_header = [98, 222, 244, 120, 80]  # Ajusta para que sumen 764
-    # Dibuja el borde exterior
-    canvas.rect(x, y - height, sum(col_widths_header), height)
-    # Líneas verticales
-    for i in range(1, 5):
-        canvas.line(x + sum(col_widths_header[:i]), y - height, x + sum(col_widths_header[:i]), y)
-    # --- Contenido de cada bloque ---
-    # 1. Logo (columna 1)
-    logo_path = os.path.join(os.getcwd(), 'static', 'logo.png')
-    if os.path.exists(logo_path):
-        logo_w, logo_h = 55, 35
-        logo_x = x + (col_widths_header[0] / 2) - (logo_w / 2)
-        logo_y = y - (height / 2) - (logo_h / 2)
-        canvas.drawImage(logo_path, logo_x, logo_y, width=logo_w, height=logo_h, preserveAspectRatio=True, mask='auto')
-    # 2. Empresa (columna 2)
-    canvas.setFont('Helvetica-Bold', 11)
-    center_x = x + sum(col_widths_header[:1]) + col_widths_header[1] / 2
-    center_y = y - height / 2
-    canvas.drawCentredString(center_x, center_y + 6, "INR INVERSIONES")
-    canvas.drawCentredString(center_x, center_y - 8, "REINOSO Y CIA. LTDA.")
-    # 3. Título (columna 3)
-    canvas.setFont('Helvetica-Bold', 10)
-    center_x2 = x + sum(col_widths_header[:2]) + col_widths_header[2] / 2
-    canvas.drawCentredString(center_x2, center_y, "CONTROL DE ACTIVIDADES DE MANTENIMIENTO")
-    # 4. Mes (columna 4)
-    canvas.setFont('Helvetica-Bold', 13)
-    meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-    mes_actual = meses[datetime.now().month - 1]
-    center_x3 = x + sum(col_widths_header[:3]) + col_widths_header[3] / 2
-    canvas.drawCentredString(center_x3, center_y, mes_actual)
-    # 5. Código/Edición (columna 5)
-    cuadro_x = x + sum(col_widths_header[:4])
-    cuadro_w = col_widths_header[4]
-    row_h = height / 4
-    for i, (txt, font) in enumerate([
-        ("Código", 'Helvetica-Bold'),
-        ("71-MT-43", 'Helvetica'),
-        ("Edición", 'Helvetica-Bold'),
-        ("4/Jul/2025", 'Helvetica')
-    ]):
-        canvas.setFont(font, 8)
-        center_x4 = cuadro_x + cuadro_w / 2
-        sub_top = y - i * row_h
-        sub_bot = y - (i + 1) * row_h
-        center_y4 = (sub_top + sub_bot) / 2 - 2
-        canvas.drawCentredString(center_x4, center_y4, txt)
-    # Líneas horizontales internas del bloque derecho
-    for i in range(1, 4):
-        canvas.line(cuadro_x, y - i * row_h, cuadro_x + cuadro_w, y - i * row_h)
-    # NO dibujar paginación aquí
-    canvas.restoreState()
-
-
-def draw_encabezado_ficha_tecnica(canvas, doc):
-    canvas.saveState()
-    x = doc.leftMargin
-    y = doc.pagesize[1] - doc.topMargin
-    height = 55
-
-    # Anchos de las 4 columnas (ajustados según la imagen)
-    # Primera y cuarta más estrechas, segunda y tercera más anchas
-    col_widths = [doc.width*0.15, doc.width*0.35, doc.width*0.35, doc.width*0.15]
-
-    # Dibuja el borde exterior
-    canvas.rect(x, y - height, doc.width, height)
-
-    # Líneas verticales separadoras (3 líneas para 4 columnas)
-    current_x = x
-    for i in range(3):
-        current_x += col_widths[i]
-        canvas.line(current_x, y - height, current_x, y)
-
-    # Columna 1: Logo
-    logo_path = os.path.join(os.getcwd(), 'static', 'logo.png')
-    if os.path.exists(logo_path):
-        logo_x = x + (col_widths[0] / 2) - 25
-        logo_y = y - height/2 - 20
-        canvas.drawImage(logo_path, logo_x, logo_y, width=50, height=40, mask='auto')
-
-    # Columna 2: Texto de empresa
-    canvas.setFont('Helvetica-Bold', 12)
-    center_x2 = x + col_widths[0] + col_widths[1]/2
-    center_y = y - height/2
-    canvas.drawCentredString(center_x2, center_y + 5, "INR INVERSIONES")
-    canvas.drawCentredString(center_x2, center_y - 5, "REINOSO Y CIA. LTDA.")
-
-    # Columna 3: Título principal
-    canvas.setFont('Helvetica-Bold', 10)
-    center_x3 = x + col_widths[0] + col_widths[1] + col_widths[2]/2
-    canvas.drawCentredString(center_x3, center_y, "FICHA TÉCNICA DE EQUIPOS")
-
-    # Columna 4: Código y Edición (dividido en 4 espacios verticales)
-    cuadro_x = x + col_widths[0] + col_widths[1] + col_widths[2]
-    cuadro_w = col_widths[3]
-    row_h = height / 4  # 4 filas
-    
-    # Líneas horizontales internas del bloque derecho
-    for i in range(1, 4):
-        canvas.line(cuadro_x, y - i * row_h, cuadro_x + cuadro_w, y - i * row_h)
-    
-    # Contenido del bloque derecho - centrado horizontal y vertical
-    center_x4 = cuadro_x + cuadro_w / 2
-    
-    # Fila 1: "Código"
-    canvas.setFont('Helvetica-Bold', 8)
-    canvas.drawCentredString(center_x4, y - row_h/2 - 5, "Código")
-    
-    # Fila 2: "71-MT-72"
-    canvas.setFont('Helvetica', 8)
-    canvas.drawCentredString(center_x4, y - row_h - row_h/2 - 5, "71-MT-72")
-    
-    # Fila 3: "Edición"
-    canvas.setFont('Helvetica-Bold', 8)
-    canvas.drawCentredString(center_x4, y - 2*row_h - row_h/2 - 5, "Edición")
-    
-    # Fila 4: "5/Jul/2025"
-    canvas.setFont('Helvetica', 8)
-    canvas.drawCentredString(center_x4, y - 3*row_h - row_h/2 - 5, "5/Jul/2025")
-
-    canvas.restoreState()
-
-# Utilidad para reemplazar el marcador por el total real de páginas
-from PyPDF2 import PdfReader, PdfWriter
-from reportlab.pdfgen import canvas as rl_canvas
-from io import BytesIO
-
-def agregar_total_paginas(input_pdf_path, output_pdf_path, pagesize):
-    from PyPDF2 import PdfReader, PdfWriter
-    from reportlab.pdfgen import canvas as rl_canvas
-    from io import BytesIO
-
-    reader = PdfReader(input_pdf_path)
-    writer = PdfWriter()
-    total = len(reader.pages)
-    for i, page in enumerate(reader.pages, 1):
-        packet = BytesIO()
-        can = rl_canvas.Canvas(packet, pagesize=pagesize)
-        # --- DIBUJAR ENCABEZADO ---
-        # Simular un objeto doc para pasar a draw_encabezado
-        class DummyDoc:
-            def __init__(self, pagesize):
-                self.pagesize = pagesize
-                self.leftMargin = 10 * mm
-                self.rightMargin = 10 * mm
-                self.topMargin = 10 * mm  # Reducido para que coincida con el documento principal
-                self.bottomMargin = 30 * mm
-                self.width = pagesize[0] - self.leftMargin - self.rightMargin
-                self.height = pagesize[1] - self.topMargin - self.bottomMargin
-        dummy_doc = DummyDoc(pagesize)
-        draw_encabezado(can, dummy_doc)
-        # --- DIBUJAR PAGINACIÓN ---
-        try:
-            can.setFont("DejaVuSans-Bold", 10)
-        except:
-            can.setFont("Helvetica-Bold", 10)
-        can.drawCentredString(
-            pagesize[0] / 2,  # Centro de la página
-            30,               # Más cerca del borde inferior
-            f"Página {i} de {total}"
-        )
-        can.save()
-        packet.seek(0)
-        from PyPDF2 import PdfReader as RLReader
-        overlay = RLReader(packet)
-        page.merge_page(overlay.pages[0])
-        writer.add_page(page)
-    with open(output_pdf_path, "wb") as f:
-        writer.write(f)
-
-# USO:
-# 1. Genera el PDF con el marcador (por ejemplo, usando BytesIO y guardando en un archivo temporal)
-# 2. Llama a agregar_total_paginas para crear el PDF final con la paginación correcta
-
-
-# --- LISTA DE MANTENIMIENTOS ---
-def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Actividades de Mantenimiento", orientation='landscape', include_footer=True):
-    buffer = BytesIO()
-    if orientation == 'landscape':
-        pagesize = landscape(A4)
-    else:
-        pagesize = A4
-    doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=20*mm, bottomMargin=30*mm)
-    styles = getSampleStyleSheet()
-    elements = []
-    headers = ['N°', 'Fec./Hor. Inic.', 'Fec./Hor. Fin', 'Código', 'Ubicación', 'Tipo', 'Técnico', 'Actividad', 'Observaciones', 'Recibido por']
-    data = [headers]
-    for i, mtto in enumerate(mantenimientos, 1):
-        row = [
-            str(i),
-            Paragraph(str(mtto.hora_inicial) if mtto.hora_inicial else '', ParagraphStyle('fecha_ini', fontSize=8, alignment=TA_CENTER, leading=10)),
-            Paragraph(str(mtto.hora_final) if mtto.hora_final else '', ParagraphStyle('fecha_fin', fontSize=8, alignment=TA_CENTER, leading=10)),
-            str(mtto.codigo) if mtto.codigo else '',
-            str(mtto.ubicacion) if mtto.ubicacion else '',
-            str(mtto.tipo_mantenimiento) if mtto.tipo_mantenimiento else '',
-            str(mtto.tecnico_asignado_display) if hasattr(mtto, 'tecnico_asignado_display') and mtto.tecnico_asignado_display else '',
-            Paragraph(str(mtto.servicio) if mtto.servicio else '', ParagraphStyle('actividad', fontSize=8, alignment=TA_LEFT, leading=10)),
-            Paragraph(str(mtto.observaciones) if mtto.observaciones else '', ParagraphStyle('obs', fontSize=8, alignment=TA_LEFT, leading=10)),
-            str(mtto.recibido_por) if mtto.recibido_por else ''
-        ]
-        data.append(row)
-    col_widths = [24, 68, 68, 50, 104, 52, 67, 125, 120, 80]
-    table = Table(data, colWidths=col_widths, repeatRows=1, hAlign='LEFT')
-    table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 9),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 0.7, colors.black),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 1), (-1, -1), 8),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.whitesmoke]),
-        ('LEFTPADDING', (0, 0), (-1, -1), 2),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 2),
-        ('TOPPADDING', (0, 0), (-1, -1), 4),
-        ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
-        ('ALIGN', (0, 1), (2, -1), 'CENTER'),
-        ('ALIGN', (3, 1), (6, -1), 'CENTER'),
-        ('ALIGN', (7, 1), (7, -1), 'LEFT'),
-        ('ALIGN', (8, 1), (8, -1), 'LEFT'),
-        ('ALIGN', (9, 1), (9, -1), 'CENTER'),
-    ])
-    table.setStyle(table_style)
-    elements.append(table)
-    from reportlab.platypus import PageTemplate, Frame
-    encabezado_height = 55
-    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height, id='normal')
-    doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=encabezado_y_footer_mantenimientos)])
-    doc.build(elements)
-    buffer.seek(0)
-    return buffer
-
-
-# --- DETALLE DE MANTENIMIENTO ---
-def create_reportlab_pdf_maintenance_detail(mantenimiento, title="Control de Actividades de Mantenimiento"):
-    buffer = BytesIO()
-    pagesize = landscape(A4)
-    doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=20*mm, bottomMargin=30*mm)
-    styles = getSampleStyleSheet()
-    title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=16, spaceAfter=20, alignment=TA_CENTER, fontName='Helvetica-Bold')
-    elements = []
-    elements.append(Paragraph(title, title_style))
-    elements.append(Spacer(1, 10))
-    info_data = [
-        ['Campo', 'Valor'],
-        ['ID', str(mantenimiento.id)],
-        ['Código', str(mantenimiento.codigo) if mantenimiento.codigo else ''],
-        ['Nombre', str(mantenimiento.nombre) if mantenimiento.nombre else ''],
-        ['Fecha Programada', mantenimiento.fecha_prog.strftime('%d/%m/%Y') if mantenimiento.fecha_prog else ''],
-        ['Hora', str(mantenimiento.hora) if mantenimiento.hora else ''],
-        ['Servicio', str(mantenimiento.servicio) if mantenimiento.servicio else ''],
-        ['Tipo Mantenimiento', str(mantenimiento.tipo_mantenimiento) if mantenimiento.tipo_mantenimiento else ''],
-        ['Estado', str(mantenimiento.estado_inicial) if mantenimiento.estado_inicial else ''],
-        ['Técnico Asignado', str(mantenimiento.tecnico_asignado_display) if hasattr(mantenimiento, 'tecnico_asignado_display') and mantenimiento.tecnico_asignado_display else ''],
-        ['Ubicación', str(mantenimiento.ubicacion) if mantenimiento.ubicacion else ''],
-        ['Observaciones', str(mantenimiento.observaciones) if mantenimiento.observaciones else '']
-    ]
-    info_table = Table(info_data, repeatRows=1)
-    info_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 1), (-1, -1), 9),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.white]),
-        ('LEFTPADDING', (0, 0), (-1, -1), 6),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-        ('TOPPADDING', (0, 0), (-1, -1), 3),
-        ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
-    ])
-    info_table.setStyle(info_style)
-    elements.append(info_table)
-    from reportlab.platypus import PageTemplate, Frame
-    encabezado_height = 55
-    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height, id='normal')
-    doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=encabezado_y_footer)])
-    doc.build(elements)
-    buffer.seek(0)
-    return buffer 
-
-# --- HISTORIAL DE CAMBIOS ---
-def create_reportlab_pdf_historial(historial, mantenimiento_id, title="Historial de Cambios del Mantenimiento"):
-    buffer = BytesIO()
-    pagesize = landscape(A4)
-    doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=30*mm, bottomMargin=30*mm)
-    styles = getSampleStyleSheet()
-    title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=16, spaceAfter=20, alignment=TA_CENTER, fontName='Helvetica-Bold')
-    elements = []
-    elements.append(Paragraph(title, title_style))
-    elements.append(Spacer(1, 10))
-    if historial and historial[0].mantenimiento:
-        info_text = f"Código: {historial[0].mantenimiento.codigo}<br/>Nombre: {historial[0].mantenimiento.nombre}"
-        info_para = Paragraph(info_text, styles['Normal'])
-        elements.append(info_para)
-        elements.append(Spacer(1, 10))
-    headers = ['Fecha', 'Usuario', 'Campo', 'Valor Anterior', 'Valor Nuevo', 'Acción']
-    data = [headers]
-    for h in historial:
-        row = [
-            h.fecha.strftime('%d/%m/%Y %H:%M') if h.fecha else '',
-            str(h.usuario) if h.usuario else '',
-            str(h.campo) if h.campo else '',
-            str(h.valor_anterior) if h.valor_anterior else '',
-            str(h.valor_nuevo) if h.valor_nuevo else '',
-            str(h.accion) if h.accion else ''
-        ]
-        data.append(row)
-    if data:
-        table = Table(data, repeatRows=1)
-        table_style = TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -1), 8),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.white]),
-            ('LEFTPADDING', (0, 0), (-1, -1), 6),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-            ('TOPPADDING', (0, 0), (-1, -1), 3),
-            ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
-        ])
-        table.setStyle(table_style)
-        elements.append(table)
-    from reportlab.platypus import PageTemplate, Frame
-    encabezado_height = 55
-    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height, id='normal')
-    doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=encabezado_y_footer_mantenimientos)])
-    doc.build(elements)
-    buffer.seek(0)
-    return buffer 
 
 # --- HOJA DE VIDA DE EQUIPO ---
 def create_reportlab_pdf_equipment_life_sheet(equipo, mantenimientos, title="Hoja de Vida de Equipos"):
@@ -1008,6 +656,423 @@ def create_reportlab_pdf_equipment_life_sheet(equipo, mantenimientos, title="Hoj
     doc.build(elements)
     buffer.seek(0)
     return buffer
+
+
+def draw_encabezado_ficha_tecnica(canvas, doc):
+    canvas.saveState()
+    x = doc.leftMargin
+    y = doc.pagesize[1] - doc.topMargin
+    height = 55
+
+    # Anchos de las 4 columnas (ajustados según la imagen)
+    # Primera y cuarta más estrechas, segunda y tercera más anchas
+    col_widths = [doc.width*0.15, doc.width*0.35, doc.width*0.35, doc.width*0.15]
+
+    # Dibuja el borde exterior
+    canvas.rect(x, y - height, doc.width, height)
+
+    # Líneas verticales separadoras (3 líneas para 4 columnas)
+    current_x = x
+    for i in range(3):
+        current_x += col_widths[i]
+        canvas.line(current_x, y - height, current_x, y)
+
+    # Columna 1: Logo
+    logo_path = os.path.join(os.getcwd(), 'static', 'logo.png')
+    if os.path.exists(logo_path):
+        logo_x = x + (col_widths[0] / 2) - 25
+        logo_y = y - height/2 - 20
+        canvas.drawImage(logo_path, logo_x, logo_y, width=50, height=40, mask='auto')
+
+    # Columna 2: Texto de empresa
+    canvas.setFont('Helvetica-Bold', 12)
+    center_x2 = x + col_widths[0] + col_widths[1]/2
+    center_y = y - height/2
+    canvas.drawCentredString(center_x2, center_y + 5, "INR INVERSIONES")
+    canvas.drawCentredString(center_x2, center_y - 5, "REINOSO Y CIA. LTDA.")
+
+    # Columna 3: Título principal
+    canvas.setFont('Helvetica-Bold', 10)
+    center_x3 = x + col_widths[0] + col_widths[1] + col_widths[2]/2
+    canvas.drawCentredString(center_x3, center_y, "FICHA TÉCNICA DE EQUIPOS")
+
+    # Columna 4: Código y Edición (dividido en 4 espacios verticales)
+    cuadro_x = x + col_widths[0] + col_widths[1] + col_widths[2]
+    cuadro_w = col_widths[3]
+    row_h = height / 4  # 4 filas
+    
+    # Líneas horizontales internas del bloque derecho
+    for i in range(1, 4):
+        canvas.line(cuadro_x, y - i * row_h, cuadro_x + cuadro_w, y - i * row_h)
+    
+    # Contenido del bloque derecho - centrado horizontal y vertical
+    center_x4 = cuadro_x + cuadro_w / 2
+    
+    # Fila 1: "Código"
+    canvas.setFont('Helvetica-Bold', 8)
+    canvas.drawCentredString(center_x4, y - row_h/2 - 5, "Código")
+    
+    # Fila 2: "71-MT-72"
+    canvas.setFont('Helvetica', 8)
+    canvas.drawCentredString(center_x4, y - row_h - row_h/2 - 5, "71-MT-72")
+    
+    # Fila 3: "Edición"
+    canvas.setFont('Helvetica-Bold', 8)
+    canvas.drawCentredString(center_x4, y - 2*row_h - row_h/2 - 5, "Edición")
+    
+    # Fila 4: "5/Jul/2025"
+    canvas.setFont('Helvetica', 8)
+    canvas.drawCentredString(center_x4, y - 3*row_h - row_h/2 - 5, "5/Jul/2025")
+
+    canvas.restoreState()
+
+# Utilidad para reemplazar el marcador por el total real de páginas
+from PyPDF2 import PdfReader, PdfWriter
+from reportlab.pdfgen import canvas as rl_canvas
+from io import BytesIO
+
+def agregar_total_paginas(input_pdf_path, output_pdf_path, pagesize):
+    from PyPDF2 import PdfReader, PdfWriter
+    from reportlab.pdfgen import canvas as rl_canvas
+    from io import BytesIO
+
+    reader = PdfReader(input_pdf_path)
+    writer = PdfWriter()
+    total = len(reader.pages)
+    for i, page in enumerate(reader.pages, 1):
+        packet = BytesIO()
+        can = rl_canvas.Canvas(packet, pagesize=pagesize)
+        # --- DIBUJAR ENCABEZADO ---
+        # Simular un objeto doc para pasar a draw_encabezado
+        class DummyDoc:
+            def __init__(self, pagesize):
+                self.pagesize = pagesize
+                self.leftMargin = 10 * mm
+                self.rightMargin = 10 * mm
+                self.topMargin = 10 * mm  # Reducido para que coincida con el documento principal
+                self.bottomMargin = 30 * mm
+                self.width = pagesize[0] - self.leftMargin - self.rightMargin
+                self.height = pagesize[1] - self.topMargin - self.bottomMargin
+        dummy_doc = DummyDoc(pagesize)
+        draw_encabezado(can, dummy_doc)
+        # --- DIBUJAR PAGINACIÓN ---
+        try:
+            can.setFont("DejaVuSans-Bold", 10)
+        except:
+            can.setFont("Helvetica-Bold", 10)
+        can.drawCentredString(
+            pagesize[0] / 2,  # Centro de la página
+            30,               # Más cerca del borde inferior
+            f"Página {i} de {total}"
+        )
+        can.save()
+        packet.seek(0)
+        from PyPDF2 import PdfReader as RLReader
+        overlay = RLReader(packet)
+        page.merge_page(overlay.pages[0])
+        writer.add_page(page)
+    with open(output_pdf_path, "wb") as f:
+        writer.write(f)
+
+# USO:
+# 1. Genera el PDF con el marcador (por ejemplo, usando BytesIO y guardando en un archivo temporal)
+# 2. Llama a agregar_total_paginas para crear el PDF final con la paginación correcta
+    # --- FUNCIÓN PARA ENCABEZADO Y PIE DE PÁGINA ESPECÍFICA PARA MANTENIMIENTOS ---
+
+# --- ENCABEZADO DE MANTENIMIENTOS ---
+def encabezado_y_footer_mantenimientos(canvas, doc):
+    canvas.saveState()
+    x = doc.leftMargin
+    y = doc.pagesize[1] - doc.topMargin  # Posicionamiento como en la prueba
+
+    height = 55   # en puntos
+    
+    # Sin fondo blanco para evitar cuadros que sobresalen
+
+    # Anchos personalizados para el encabezado (suma = 784) - mantener original
+    col_widths_header = [98, 222, 244, 120, 80]
+
+    # Dibuja el borde exterior
+    canvas.rect(x, y - height, sum(col_widths_header), height)
+
+    # Líneas verticales
+    for i in range(1, 5):
+        canvas.line(x + sum(col_widths_header[:i]), y - height, x + sum(col_widths_header[:i]), y)
+
+     # --- Contenido del encabezado ---
+    # 1. Logo (columna 1)
+    logo_path = os.path.join(os.getcwd(), 'static', 'logo.png')
+    if os.path.exists(logo_path):
+        logo_w, logo_h = 55, 35
+        logo_x = x + (col_widths_header[0] / 2) - (logo_w / 2)
+        logo_y = y - (height / 2) - (logo_h / 2)
+        canvas.drawImage(logo_path, logo_x, logo_y, width=logo_w, height=logo_h, preserveAspectRatio=True, mask='auto')
+
+    # 2. Empresa (columna 2)
+    canvas.setFont('Helvetica-Bold', 11)
+    center_x = x + sum(col_widths_header[:1]) + col_widths_header[1] / 2
+    center_y = y - height / 2
+    canvas.drawCentredString(center_x, center_y + 6, "INR INVERSIONES")
+    canvas.drawCentredString(center_x, center_y - 8, "REINOSO Y CIA. LTDA.")
+
+    # 3. Título (columna 3)
+    canvas.setFont('Helvetica-Bold', 10)
+    center_x2 = x + sum(col_widths_header[:2]) + col_widths_header[2] / 2
+    canvas.drawCentredString(center_x2, center_y, "CONTROL DE ACTIVIDADES DE MANTENIMIENTO")
+
+    # 4. Mes (columna 4)
+    canvas.setFont('Helvetica-Bold', 13)
+    meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+    mes_actual = meses[datetime.now().month - 1]
+    center_x3 = x + sum(col_widths_header[:3]) + col_widths_header[3] / 2
+    canvas.drawCentredString(center_x3, center_y, mes_actual)
+
+    # 5. Código/Edición (columna 5)
+    cuadro_x = x + sum(col_widths_header[:4])
+    cuadro_w = col_widths_header[4]
+    row_h = height / 4
+    for i, (txt, font) in enumerate([
+        ("Código", 'Helvetica-Bold'),
+        ("71-MT-43", 'Helvetica'),
+        ("Edición", 'Helvetica-Bold'),
+        ("4/Jul/2025", 'Helvetica')
+    ]):
+        canvas.setFont(font, 8)
+        center_x4 = cuadro_x + cuadro_w / 2
+        sub_top = y - i * row_h
+        sub_bot = y - (i + 1) * row_h
+        center_y4 = (sub_top + sub_bot) / 2 - 2
+        canvas.drawCentredString(center_x4, center_y4, txt)
+
+    # Líneas horizontales internas del bloque derecho (solo 3 líneas)
+    canvas.line(cuadro_x, y - row_h, cuadro_x + cuadro_w, y - row_h)
+    canvas.line(cuadro_x, y - 2 * row_h, cuadro_x + cuadro_w, y - 2 * row_h)
+    canvas.line(cuadro_x, y - 3 * row_h, cuadro_x + cuadro_w, y - 3 * row_h)
+
+    # Footer: Número de página (solo si include_footer es True)
+    if hasattr(doc, 'include_footer') and doc.include_footer:
+        canvas.setFont('Helvetica', 8)
+        page_num = canvas.getPageNumber()
+        # Para evitar la duplicación, solo mostrar "Página X" sin el total
+        canvas.drawCentredString(x + 390, 15, f"Página {page_num}")
+    
+    canvas.restoreState()
+
+    # --- DETALLE DE MANTENIMIENTO ---
+def create_reportlab_pdf_maintenance_detail(mantenimiento, title="Control de Actividades de Mantenimiento"):
+    buffer = BytesIO()
+    pagesize = landscape(A4)
+
+    # Ajustar espacio superior para dejar campo al encabezado
+    encabezado_height_mm = 20 * mm  # Aproximadamente 55 puntos
+
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=pagesize,
+        rightMargin=10 * mm,
+        leftMargin=10 * mm,
+        topMargin=encabezado_height_mm,
+        bottomMargin=20 * mm
+    )
+
+    # --- Crear PageTemplate antes de agregar elementos ---
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height_mm, id='normal')
+    template = PageTemplate(id='AllPages', frames=frame, onPage=encabezado_y_footer_mantenimientos)
+    doc.addPageTemplates([template])
+
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=16, spaceAfter=20, alignment=TA_CENTER, fontName='Helvetica-Bold')
+
+    elements = []
+    elements.append(Paragraph(title, title_style))
+    elements.append(Spacer(1, 6))
+
+    # Datos de mantenimiento
+    info_data = [
+        ['Campo', 'Valor'],
+        ['ID', str(mantenimiento.id)],
+        ['Código', str(mantenimiento.codigo) if mantenimiento.codigo else ''],
+        ['Nombre', str(mantenimiento.nombre) if mantenimiento.nombre else ''],
+        ['Fecha Programada', mantenimiento.fecha_prog.strftime('%d/%m/%Y') if mantenimiento.fecha_prog else ''],
+        ['Hora', str(mantenimiento.hora) if mantenimiento.hora else ''],
+        ['Servicio', str(mantenimiento.servicio) if mantenimiento.servicio else ''],
+        ['Tipo Mantenimiento', str(mantenimiento.tipo_mantenimiento) if mantenimiento.tipo_mantenimiento else ''],
+        ['Estado', str(mantenimiento.estado_inicial) if mantenimiento.estado_inicial else ''],
+        ['Técnico Asignado', str(mantenimiento.tecnico_asignado_display) if hasattr(mantenimiento, 'tecnico_asignado_display') and mantenimiento.tecnico_asignado_display else ''],
+        ['Ubicación', str(mantenimiento.ubicacion) if mantenimiento.ubicacion else ''],
+        ['Observaciones', str(mantenimiento.observaciones) if mantenimiento.observaciones else '']
+    ]
+    # Tabla con estilo
+    info_table = Table(info_data, repeatRows=1)
+    info_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.white]),
+        ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 3),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
+    ]))
+
+    elements.append(info_table)
+    # --- Generar PDF ---
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer
+
+def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Actividades de Mantenimiento", orientation='landscape', include_footer=True):
+    buffer = BytesIO()
+    pagesize = landscape(A4)
+
+    # Configuración basada en la prueba que funciona
+    encabezado_height = 55  # en puntos, no mm
+    doc = BaseDocTemplate(
+        buffer,
+        pagesize=pagesize,
+        leftMargin=10 * mm,
+        rightMargin=10 * mm,
+        topMargin=80,  # Más espacio para el encabezado
+        bottomMargin=20 * mm
+    )
+
+    # Configurar el documento para incluir footer
+    doc.include_footer = include_footer
+    
+    # Crear PageTemplate con frame ajustado (como en la prueba)
+    frame = Frame(
+        doc.leftMargin,
+        doc.bottomMargin,
+        doc.width,
+        doc.height - encabezado_height,  # Restar altura del encabezado
+        id='normal'
+    )
+    # 🧾 Encabezado y footer en TODAS las páginas
+    template = PageTemplate(id='all', frames=[frame], onPage=encabezado_y_footer_mantenimientos)
+    doc.addPageTemplates([template])
+
+    styles = getSampleStyleSheet()
+    elements = []
+
+# ---- Tabla ----
+    headers = ['N°', 'Fec./Hor. Inic.', 'Fec./Hor. Fin', 'Código', 'Ubicación', 'Tipo', 'Técnico', 'Actividad', 'Observaciones', 'Recibido por']
+    data = [headers]
+
+    for i, mtto in enumerate(mantenimientos, 1):
+        row = [
+            str(i),
+            Paragraph(str(mtto.hora_inicial) if mtto.hora_inicial else '', ParagraphStyle('fecha_ini', fontSize=8, alignment=TA_CENTER, leading=10)),
+            Paragraph(str(mtto.hora_final) if mtto.hora_final else '', ParagraphStyle('fecha_fin', fontSize=8, alignment=TA_CENTER, leading=10)),
+            str(mtto.codigo) if mtto.codigo else '',
+            str(mtto.ubicacion) if mtto.ubicacion else '',
+            str(mtto.tipo_mantenimiento) if mtto.tipo_mantenimiento else '',
+            str(mtto.tecnico_asignado_display) if hasattr(mtto, 'tecnico_asignado_display') and mtto.tecnico_asignado_display else '',
+            Paragraph(str(mtto.servicio) if mtto.servicio else '', ParagraphStyle('actividad', fontSize=8, alignment=TA_LEFT, leading=10)),
+            Paragraph(str(mtto.observaciones) if mtto.observaciones else '', ParagraphStyle('obs', fontSize=8, alignment=TA_LEFT, leading=10)),
+            str(mtto.recibido_por) if mtto.recibido_por else ''
+        ]
+        data.append(row)
+
+    col_widths = [24, 68, 68, 50, 104, 52, 67, 125, 120, 80]
+
+    table = Table(data, colWidths=col_widths, repeatRows=1, hAlign='LEFT')
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+        ('GRID', (0, 0), (-1, -1), 0.7, colors.black),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 8),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.whitesmoke]),
+        ('LEFTPADDING', (0, 0), (-1, -1), 2),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 2),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
+        ('ALIGN', (0, 1), (2, -1), 'CENTER'),
+        ('ALIGN', (3, 1), (6, -1), 'CENTER'),
+        ('ALIGN', (7, 1), (7, -1), 'LEFT'),
+        ('ALIGN', (8, 1), (8, -1), 'LEFT'),
+        ('ALIGN', (9, 1), (9, -1), 'CENTER'),
+    ]))
+
+    elements.append(table)
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer
+
+
+
+# --- HISTORIAL DE CAMBIOS ---
+def create_reportlab_pdf_historial(historial, mantenimiento_id, title="Historial de Cambios del Mantenimiento"):
+    buffer = BytesIO()
+    pagesize = landscape(A4)
+    doc = SimpleDocTemplate(buffer, pagesize=pagesize, rightMargin=10*mm, leftMargin=10*mm, topMargin=30*mm, bottomMargin=30*mm)
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=16, spaceAfter=20, alignment=TA_CENTER, fontName='Helvetica-Bold')
+    elements = []
+    elements.append(Paragraph(title, title_style))
+    elements.append(Spacer(1, 10))
+    if historial and historial[0].mantenimiento:
+        info_text = f"Código: {historial[0].mantenimiento.codigo}<br/>Nombre: {historial[0].mantenimiento.nombre}"
+        info_para = Paragraph(info_text, styles['Normal'])
+        elements.append(info_para)
+        elements.append(Spacer(1, 10))
+    headers = ['Fecha', 'Usuario', 'Campo', 'Valor Anterior', 'Valor Nuevo', 'Acción']
+    data = [headers]
+    for h in historial:
+        row = [
+            h.fecha.strftime('%d/%m/%Y %H:%M') if h.fecha else '',
+            str(h.usuario) if h.usuario else '',
+            str(h.campo) if h.campo else '',
+            str(h.valor_anterior) if h.valor_anterior else '',
+            str(h.valor_nuevo) if h.valor_nuevo else '',
+            str(h.accion) if h.accion else ''
+        ]
+        data.append(row)
+    if data:
+        table = Table(data, repeatRows=1)
+        table_style = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 8),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.white]),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
+        ])
+        table.setStyle(table_style)
+        elements.append(table)
+    from reportlab.platypus import PageTemplate, Frame
+    encabezado_height = 55
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - encabezado_height, id='normal')
+    doc.addPageTemplates([PageTemplate(id='all', frames=frame, onPage=encabezado_y_footer_mantenimientos)])
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer 
+
 
 def create_reportlab_pdf_equipment_technical_sheet(equipo, motores, title="FICHA TÉCNICA DE EQUIPOS"):
     """
@@ -1780,7 +1845,7 @@ def generar_y_enviar_pdf_mantenimiento(mantenimientos):
     Genera el PDF de mantenimientos con encabezado y paginación "Página X de Y" en todas las páginas.
     """
     # Generar PDF base con encabezado y paginación básica
-    buffer = create_reportlab_pdf_maintenance_report(mantenimientos, orientation='landscape')
+    buffer = create_reportlab_pdf_maintenance_report(mantenimientos, orientation='landscape', include_footer=False)
     
     # Usar la función que agrega paginación total y envía el archivo
     nombre_archivo = f'mantenimientos_programados_{datetime.now().strftime("%Y%m%d_%H%M")}.pdf'
@@ -1810,12 +1875,6 @@ def encabezado_y_footer(canvas, doc):
 def encabezado_y_footer_ficha_tecnica(canvas, doc):
     draw_encabezado_ficha_tecnica(canvas, doc)
     add_pagination_footer(canvas, doc)
-
-# --- FUNCIÓN PARA ENCABEZADO Y PIE DE PÁGINA ESPECÍFICA PARA MANTENIMIENTOS ---
-def encabezado_y_footer_mantenimientos(canvas, doc):
-    draw_encabezado_mantenimientos(canvas, doc)
-    add_pagination_footer(canvas, doc)
-
 
 
 from PyPDF2 import PdfReader, PdfWriter
