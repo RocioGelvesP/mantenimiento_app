@@ -783,7 +783,7 @@ def agregar_total_paginas(input_pdf_path, output_pdf_path, pagesize):
 def encabezado_y_footer_mantenimientos(canvas, doc):
     canvas.saveState()
     x = doc.leftMargin
-    y = doc.pagesize[1] - doc.topMargin  # Posicionamiento como en la prueba
+    y = doc.pagesize[1] - doc.topMargin + 35  # Subir el encabezado aún más hacia arriba
 
     height = 55   # en puntos
     
@@ -864,7 +864,7 @@ def create_reportlab_pdf_maintenance_detail(mantenimiento, title="Control de Act
     pagesize = landscape(A4)
 
     # Ajustar espacio superior para dejar campo al encabezado
-    encabezado_height_mm = 20 * mm  # Aproximadamente 55 puntos
+    encabezado_height_mm = 10 * mm  # Aproximadamente 55 puntos
 
     doc = SimpleDocTemplate(
         buffer,
@@ -940,7 +940,7 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
         pagesize=pagesize,
         leftMargin=10 * mm,
         rightMargin=10 * mm,
-        topMargin=80,  # Más espacio para el encabezado
+        topMargin=55,  # Mantener espacio para el encabezado
         bottomMargin=20 * mm
     )
 
@@ -952,7 +952,7 @@ def create_reportlab_pdf_maintenance_report(mantenimientos, title="Control de Ac
         doc.leftMargin,
         doc.bottomMargin,
         doc.width,
-        doc.height - encabezado_height,  # Restar altura del encabezado
+        doc.height - encabezado_height + 35,  # Reducir el espacio restado para acercar tabla
         id='normal'
     )
     # 🧾 Encabezado y footer en TODAS las páginas
