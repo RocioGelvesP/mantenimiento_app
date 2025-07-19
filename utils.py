@@ -1640,7 +1640,7 @@ def encabezado_y_footer_lubricacion(canvas, doc):
 
     # Anchos de las 4 columnas (ajustados según la imagen)
     # Columna 1: Logo, Columna 2: Empresa, Columna 3: Título, Columna 4: Código/Edición
-    col_widths = [doc.width*0.15, doc.width*0.35, doc.width*0.25, doc.width*0.25]
+    col_widths = [doc.width*0.15, doc.width*0.35, doc.width*0.35, doc.width*0.15]
 
     # Dibuja el borde exterior
     canvas.rect(x, y - height, doc.width, height)
@@ -1660,7 +1660,7 @@ def encabezado_y_footer_lubricacion(canvas, doc):
         canvas.drawImage(logo_path, logo_x, logo_y, width=50, height=40, mask='auto')
 
     # Columna 2: Texto de empresa
-    canvas.setFont('Helvetica-Bold', 10)
+    canvas.setFont('Helvetica-Bold', 12)
     center_x2 = x + col_widths[0] + col_widths[1]/2
     center_y = y - height/2
     canvas.drawCentredString(center_x2, center_y + 5, "INR INVERSIONES")
