@@ -541,6 +541,9 @@
                         <a href="{{ url_for('maintenance.imprimir_mantenimiento', id=mantenimiento.id) }}" class="btn btn-success">
                             <i class="fas fa-print me-2"></i>Imprimir
                         </a>
+                        <a href="{{ url_for('maintenance.cronograma_equipo', codigo=mantenimiento.codigo) }}" class="btn btn-warning">
+                            <i class="fas fa-calendar-alt me-2"></i>Cronograma del Equipo
+                        </a>
                     </div>
                 </div>
             </div>

@@ -985,6 +985,9 @@
                 <a href="{{ url_for('maintenance.descargar_informe_excel', **request.args) }}" class="btn btn-outline-info me-2">
                     <i class="fas fa-file-excel me-1"></i> Descargar Excel
                 </a>
+                <a href="{{ url_for('maintenance.cronograma_equipo', codigo='todos') }}" class="btn btn-outline-warning me-2" title="Cronograma de Mantenimientos">
+                    <i class="fas fa-calendar-alt me-1"></i> Cronograma Anual
+                </a>
                 {% if current_user.is_super_admin() or current_user.is_admin() or current_user.is_supervisor() %}
                 <a href="{{ url_for('maintenance.estadisticas_tecnicos', year=year) }}" class="btn btn-outline-warning">
                     <i class="fas fa-chart-line me-1"></i> Estadísticas de Técnicos
@@ -1278,6 +1281,9 @@
                                 {% endif %}
                                                 <a href="{{ url_for('maintenance.imprimir_mantenimiento', id=mantenimiento.id) }}" class="btn btn-success btn-sm" title="Imprimir">
                                                     <i class="fas fa-print"></i>
+                                                </a>
+                                                <a href="{{ url_for('maintenance.cronograma_equipo', codigo=mantenimiento.codigo) }}" class="btn btn-warning btn-sm" title="Cronograma del Equipo">
+                                                    <i class="fas fa-calendar-alt"></i>
                                                 </a>
                                                 {% if current_user.can_delete() %}
                                                 <form method="POST" action="{{ url_for('maintenance.eliminar_mantenimiento', id=mantenimiento.id) }}" style="display: inline;" onsubmit="return confirmarEliminacion()">

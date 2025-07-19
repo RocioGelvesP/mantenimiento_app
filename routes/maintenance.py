@@ -1873,3 +1873,139 @@ def crear_mantenimientos_futuros(mantenimiento_base):
         db.session.commit()
     
     return mantenimientos_creados
+
+@maintenance.route('/cronograma-equipo/<codigo>')
+@login_required
+def cronograma_equipo(codigo):
+    """
+    Genera el cronograma de mantenimientos para un equipo específico del año en curso.
+    """
+    try:
+        # Obtener el año actual
+        year = datetime.now().year
+        
+        # Si el código es 'todos', generar cronograma para todos los equipos
+        if codigo == 'todos':
+            # Obtener todos los equipos que tienen mantenimientos programados
+            equipos_con_mantenimientos = db.session.query(Equipo).join(Programado).filter(
+                Programado.fecha_prog >= datetime(year, 1, 1),
+                Programado.fecha_prog <= datetime(year, 12, 31)
+            ).distinct().all()
+            
+            if not equipos_con_mantenimientos:
+                flash(f'No hay mantenimientos programados para ningún equipo en el año {year}.', 'warning')
+                return redirect(url_for('maintenance.lista'))
+            
+            # Preparar datos para el PDF combinado
+            equipos_mantenimientos = []
+            for equipo in equipos_con_mantenimientos:
+                mantenimientos = Programado.query.filter(
+                    Programado.codigo == equipo.codigo,
+                    Programado.fecha_prog >= datetime(year, 1, 1),
+                    Programado.fecha_prog <= datetime(year, 12, 31)
+                ).order_by(Programado.fecha_prog.asc()).all()
+                
+                if mantenimientos:
+                    equipos_mantenimientos.append((equipo, mantenimientos))
+            
+            if not equipos_mantenimientos:
+                flash(f'No hay mantenimientos programados para ningún equipo en el año {year}.', 'warning')
+                return redirect(url_for('maintenance.lista'))
+            
+            # Crear un PDF combinado con todos los equipos
+            from utils import create_reportlab_pdf_all_equipment_schedules
+            from flask import send_file, after_this_request
+            import tempfile
+            import os
+            
+            # Crear archivo temporal
+            temp_fd, temp_path = tempfile.mkstemp(suffix='.pdf')
+            
+            # Generar PDF combinado
+            pdf_content = create_reportlab_pdf_all_equipment_schedules(equipos_mantenimientos, year)
+            
+            # Escribir el PDF combinado
+            with os.fdopen(temp_fd, 'wb') as temp_file:
+                temp_file.write(pdf_content)
+            
+            # Función para limpiar el archivo temporal después de enviarlo
+            @after_this_request
+            def cleanup(response):
+                try:
+                    os.unlink(temp_path)
+                except Exception as e:
+                    print(f"Error al eliminar archivo temporal: {e}")
+                return response
+            
+            # Enviar el PDF al usuario
+            nombre_archivo = f"cronograma_todos_equipos_{year}.pdf"
+            return send_file(temp_path, as_attachment=True, download_name=nombre_archivo, mimetype='application/pdf')
+        
+        # Caso normal: equipo específico
+        equipo = Equipo.query.filter_by(codigo=codigo).first()
+        if not equipo:
+            flash('Equipo no encontrado.', 'error')
+            return redirect(url_for('maintenance.lista'))
+        
+        # Obtener todos los mantenimientos del equipo para el año actual
+        mantenimientos = Programado.query.filter(
+            Programado.codigo == codigo,
+            Programado.fecha_prog >= datetime(year, 1, 1),
+            Programado.fecha_prog <= datetime(year, 12, 31)
+        ).order_by(Programado.fecha_prog.asc()).all()
+        
+        if not mantenimientos:
+            flash(f'No hay mantenimientos programados para el equipo {codigo} en el año {year}.', 'warning')
+            return redirect(url_for('maintenance.lista'))
+        
+        # Generar nombre del archivo
+        nombre_archivo = f"cronograma_{codigo}_{year}.pdf"
+        
+        # Importar la función desde utils
+        from utils import generar_y_enviar_pdf_cronograma
+        
+        # Generar y enviar el PDF
+        return generar_y_enviar_pdf_cronograma(equipo, mantenimientos, year, nombre_archivo)
+        
+    except Exception as e:
+        current_app.logger.error(f"Error al generar cronograma para equipo {codigo}: {str(e)}")
+        flash(f'Error al generar el cronograma: {str(e)}', 'error')
+        return redirect(url_for('maintenance.lista'))
+
+@maintenance.route('/cronograma-equipo/<codigo>/<int:year>')
+@login_required
+def cronograma_equipo_year(codigo, year):
+    """
+    Genera el cronograma de mantenimientos para un equipo específico de un año específico.
+    """
+    try:
+        # Obtener el equipo
+        equipo = Equipo.query.filter_by(codigo=codigo).first()
+        if not equipo:
+            flash('Equipo no encontrado.', 'error')
+            return redirect(url_for('maintenance.lista'))
+        
+        # Obtener todos los mantenimientos del equipo para el año especificado
+        mantenimientos = Programado.query.filter(
+            Programado.codigo == codigo,
+            Programado.fecha_prog >= datetime(year, 1, 1),
+            Programado.fecha_prog <= datetime(year, 12, 31)
+        ).order_by(Programado.fecha_prog.asc()).all()
+        
+        if not mantenimientos:
+            flash(f'No hay mantenimientos programados para el equipo {codigo} en el año {year}.', 'warning')
+            return redirect(url_for('maintenance.lista'))
+        
+        # Generar nombre del archivo
+        nombre_archivo = f"cronograma_{codigo}_{year}.pdf"
+        
+        # Importar la función desde utils
+        from utils import generar_y_enviar_pdf_cronograma
+        
+        # Generar y enviar el PDF
+        return generar_y_enviar_pdf_cronograma(equipo, mantenimientos, year, nombre_archivo)
+        
+    except Exception as e:
+        current_app.logger.error(f"Error al generar cronograma para equipo {codigo} año {year}: {str(e)}")
+        flash(f'Error al generar el cronograma: {str(e)}', 'error')
+        return redirect(url_for('maintenance.lista'))

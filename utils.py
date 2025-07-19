@@ -783,14 +783,14 @@ def agregar_total_paginas(input_pdf_path, output_pdf_path, pagesize):
 def encabezado_y_footer_mantenimientos(canvas, doc):
     canvas.saveState()
     x = doc.leftMargin
-    y = doc.pagesize[1] - doc.topMargin + 35  # Subir el encabezado aún más hacia arriba
+    y = doc.pagesize[1] - doc.topMargin + 15  # Subir el encabezado más hacia arriba (era +35)
 
     height = 55   # en puntos
     
     # Sin fondo blanco para evitar cuadros que sobresalen
 
-    # Anchos personalizados para el encabezado (suma = 784) - mantener original
-    col_widths_header = [98, 222, 244, 120, 80]
+    # Anchos personalizados para el encabezado (4 columnas) - Reducidos para evitar desbordamiento
+    col_widths_header = [30, 80, 634, 40]  # Reducido col1 y col2 aún más, aumentado col3
 
     # Dibuja el borde exterior
     canvas.rect(x, y - height, sum(col_widths_header), height)
@@ -803,13 +803,23 @@ def encabezado_y_footer_mantenimientos(canvas, doc):
     # 1. Logo (columna 1)
     logo_path = os.path.join(os.getcwd(), 'static', 'logo.png')
     if os.path.exists(logo_path):
-        logo_w, logo_h = 55, 35
+        logo_w, logo_h = 55, 35  # Volver al tamaño original
         logo_x = x + (col_widths_header[0] / 2) - (logo_w / 2)
         logo_y = y - (height / 2) - (logo_h / 2)
         canvas.drawImage(logo_path, logo_x, logo_y, width=logo_w, height=logo_h, preserveAspectRatio=True, mask='auto')
+    else:
+        # Fallback: dibujar óvalo rojo con INR
+        logo_x = x + (col_widths_header[0] / 2) - 20  # Volver al tamaño original
+        logo_y = y - (height / 2) - 15  # Volver al tamaño original
+        canvas.setStrokeColor(colors.HexColor('#FF0000'))
+        canvas.setLineWidth(2)
+        canvas.ellipse(logo_x, logo_y, logo_x + 40, logo_y + 30, fill=0)  # Volver al tamaño original
+        canvas.setFillColor(colors.HexColor('#FF0000'))
+        canvas.setFont('Helvetica-Bold', 12)  # Volver al tamaño original
+        canvas.drawCentredString(logo_x + 20, logo_y + 15, 'INR')  # Volver al tamaño original
 
     # 2. Empresa (columna 2)
-    canvas.setFont('Helvetica-Bold', 11)
+    canvas.setFont('Helvetica-Bold', 11)  # Volver al tamaño original
     center_x = x + sum(col_widths_header[:1]) + col_widths_header[1] / 2
     center_y = y - height / 2
     canvas.drawCentredString(center_x, center_y + 6, "INR INVERSIONES")
@@ -1854,27 +1864,28 @@ def create_reportlab_pdf_lubrication_sheet(equipo, lubricaciones, title="Carta d
     # Eliminar el título principal (no agregar Paragraph(title, ...))
     elements.append(Spacer(1, 35))  # Más espacio para separar del encabezado
     
-    # Tabla simplificada con CÓDIGO y NOMBRE DEL EQUIPO
-    equipo_data = [
-        ['CÓDIGO', 'NOMBRE DEL EQUIPO'],
-        [str(equipo.codigo) if equipo.codigo else '', str(equipo.nombre) if equipo.nombre else '']
+    # Espaciador adicional para separar del encabezado
+    elements.append(Spacer(1, 10))  # Reducir espaciador (era 20)
+    
+    # Información del equipo (simplificada ya que está en el encabezado)
+    equipo_info = [
+        ['Ubicación:', equipo.ubicacion or 'N/A', '', 'Año:', str(year)],
+        ['Proceso:', equipo.proceso or 'N/A', '', 'Centro de Costos:', equipo.centro_costos or 'N/A']
     ]
     
-    equipo_table = Table(equipo_data, colWidths=[doc.width*0.5, doc.width*0.5])
+    equipo_table = Table(equipo_info, colWidths=[3*cm, 4*cm, 1*cm, 3*cm, 4*cm])
     equipo_style = TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 4),  # Reducido de 8 a 4
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 6),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-        ('TOPPADDING', (0, 0), (-1, -1), 2),  # Reducido de 4 a 2
-        ('BOTTOMPADDING', (0, 1), (-1, -1), 2),  # Reducido de 4 a 2
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+        ('BACKGROUND', (3, 0), (3, -1), colors.lightgrey),
+        ('LEFTPADDING', (0, 0), (-1, -1), 5),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
     ])
     
     equipo_table.setStyle(equipo_style)
@@ -2252,3 +2263,796 @@ def generar_y_enviar_pdf_hoja_vida(equipo, mantenimientos, nombre_archivo="hoja_
         return response
     # 5. Envía el PDF final al usuario
     return send_file(temp_final_path, as_attachment=True, download_name=nombre_archivo, mimetype='application/pdf')
+
+#CRONOGRAMA DE MANTENIMIENTOS
+
+def draw_footer_cronograma(canvas, doc):
+    """
+    Dibuja el footer del cronograma con paginación.
+    Adaptado del código de encabezado_y_footer_mantenimientos.
+    """
+    from reportlab.lib.units import cm
+    from reportlab.lib import colors
+    from datetime import datetime
+    
+    canvas.saveState()
+    x = doc.leftMargin
+    
+    # Footer: Número de página y información del sistema
+    canvas.setFont('Helvetica', 8)
+    page_num = canvas.getPageNumber()
+    
+    # Línea separadora superior del footer
+    canvas.setStrokeColor(colors.black)
+    canvas.setLineWidth(0.5)
+    canvas.line(x, 25, x + 784, 25)  # Usar el mismo ancho que el encabezado
+    
+    # Texto izquierdo
+    canvas.drawString(x, 15, 'Documento generado automáticamente por el Sistema de Mantenimiento')
+    
+    # Número de página centrado
+    canvas.drawCentredString(x + 390, 15, f"Página {page_num}")
+    
+    # Fecha de generación derecha
+    fecha_gen = datetime.now().strftime('%d/%m/%Y %H:%M')
+    canvas.drawRightString(x + 784, 15, f'Generado: {fecha_gen}')
+    
+    canvas.restoreState()
+
+def create_reportlab_pdf_maintenance_schedule(equipo, mantenimientos, year, title="CRONOGRAMA DE MANTENIMIENTO PREVENTIVO MÁQUINAS Y/O EQUIPOS"):
+    """
+    Crea un PDF del cronograma de mantenimientos para un equipo específico durante un año.
+    Similar al formato del documento mostrado en la imagen.
+    """
+    from reportlab.lib.pagesizes import A4, landscape
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch, cm
+    from reportlab.lib import colors
+    from reportlab.pdfgen import canvas
+    from io import BytesIO
+    import os
+    from datetime import datetime, date
+    import calendar
+    
+    # Crear buffer para el PDF
+    buffer = BytesIO()
+    
+    # Configurar documento en orientación landscape para mejor visualización
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(A4), 
+                           rightMargin=1*cm, leftMargin=1*cm, 
+                           topMargin=5*cm, bottomMargin=2.5*cm)  # Reducir topMargin (era 6*cm)
+    
+    elements = []
+    styles = getSampleStyleSheet()
+    
+    # Estilo para el título principal (ya no necesario porque está en el encabezado)
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=16,
+        spaceAfter=20,
+        alignment=1,  # Centrado
+        fontName='Helvetica-Bold'
+    )
+    
+    # Estilo para subtítulos
+    subtitle_style = ParagraphStyle(
+        'CustomSubtitle',
+        parent=styles['Heading2'],
+        fontSize=12,
+        spaceAfter=10,
+        alignment=0,  # Izquierda
+        fontName='Helvetica-Bold'
+    )
+    
+    # Estilo para texto normal
+    normal_style = ParagraphStyle(
+        'CustomNormal',
+        parent=styles['Normal'],
+        fontSize=10,
+        spaceAfter=5,
+        fontName='Helvetica'
+    )
+    
+    # Ya no necesitamos el título aquí porque está en el encabezado
+    # elements.append(Paragraph(title, title_style))
+    # elements.append(Spacer(1, 10))
+    
+    # Espaciador adicional para separar del encabezado
+    elements.append(Spacer(1, 20))
+    
+    # Información del equipo (simplificada ya que está en el encabezado)
+    equipo_info = [
+        ['Ubicación:', equipo.ubicacion or 'N/A', '', 'Año:', str(year)],
+        ['Proceso:', equipo.proceso or 'N/A', '', 'Centro de Costos:', equipo.centro_costos or 'N/A']
+    ]
+    
+    equipo_table = Table(equipo_info, colWidths=[3*cm, 4*cm, 1*cm, 3*cm, 4*cm])
+    equipo_style = TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+        ('BACKGROUND', (3, 0), (3, -1), colors.lightgrey),
+        ('LEFTPADDING', (0, 0), (-1, -1), 5),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+    ])
+    equipo_table.setStyle(equipo_style)
+    elements.append(equipo_table)
+    elements.append(Spacer(1, 15))
+    
+    # Crear tabla del cronograma
+    # Encabezados de meses
+    meses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 
+             'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE']
+    
+    # Crear estructura de datos para el cronograma
+    # Agrupar mantenimientos por servicio
+    servicios_mantenimientos = {}
+    for mtto in mantenimientos:
+        if mtto.servicio not in servicios_mantenimientos:
+            servicios_mantenimientos[mtto.servicio] = []
+        servicios_mantenimientos[mtto.servicio].append(mtto)
+    
+    # Crear filas del cronograma
+    cronograma_data = []
+    
+    # Encabezado con meses y semanas
+    header_row = ['No.', 'INSTRUCCIONES', 'FREC.']
+    for mes in meses:
+        for semana in ['1', '2', '3', '4']:
+            header_row.append(f'{mes[:3]}\n{semana}')
+    cronograma_data.append(header_row)
+    
+    # Fila para PROG/EJEC
+    prog_ejec_row = ['', '', '']
+    for mes in meses:
+        for semana in ['1', '2', '3', '4']:
+            prog_ejec_row.append('PROG\nEJEC')
+    cronograma_data.append(prog_ejec_row)
+    
+    # Agregar mantenimientos por servicio
+    numero_mantenimiento = 1
+    for servicio, mantenimientos_servicio in servicios_mantenimientos.items():
+        # Obtener frecuencia del primer mantenimiento del servicio
+        frecuencia = mantenimientos_servicio[0].frecuencia if mantenimientos_servicio else 'N/A'
+        
+        # Crear fila para este servicio
+        row = [str(numero_mantenimiento), servicio, frecuencia]
+        
+        # Inicializar todas las semanas con espacios vacíos
+        for mes in meses:
+            for semana in ['1', '2', '3', '4']:
+                row.append('')
+        
+        # Marcar las semanas donde hay mantenimientos programados
+        for mtto in mantenimientos_servicio:
+            if mtto.fecha_prog.year == year:
+                mes_index = mtto.fecha_prog.month - 1  # 0-based
+                semana_index = (mtto.fecha_prog.day - 1) // 7  # Calcular semana (0-3)
+                
+                # Calcular posición en la fila
+                posicion = 3 + (mes_index * 4) + semana_index
+                
+                # Determinar el tipo de actividad
+                if 'lubric' in servicio.lower() or 'lubricación' in servicio.lower():
+                    actividad = 'L'
+                elif 'inspec' in servicio.lower() or 'revis' in servicio.lower():
+                    actividad = 'I'
+                elif 'ajust' in servicio.lower():
+                    actividad = 'A'
+                elif 'limpi' in servicio.lower():
+                    actividad = 'LZ'
+                else:
+                    actividad = 'M'  # Mantenimiento general
+                
+                # Marcar como programado
+                row[posicion] = actividad
+                
+                # Si está completado, marcar también como ejecutado
+                if mtto.estado_inicial == 'Completado':
+                    # Agregar 'ok' en la fila de ejecutado
+                    if len(cronograma_data) > 1:  # Si ya existe la fila de PROG/EJEC
+                        cronograma_data[1][posicion] = 'PROG\nok'
+        
+        cronograma_data.append(row)
+        numero_mantenimiento += 1
+    
+    # Crear tabla del cronograma
+    cronograma_table = Table(cronograma_data, repeatRows=2)
+    
+    # Estilo para la tabla del cronograma
+    cronograma_style = TableStyle([
+        # Estilo general
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('LEFTPADDING', (0, 0), (-1, -1), 2),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 2),
+        ('TOPPADDING', (0, 0), (-1, -1), 3),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        
+        # Encabezados
+        ('BACKGROUND', (0, 0), (-1, 1), colors.lightgrey),
+        ('FONTNAME', (0, 0), (-1, 1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 1), 7),
+        
+        # Columnas de información
+        ('BACKGROUND', (0, 0), (2, -1), colors.lightblue),
+        ('FONTNAME', (0, 0), (2, -1), 'Helvetica-Bold'),
+        
+        # Ancho de columnas
+        ('COLWIDTH', (0, 0), (0, -1), 0.8*cm),  # No.
+        ('COLWIDTH', (1, 0), (1, -1), 4*cm),     # INSTRUCCIONES
+        ('COLWIDTH', (2, 0), (2, -1), 1*cm),     # FREC.
+    ])
+    
+    # Aplicar ancho uniforme para las columnas de meses/semanas
+    for i in range(3, len(cronograma_data[0])):
+        cronograma_style.add('COLWIDTH', (i, 0), (i, -1), 1.2*cm)
+    
+    cronograma_table.setStyle(cronograma_style)
+    elements.append(cronograma_table)
+    elements.append(Spacer(1, 15))
+    
+    # Leyenda
+    leyenda_data = [
+        ['PROG:', 'Programado', '', 'EJEC:', 'Ejecutado'],
+        ['I:', 'Inspección', '', 'L:', 'Lubricación'],
+        ['A:', 'Ajuste', '', 'LZ:', 'Limpieza'],
+        ['Frecuencia:', 'S: Semanal, M: Mensual, BI: Bimensual, TR: Trimestral, SE: Semestral, AN: Anual'],
+        ['RP:', 'Reprogramado', '', 'ok:', 'Realizado']
+    ]
+    
+    leyenda_table = Table(leyenda_data, colWidths=[1.5*cm, 3*cm, 1*cm, 1.5*cm, 3*cm])
+    leyenda_style = TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+        ('BACKGROUND', (3, 0), (3, -1), colors.lightgrey),
+        ('LEFTPADDING', (0, 0), (-1, -1), 5),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 3),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+    ])
+    leyenda_table.setStyle(leyenda_style)
+    elements.append(leyenda_table)
+    elements.append(Spacer(1, 15))
+    
+    # Tabla de seguimiento al cumplimiento
+    # Calcular estadísticas por mes
+    estadisticas_mes = {}
+    for mes in range(1, 13):
+        estadisticas_mes[mes] = {
+            'programado': 0,
+            'ejecutado': 0
+        }
+    
+    for mtto in mantenimientos:
+        if mtto.fecha_prog.year == year:
+            mes = mtto.fecha_prog.month
+            estadisticas_mes[mes]['programado'] += 1
+            if mtto.estado_inicial == 'Completado':
+                estadisticas_mes[mes]['ejecutado'] += 1
+    
+    # Crear tabla de seguimiento
+    seguimiento_data = [
+        ['Seguimiento al Cumplimiento', '', '', '', '', '', '', '', '', '', '', '', '', 'TOTAL']
+    ]
+    
+    # Fila de mantenimientos ejecutados
+    ejecutados_row = ['Mantenimiento ejecutado']
+    total_ejecutados = 0
+    for mes in range(1, 13):
+        ejecutados = estadisticas_mes[mes]['ejecutado']
+        ejecutados_row.append(str(ejecutados))
+        total_ejecutados += ejecutados
+    ejecutados_row.append(str(total_ejecutados))
+    seguimiento_data.append(ejecutados_row)
+    
+    # Fila de mantenimientos programados
+    programados_row = ['Mantenimiento Programado']
+    total_programados = 0
+    for mes in range(1, 13):
+        programados = estadisticas_mes[mes]['programado']
+        programados_row.append(str(programados))
+        total_programados += programados
+    programados_row.append(str(total_programados))
+    seguimiento_data.append(programados_row)
+    
+    # Fila de porcentaje de cumplimiento
+    cumplimiento_row = ['Porcentaje de cumplimiento mes']
+    for mes in range(1, 13):
+        programados = estadisticas_mes[mes]['programado']
+        ejecutados = estadisticas_mes[mes]['ejecutado']
+        if programados > 0:
+            porcentaje = int((ejecutados / programados) * 100)
+        else:
+            porcentaje = 0
+        cumplimiento_row.append(f'{porcentaje}%')
+    
+    # Porcentaje total
+    if total_programados > 0:
+        porcentaje_total = int((total_ejecutados / total_programados) * 100)
+    else:
+        porcentaje_total = 0
+    cumplimiento_row.append(f'{porcentaje_total}%')
+    seguimiento_data.append(cumplimiento_row)
+    
+    seguimiento_table = Table(seguimiento_data, colWidths=[3*cm] + [1.2*cm] * 13)
+    seguimiento_style = TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 3),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+        ('TOPPADDING', (0, 0), (-1, -1), 3),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+    ])
+    seguimiento_table.setStyle(seguimiento_style)
+    elements.append(seguimiento_table)
+    
+    # Construir el PDF con encabezado y footer personalizados
+    def add_header_and_footer(canvas, doc):
+        draw_encabezado_cronograma(canvas, doc, equipo, year)
+        draw_footer_cronograma(canvas, doc)
+    
+    doc.build(elements, onFirstPage=add_header_and_footer, onLaterPages=add_header_and_footer)
+    
+    # Obtener el PDF del buffer
+    pdf = buffer.getvalue()
+    buffer.close()
+    
+    return pdf
+
+def generar_y_enviar_pdf_cronograma(equipo, mantenimientos, year, nombre_archivo="cronograma_mantenimiento.pdf"):
+    """
+    Genera y envía el PDF del cronograma de mantenimientos para un equipo específico.
+    """
+    from flask import send_file, after_this_request
+    import tempfile
+    import os
+    
+    try:
+        # Generar el PDF
+        pdf_content = create_reportlab_pdf_maintenance_schedule(equipo, mantenimientos, year)
+        
+        # Crear archivo temporal
+        temp_fd, temp_path = tempfile.mkstemp(suffix='.pdf')
+        with os.fdopen(temp_fd, 'wb') as temp_file:
+            temp_file.write(pdf_content)
+        
+        # Función para limpiar el archivo temporal después de enviarlo
+        @after_this_request
+        def cleanup(response):
+            try:
+                os.unlink(temp_path)
+            except Exception as e:
+                print(f"Error al eliminar archivo temporal: {e}")
+            return response
+        
+        # Enviar el PDF al usuario
+        return send_file(temp_path, as_attachment=True, download_name=nombre_archivo, mimetype='application/pdf')
+        
+    except Exception as e:
+        print(f"Error al generar PDF del cronograma: {e}")
+        raise
+
+def create_reportlab_pdf_all_equipment_schedules(equipos_mantenimientos, year, title="CRONOGRAMAS DE MANTENIMIENTO PREVENTIVO - TODOS LOS EQUIPOS"):
+    """
+    Crea un PDF combinado con cronogramas de mantenimientos para todos los equipos durante un año.
+    """
+    from reportlab.lib.pagesizes import A4, landscape
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch, cm
+    from reportlab.lib import colors
+    from reportlab.pdfgen import canvas
+    from io import BytesIO
+    import os
+    from datetime import datetime, date
+    import calendar
+    
+    # Crear buffer para el PDF
+    buffer = BytesIO()
+    
+    # Configurar documento en orientación landscape para mejor visualización
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(A4), 
+                           rightMargin=1*cm, leftMargin=1*cm, 
+                           topMargin=4*cm, bottomMargin=2.5*cm)  # Aumentar bottomMargin para el footer
+    
+    elements = []
+    styles = getSampleStyleSheet()
+    
+    # Estilo para el título principal
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=18,
+        spaceAfter=20,
+        alignment=1,  # Centrado
+        fontName='Helvetica-Bold'
+    )
+    
+    # Estilo para subtítulos
+    subtitle_style = ParagraphStyle(
+        'CustomSubtitle',
+        parent=styles['Heading2'],
+        fontSize=14,
+        spaceAfter=15,
+        alignment=0,  # Izquierda
+        fontName='Helvetica-Bold'
+    )
+    
+    # Encabezado del documento (solo en la primera página)
+    elements.append(Paragraph(title, title_style))
+    elements.append(Paragraph(f"Año: {year}", subtitle_style))
+    elements.append(Spacer(1, 20))
+    
+    # Generar cronograma para cada equipo
+    for i, (equipo, mantenimientos) in enumerate(equipos_mantenimientos):
+        if not mantenimientos:
+            continue
+            
+        # Título del equipo
+        equipo_title = f"EQUIPO: {equipo.codigo} - {equipo.nombre}"
+        elements.append(Paragraph(equipo_title, subtitle_style))
+        elements.append(Spacer(1, 10))
+        
+        # Información del equipo (simplificada ya que está en el encabezado)
+        equipo_info = [
+            ['Ubicación:', equipo.ubicacion or 'N/A', '', 'Año:', str(year)],
+            ['Proceso:', equipo.proceso or 'N/A', '', 'Centro de Costos:', equipo.centro_costos or 'N/A']
+        ]
+        
+        equipo_table = Table(equipo_info, colWidths=[3*cm, 4*cm, 1*cm, 3*cm, 4*cm])
+        equipo_style = TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+            ('BACKGROUND', (3, 0), (3, -1), colors.lightgrey),
+            ('LEFTPADDING', (0, 0), (-1, -1), 5),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+            ('TOPPADDING', (0, 0), (-1, -1), 5),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ])
+        equipo_table.setStyle(equipo_style)
+        elements.append(equipo_table)
+        elements.append(Spacer(1, 10))
+        
+        # Crear tabla del cronograma para este equipo
+        # Encabezados de meses
+        meses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 
+                 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE']
+        
+        # Agrupar mantenimientos por servicio
+        servicios_mantenimientos = {}
+        for mtto in mantenimientos:
+            if mtto.servicio not in servicios_mantenimientos:
+                servicios_mantenimientos[mtto.servicio] = []
+            servicios_mantenimientos[mtto.servicio].append(mtto)
+        
+        # Crear filas del cronograma
+        cronograma_data = []
+        
+        # Encabezado con meses y semanas
+        header_row = ['No.', 'INSTRUCCIONES', 'FREC.']
+        for mes in meses:
+            for semana in ['1', '2', '3', '4']:
+                header_row.append(f'{mes[:3]}\n{semana}')
+        cronograma_data.append(header_row)
+        
+        # Fila para PROG/EJEC
+        prog_ejec_row = ['', '', '']
+        for mes in meses:
+            for semana in ['1', '2', '3', '4']:
+                prog_ejec_row.append('PROG\nEJEC')
+        cronograma_data.append(prog_ejec_row)
+        
+        # Agregar mantenimientos por servicio
+        numero_mantenimiento = 1
+        for servicio, mantenimientos_servicio in servicios_mantenimientos.items():
+            # Obtener frecuencia del primer mantenimiento del servicio
+            frecuencia = mantenimientos_servicio[0].frecuencia if mantenimientos_servicio else 'N/A'
+            
+            # Crear fila para este servicio
+            row = [str(numero_mantenimiento), servicio, frecuencia]
+            
+            # Inicializar todas las semanas con espacios vacíos
+            for mes in meses:
+                for semana in ['1', '2', '3', '4']:
+                    row.append('')
+            
+            # Marcar las semanas donde hay mantenimientos programados
+            for mtto in mantenimientos_servicio:
+                if mtto.fecha_prog.year == year:
+                    mes_index = mtto.fecha_prog.month - 1  # 0-based
+                    semana_index = (mtto.fecha_prog.day - 1) // 7  # Calcular semana (0-3)
+                    
+                    # Calcular posición en la fila
+                    posicion = 3 + (mes_index * 4) + semana_index
+                    
+                    # Determinar el tipo de actividad
+                    if 'lubric' in servicio.lower() or 'lubricación' in servicio.lower():
+                        actividad = 'L'
+                    elif 'inspec' in servicio.lower() or 'revis' in servicio.lower():
+                        actividad = 'I'
+                    elif 'ajust' in servicio.lower():
+                        actividad = 'A'
+                    elif 'limpi' in servicio.lower():
+                        actividad = 'LZ'
+                    else:
+                        actividad = 'M'  # Mantenimiento general
+                    
+                    # Marcar como programado
+                    row[posicion] = actividad
+                    
+                    # Si está completado, marcar también como ejecutado
+                    if mtto.estado_inicial == 'Completado':
+                        # Agregar 'ok' en la fila de ejecutado
+                        if len(cronograma_data) > 1:  # Si ya existe la fila de PROG/EJEC
+                            cronograma_data[1][posicion] = 'PROG\nok'
+            
+            cronograma_data.append(row)
+            numero_mantenimiento += 1
+        
+        # Crear tabla del cronograma
+        cronograma_table = Table(cronograma_data, repeatRows=2)
+        
+        # Estilo para la tabla del cronograma
+        cronograma_style = TableStyle([
+            # Estilo general
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 7),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('LEFTPADDING', (0, 0), (-1, -1), 2),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 2),
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+            
+            # Encabezados
+            ('BACKGROUND', (0, 0), (-1, 1), colors.lightgrey),
+            ('FONTNAME', (0, 0), (-1, 1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 1), 6),
+            
+            # Columnas de información
+            ('BACKGROUND', (0, 0), (2, -1), colors.lightblue),
+            ('FONTNAME', (0, 0), (2, -1), 'Helvetica-Bold'),
+            
+            # Ancho de columnas
+            ('COLWIDTH', (0, 0), (0, -1), 0.8*cm),  # No.
+            ('COLWIDTH', (1, 0), (1, -1), 4*cm),     # INSTRUCCIONES
+            ('COLWIDTH', (2, 0), (2, -1), 1*cm),     # FREC.
+        ])
+        
+        # Aplicar ancho uniforme para las columnas de meses/semanas
+        for i in range(3, len(cronograma_data[0])):
+            cronograma_style.add('COLWIDTH', (i, 0), (i, -1), 1.2*cm)
+        
+        cronograma_table.setStyle(cronograma_style)
+        elements.append(cronograma_table)
+        elements.append(Spacer(1, 10))
+        
+        # Leyenda simplificada
+        leyenda_data = [
+            ['PROG:', 'Programado', '', 'EJEC:', 'Ejecutado'],
+            ['I:', 'Inspección', '', 'L:', 'Lubricación'],
+            ['A:', 'Ajuste', '', 'LZ:', 'Limpieza'],
+            ['Frecuencia:', 'S: Semanal, M: Mensual, BI: Bimensual, TR: Trimestral, SE: Semestral, AN: Anual'],
+            ['RP:', 'Reprogramado', '', 'ok:', 'Realizado']
+        ]
+        
+        leyenda_table = Table(leyenda_data, colWidths=[1.5*cm, 3*cm, 1*cm, 1.5*cm, 3*cm])
+        leyenda_style = TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+            ('BACKGROUND', (3, 0), (3, -1), colors.lightgrey),
+            ('LEFTPADDING', (0, 0), (-1, -1), 5),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        ])
+        leyenda_table.setStyle(leyenda_style)
+        elements.append(leyenda_table)
+        elements.append(Spacer(1, 15))
+        
+        # Agregar salto de página después de cada equipo (excepto el último)
+        if i < len(equipos_mantenimientos) - 1:
+            elements.append(PageBreak())
+    
+    # Construir el PDF con encabezado y footer personalizados
+    def add_header_and_footer(canvas, doc):
+        # Para el cronograma combinado, no pasamos equipo específico
+        draw_encabezado_cronograma(canvas, doc, None, year)
+        draw_footer_cronograma(canvas, doc)
+    
+    doc.build(elements, onFirstPage=add_header_and_footer, onLaterPages=add_header_and_footer)
+    
+    # Obtener el PDF del buffer
+    pdf = buffer.getvalue()
+    buffer.close()
+    
+    return pdf
+#ENCABEZADO DE CRONOGRAMA
+def draw_encabezado_cronograma(canvas, doc, equipo=None, year=None):
+    """
+    Dibuja el encabezado del cronograma de mantenimientos con información de la empresa.
+    Adaptado del código de encabezado_y_footer_mantenimientos para cronogramas.
+    """
+    from reportlab.lib.units import cm
+    from reportlab.lib import colors
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    from reportlab.platypus import Image
+    import os
+    from datetime import datetime
+    
+    canvas.saveState()
+    x = doc.leftMargin
+    y = doc.pagesize[1] - doc.topMargin + 100 # Subir el encabezado más hacia arriba (era +35)
+
+    height = 55   # en puntos
+    
+    # Anchos personalizados para el encabezado (4 columnas en lugar de 5)
+    col_widths_header = [90, 190, 400, 84]  # Redistribuido: Logo, Empresa, Título, Código/Edición
+
+    # Dibuja el borde exterior
+    canvas.rect(x, y - height, sum(col_widths_header), height)
+
+    # Líneas verticales (ahora solo 3 líneas para 4 columnas)
+    for i in range(1, 4):
+        canvas.line(x + sum(col_widths_header[:i]), y - height, x + sum(col_widths_header[:i]), y)
+
+    # --- Contenido del encabezado ---
+    # 1. Logo (columna 1)
+    logo_path = os.path.join(os.getcwd(), 'static', 'logo.png')
+    if os.path.exists(logo_path):
+        logo_w, logo_h = 70, 45  # Logo más grande
+        logo_x = x + (col_widths_header[0] / 2) - (logo_w / 2)
+        logo_y = y - (height / 2) - (logo_h / 2)
+        canvas.drawImage(logo_path, logo_x, logo_y, width=logo_w, height=logo_h, preserveAspectRatio=True, mask='auto')
+    else:
+        # Fallback: dibujar óvalo rojo con INR
+        logo_x = x + (col_widths_header[0] / 2) - 25  # Ajustado para logo más grande
+        logo_y = y - (height / 2) - 18  # Ajustado para logo más grande
+        canvas.setStrokeColor(colors.HexColor('#FF0000'))
+        canvas.setLineWidth(2)
+        canvas.ellipse(logo_x, logo_y, logo_x + 50, logo_y + 36, fill=0)  # Óvalo más grande
+        canvas.setFillColor(colors.HexColor('#FF0000'))
+        canvas.setFont('Helvetica-Bold', 14)  # Fuente más grande
+        canvas.drawCentredString(logo_x + 25, logo_y + 18, 'INR')  # Ajustado posición
+    
+
+
+    # 2. Empresa (columna 2)
+    canvas.setFont('Helvetica-Bold', 11)  # Volver al tamaño original
+    center_x = x + sum(col_widths_header[:1]) + col_widths_header[1] / 2
+    center_y = y - height / 2
+    canvas.drawCentredString(center_x, center_y + 6, "INR INVERSIONES")
+    canvas.drawCentredString(center_x, center_y - 8, "REINOSO Y CIA. LTDA.")
+
+    # 3. Título (columna 3) - Dividida horizontalmente en dos partes
+    canvas.setFont('Helvetica-Bold', 9)
+    center_x2 = x + sum(col_widths_header[:2]) + col_widths_header[2] / 2
+    center_y = y - height / 2
+    
+    # Línea horizontal para dividir la columna 3
+    col3_x = x + sum(col_widths_header[:2])
+    col3_w = col_widths_header[2]
+    col3_y_mid = y - height / 2
+    canvas.line(col3_x, col3_y_mid, col3_x + col3_w, col3_y_mid)
+    
+    # Mitad superior: Título del cronograma (una sola línea)
+    canvas.drawCentredString(center_x2, center_y + 10, "CRONOGRAMA DE MANTENIMIENTO PREVENTIVO MÁQUINAS Y/O EQUIPOS")
+    
+    # Mitad inferior: Información del equipo y aprobación
+    if equipo:
+        # Líneas verticales para dividir la mitad inferior en tres columnas
+        col3_tercio1 = col3_x + col3_w / 3
+        col3_tercio2 = col3_x + 2 * col3_w / 3
+        canvas.line(col3_tercio1, col3_y_mid, col3_tercio1, y - height)
+        canvas.line(col3_tercio2, col3_y_mid, col3_tercio2, y - height)
+        
+        # Línea horizontal para dividir la mitad inferior en dos filas
+        col3_y_fila = col3_y_mid - (height / 4)
+        canvas.line(col3_x, col3_y_fila, col3_x + col3_w, col3_y_fila)
+        
+        # Columna 1: Código del equipo
+        canvas.setFont('Helvetica-Bold', 7)  # Reducido de 8 a 7
+        canvas.drawCentredString(col3_x + col3_w/6, col3_y_mid - 8, "Código")
+        canvas.setFont('Helvetica', 7)  # Reducido de 8 a 7
+        # Centrar el código en la mitad de la columna
+        canvas.drawCentredString(col3_x + col3_w/6, col3_y_mid - 20, equipo.codigo)
+        
+        # Columna 2: Nombre del equipo
+        canvas.setFont('Helvetica-Bold', 7)  # Reducido de 8 a 7
+        canvas.drawCentredString(col3_x + col3_w/2, col3_y_mid - 8, "Nombre")
+        canvas.setFont('Helvetica', 6)  # Reducido de 7 a 6
+        # Centrar el nombre y hacer salto de línea solo si es muy largo
+        nombre = equipo.nombre
+        if len(nombre) > 20:  # Si es muy largo, dividir en dos líneas
+            palabras = nombre.split()
+            if len(palabras) > 1:
+                # Dividir por la mitad de las palabras
+                mitad = len(palabras) // 2
+                linea1 = " ".join(palabras[:mitad])
+                linea2 = " ".join(palabras[mitad:])
+                canvas.drawCentredString(col3_x + col3_w/2, col3_y_mid - 20, linea1)
+                canvas.drawCentredString(col3_x + col3_w/2, col3_y_mid - 28, linea2)
+            else:
+                # Si es una sola palabra larga, dividir por caracteres
+                mitad = len(nombre) // 2
+                canvas.drawCentredString(col3_x + col3_w/2, col3_y_mid - 20, nombre[:mitad])
+                canvas.drawCentredString(col3_x + col3_w/2, col3_y_mid - 28, nombre[mitad:])
+        else:
+            # Si no es muy largo, poner en una sola línea centrada
+            canvas.drawCentredString(col3_x + col3_w/2, col3_y_mid - 20, nombre)
+        
+        # Columna 3: Aprobación (sin dividir)
+        canvas.setFont('Helvetica-Bold', 7)
+        canvas.drawCentredString(col3_x + 5*col3_w/6, col3_y_mid - 8, "Aprobó:")
+        canvas.setFont('Helvetica-Bold', 7)
+        canvas.drawCentredString(col3_x + 5*col3_w/6 - 15, col3_y_mid - 20, "Jefe de Mantenimiento")  # Texto más a la izquierda
+        canvas.setFont('Helvetica-Bold', 10)
+        # Colocar el checkmark a la derecha sin montarse sobre el texto
+        canvas.drawCentredString(col3_x + 5*col3_w/6 + 35, col3_y_mid - 20, "✓")  # Checkmark más a la derecha
+
+    # 4. Código/Edición (columna 4) - Ahora es la última columna
+    cuadro_x = x + sum(col_widths_header[:3])
+    cuadro_w = col_widths_header[3]
+    row_h = height / 4
+    
+    # Código del documento
+    if equipo:
+        codigo_documento = f"62-MT-{equipo.codigo.replace('-', '')} 3"
+    else:
+        codigo_documento = "62-MT-000 3"
+    
+    # Fecha de edición
+    if year:
+        fecha_edicion = f"14/ene/{str(year)[-2:]}"
+    else:
+        fecha_edicion = f"14/ene/{str(datetime.now().year)[-2:]}"
+    
+    for i, (txt, font) in enumerate([
+        ("Código", 'Helvetica-Bold'),
+        (codigo_documento, 'Helvetica'),
+        ("Edición", 'Helvetica-Bold'),
+        (fecha_edicion, 'Helvetica')
+    ]):
+        canvas.setFont(font, 7)  # Reducir tamaño para que quepa
+        center_x4 = cuadro_x + cuadro_w / 2
+        sub_top = y - i * row_h
+        sub_bot = y - (i + 1) * row_h
+        center_y4 = (sub_top + sub_bot) / 2 - 2
+        canvas.drawCentredString(center_x4, center_y4, txt)
+
+    # Líneas horizontales internas del bloque derecho (solo 3 líneas)
+    canvas.line(cuadro_x, y - row_h, cuadro_x + cuadro_w, y - row_h)
+    canvas.line(cuadro_x, y - 2 * row_h, cuadro_x + cuadro_w, y - 2 * row_h)
+    canvas.line(cuadro_x, y - 3 * row_h, cuadro_x + cuadro_w, y - 3 * row_h)
+
+    canvas.restoreState()
