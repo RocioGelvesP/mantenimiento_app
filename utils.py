@@ -1638,16 +1638,16 @@ def encabezado_y_footer_lubricacion(canvas, doc):
     y = doc.pagesize[1] - doc.topMargin
     height = 55
 
-    # Anchos de las 5 columnas (ajustados según la imagen)
-    # Columna 1: Logo, Columna 2: Empresa, Columna 3: Título, Columna 4: Vacía, Columna 5: Código/Edición
-    col_widths = [doc.width*0.12, doc.width*0.28, doc.width*0.28, doc.width*0.12, doc.width*0.20]
+    # Anchos de las 4 columnas (ajustados según la imagen)
+    # Columna 1: Logo, Columna 2: Empresa, Columna 3: Título, Columna 4: Código/Edición
+    col_widths = [doc.width*0.15, doc.width*0.35, doc.width*0.25, doc.width*0.25]
 
     # Dibuja el borde exterior
     canvas.rect(x, y - height, doc.width, height)
 
-    # Líneas verticales separadoras (4 líneas para 5 columnas)
+    # Líneas verticales separadoras (3 líneas para 4 columnas)
     current_x = x
-    for i in range(4):
+    for i in range(3):
         current_x += col_widths[i]
         canvas.line(current_x, y - height, current_x, y)
 
@@ -1671,11 +1671,9 @@ def encabezado_y_footer_lubricacion(canvas, doc):
     center_x3 = x + col_widths[0] + col_widths[1] + col_widths[2]/2
     canvas.drawCentredString(center_x3, center_y, "CARTA DE LUBRICACIÓN")
 
-    # Columna 4: Vacía (no se agrega contenido)
-
-    # Columna 5: Código y Edición (dividido en 4 espacios verticales)
-    cuadro_x = x + col_widths[0] + col_widths[1] + col_widths[2] + col_widths[3]
-    cuadro_w = col_widths[4]
+    # Columna 4: Código y Edición (dividido en 4 espacios verticales)
+    cuadro_x = x + col_widths[0] + col_widths[1] + col_widths[2]
+    cuadro_w = col_widths[3]
     row_h = height / 4  # 4 filas
     
     # Líneas horizontales internas del bloque derecho
